@@ -60,11 +60,13 @@ const MAPS = [
     mapId: "MAP 004",
     title: "Great Salt Lake Pressures",
     scope: "Great Salt Lake",
-    status: "planned",
-    summary: "Inland Port project areas, data centers, water developments, and conservation partnerships around the lake, with the agreements and decisions behind each.",
-    layers: ["Inland Port", "Data Centers", "Water Projects", "Conservation"],
-    relatedRepos: ["Bill-Tracker", "Public-Lands"],
-    lastUpdated: "Sep 25, 2026"
+    status: "live",
+    summary: "Data centers, Inland Port areas, water and mineral projects, conservation actions, and military project areas around the lake, with the permits, plans, and decisions behind each.",
+    layers: ["Data Centers", "Inland Port", "Water & Minerals", "Conservation", "Military & MIDA"],
+    relatedRepos: ["Great-Salt-Lake", "Bill-Tracker", "followthedeed", "Public-Lands"],
+    pins: 19,
+    link: "great-salt-lake-pressures.html",
+    lastUpdated: "Sep 26, 2026"
   },
   {
     mapId: "MAP 005",
