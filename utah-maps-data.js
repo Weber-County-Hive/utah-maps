@@ -28,7 +28,7 @@ const MAPS = [
     summary: "Public infrastructure districts, reinvestment areas, state-authority project areas, and data centers on one map. Each pin shows who approved it, the amounts in the public record, which taxing entities share their revenue, and a link to the source and the case file.",
     layers: ["Data Centers", "PIDs", "CRAs / RDAs", "MIDA & Inland Port", "Other Districts"],
     relatedRepos: ["committees", "followthedeed", "PIDS-Utah", "Bill-Tracker"],
-    pins: 16,
+    pins: 17,
     link: "utah-tax-increment-map.html",
     lastUpdated: "Sep 26, 2026"
   },
@@ -39,7 +39,7 @@ const MAPS = [
     status: "live",
     summary: "Every Weber County taxing entity that went through Truth in Taxation in 2026, with the percentage increase, the dollar amount, the hearing, and the outcome where the record shows it.",
     layers: ["Cities", "Special Districts"],
-    relatedRepos: ["PIDS-Utah"],
+    relatedRepos: ["PIDS-Utah", "Transparency"],
     pins: 8,
     link: "weber-county-tax-increases-2026.html",
     lastUpdated: "Sep 26, 2026"
@@ -48,11 +48,13 @@ const MAPS = [
     mapId: "MAP 003",
     title: "Ogden Valley Development",
     scope: "Ogden Valley",
-    status: "planned",
-    summary: "Resorts, developments, and the public financing tied to them across Ogden Valley, each linked to the approvals, agreements, and filings in the public record.",
-    layers: ["Resorts", "Developments", "PIDs & CRAs", "Public Safety"],
-    relatedRepos: ["Unelected-Power", "Companies of Influence"],
-    lastUpdated: "Sep 25, 2026"
+    status: "live",
+    summary: "Resorts, developments, and the public financing tied to them across Ogden Valley, plus the new city drawn around them, each linked to the approvals, agreements, and filings in the public record.",
+    layers: ["Resorts", "Developments", "PIDs & CRAs", "Ogden Valley City"],
+    relatedRepos: ["PIDS-Utah", "followthedeed", "Bill-Tracker"],
+    pins: 12,
+    link: "ogden-valley-development.html",
+    lastUpdated: "Sep 26, 2026"
   },
   {
     mapId: "MAP 004",
@@ -93,5 +95,16 @@ const MAPS = [
     layers: ["Auctions", "Options", "Sales"],
     relatedRepos: ["Public-Lands"],
     lastUpdated: "Sep 25, 2026"
+  },
+  {
+    mapId: "MAP 008",
+    title: "Weber County's New Sales Tax",
+    scope: "Weber County",
+    status: "live",
+    summary: "The 0.20% \"5th 5th\" sales tax that starts Oct. 1, 2026: each city's rate before and after, why some cities pay more, and where the $13.1 million a year goes.",
+    layers: ["Cities", "Rates", "Transportation money"],
+    relatedRepos: ["Transparency", "Bill-Tracker"],
+    link: "weber-county-sales-tax-2026.html",
+    lastUpdated: "Sep 26, 2026"
   }
 ];
