@@ -27,7 +27,7 @@ const MAPS = [
     status: "live",
     summary: "Public infrastructure districts, reinvestment areas, state-authority project areas, and data centers on one map. Each pin shows who approved it, the amounts in the public record, which taxing entities share their revenue, and a link to the source and the case file.",
     layers: ["Data Centers", "PIDs", "CRAs / RDAs", "MIDA & Inland Port", "Other Districts"],
-    relatedRepos: ["committees", "followthedeed", "Bill-Tracker"],
+    relatedRepos: ["committees", "followthedeed", "PIDS-Utah", "Bill-Tracker"],
     pins: 16,
     link: "utah-tax-increment-map.html",
     lastUpdated: "Sep 26, 2026"
@@ -36,11 +36,13 @@ const MAPS = [
     mapId: "MAP 002",
     title: "Who's Raising Taxes This Year",
     scope: "Weber County",
-    status: "planned",
-    summary: "Every taxing entity that went through Truth in Taxation this year, with the percentage increase, the dollar amount, and the hearing date from its own public notice.",
-    layers: ["Cities", "Special Districts", "School Districts", "County"],
-    relatedRepos: ["Bill-Tracker"],
-    lastUpdated: "Sep 25, 2026"
+    status: "live",
+    summary: "Every Weber County taxing entity that went through Truth in Taxation in 2026, with the percentage increase, the dollar amount, the hearing, and the outcome where the record shows it.",
+    layers: ["Cities", "Special Districts"],
+    relatedRepos: ["PIDS-Utah"],
+    pins: 8,
+    link: "weber-county-tax-increases-2026.html",
+    lastUpdated: "Sep 26, 2026"
   },
   {
     mapId: "MAP 003",
