@@ -1,0 +1,585 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ogden Valley Development — Utah Hive Politics</title>
+<meta name="description" content="MAP 003 from Utah Hive Politics: Ogden Valley resorts, developments, PIDs and reinvestment areas, and the new city, each pin tied to the public record and the Hive case file behind it.">
+<link rel="icon" type="image/png" href="hive-bee.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600&family=Special+Elite&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;0,8..60,700;1,8..60,400&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+<style>
+  :root{
+    --navy:#14213D; --navy-deep:#0D1728;
+    --manila:#D9C9A3; --manila-dark:#C4B389;
+    --paper:#EDE7D8; --paper-light:#F5F1E6;
+    --ink:#1F1B16; --ink-soft:#4A443A;
+    --red:#A5301E; --green:#3F6B3B; --gold:#A9822F; --rule:#B7AC91;
+    --l-data:#A5301E; --l-pid:#A9822F; --l-cra:#3F6B3B; --l-mida:#2F5A8F; --l-other:#6E4A78;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;background:var(--navy);color:var(--paper);font-family:'Source Serif 4',Georgia,serif;-webkit-font-smoothing:antialiased;}
+  a{color:inherit;}
+
+  .hb-bar{background:#0d0b0a;border-bottom:1px solid #3a2f1c;padding:10px 20px;}
+  .hb-bar a{display:flex;align-items:center;gap:12px;max-width:1200px;margin:0 auto;text-decoration:none;}
+  .hb-bar img{width:52px;height:52px;border-radius:4px;display:block;flex:none;}
+  .hb-name{font-family:'Cinzel',Georgia,serif;color:#d4af37;font-size:16px;letter-spacing:.14em;text-transform:uppercase;line-height:1.2;display:block;}
+  .hb-sub{font-family:Georgia,serif;font-style:italic;color:#b8956a;font-size:12.5px;display:block;margin-top:2px;}
+
+  .masthead{max-width:1200px;margin:0 auto;padding:34px 20px 22px;}
+  .back{font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--manila);text-decoration:none;border-bottom:1px solid rgba(217,201,163,.4);}
+  .back:hover{color:var(--gold);border-color:var(--gold);}
+  .eyebrow{font-family:'Special Elite',monospace;font-size:12px;letter-spacing:.22em;text-transform:uppercase;color:var(--manila);margin:18px 0 8px;}
+  h1{font-size:clamp(30px,4.6vw,48px);line-height:1.08;margin:0 0 12px;font-weight:700;color:var(--paper-light);}
+  .intro{max-width:70ch;font-size:16.5px;line-height:1.6;color:rgba(237,231,216,.75);margin:0;}
+
+  .toolbar{max-width:1200px;margin:0 auto;padding:0 20px 14px;display:flex;flex-wrap:wrap;gap:8px;align-items:center;}
+  .chip{display:inline-flex;align-items:center;gap:7px;font-family:'IBM Plex Mono',monospace;font-size:12px;background:rgba(255,255,255,.05);border:1px solid rgba(217,201,163,.3);color:var(--paper-light);border-radius:20px;padding:6px 12px 6px 7px;cursor:pointer;}
+  .chip[aria-pressed="false"]{opacity:.45;}
+  .chip .dot{width:20px;height:20px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:10.5px;font-weight:600;color:#fff;border:1.5px solid #fff;}
+  .chip .n{color:var(--manila);}
+
+  .stage{max-width:1200px;margin:0 auto;padding:0 20px;display:grid;grid-template-columns:minmax(0,1fr) 400px;gap:18px;}
+  #map{height:640px;border-radius:2px;border:2px solid var(--gold);background:#d8d4c8;}
+  .panel{background:var(--paper);color:var(--ink);border-radius:2px;height:640px;overflow:auto;box-shadow:0 14px 30px -14px rgba(0,0,0,.55);}
+  @media (max-width:900px){
+    .stage{grid-template-columns:1fr;}
+    #map{height:430px;}
+    .panel{height:auto;max-height:none;}
+  }
+
+  .list-head{position:sticky;top:0;background:var(--manila-dark);padding:10px 18px;font-family:'IBM Plex Mono',monospace;font-size:11.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink);z-index:2;}
+  .pin-item{display:flex;gap:12px;align-items:flex-start;width:100%;text-align:left;background:none;border:none;border-bottom:1px dashed var(--rule);padding:13px 18px;cursor:pointer;font-family:inherit;color:inherit;}
+  .pin-item:hover{background:rgba(169,130,47,.1);}
+  .pin-item .dot{flex:none;margin-top:2px;}
+  .pin-item b{display:block;font-size:16px;line-height:1.3;}
+  .pin-item span.pl{display:block;font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--ink-soft);margin-top:3px;}
+
+  .dot{width:24px;height:24px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:600;color:#fff;border:2px solid #fff;box-shadow:0 1px 4px rgba(0,0,0,.4);}
+  .l-data{background:var(--l-data);} .l-resort{background:#2F5A8F;} .l-dev{background:#A5301E;} .l-city{background:#3F6B3B;} .l-pid{background:var(--l-pid);} .l-cra{background:var(--l-cra);} .l-mida{background:var(--l-mida);} .l-other{background:var(--l-other);}
+
+  .detail{padding:0 0 20px;}
+  .detail .top{background:var(--manila-dark);padding:10px 18px;display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;z-index:2;}
+  .detail .top button{font-family:'IBM Plex Mono',monospace;font-size:11.5px;background:none;border:none;cursor:pointer;color:var(--ink);padding:0;}
+  .detail .top .tagl{font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.06em;text-transform:uppercase;}
+  .detail h2{font-size:23px;line-height:1.2;margin:16px 18px 4px;}
+  .detail .place{font-family:'IBM Plex Mono',monospace;font-size:11.5px;color:var(--ink-soft);margin:0 18px 12px;text-transform:uppercase;letter-spacing:.04em;}
+  .detail .sum{margin:0 18px 14px;font-size:15.5px;line-height:1.55;color:var(--ink-soft);}
+  .sec{margin:0 18px 14px;}
+  .sec h3{font-family:'Special Elite',monospace;font-weight:400;font-size:12.5px;letter-spacing:.14em;text-transform:uppercase;margin:0 0 7px;color:var(--ink);border-bottom:1px solid var(--rule);padding-bottom:4px;}
+  .sec ul{margin:0;padding-left:18px;}
+  .sec li{font-size:14.5px;line-height:1.5;margin-bottom:7px;color:var(--ink);}
+  .src{display:block;font-family:'IBM Plex Mono',monospace;font-size:10.5px;color:var(--ink-soft);margin-top:2px;}
+  .sec.caution{background:rgba(165,48,30,.07);border-left:3px solid var(--red);padding:9px 12px;}
+  .sec.caution h3{color:var(--red);border:none;padding:0;}
+  .sec p{margin:0;font-size:14.5px;line-height:1.5;}
+  .case-btn{display:block;width:fit-content;margin:0 18px 8px;font-family:'IBM Plex Mono',monospace;font-size:12.5px;font-weight:600;color:var(--navy-deep);background:var(--gold);text-decoration:none;padding:10px 16px;border-radius:4px;}
+  .case-btn:hover{background:#C29A3D;}
+  .sources a{color:var(--red);}
+
+  .leaflet-container{font-family:'Source Serif 4',Georgia,serif;}
+  .pin-icon{background:none;border:none;}
+  .pin-icon .dot{width:26px;height:26px;font-size:11.5px;transition:transform .12s;}
+  .pin-icon.active .dot{transform:scale(1.35);box-shadow:0 0 0 4px rgba(169,130,47,.55),0 2px 6px rgba(0,0,0,.5);}
+  .county-label{background:none;border:none;}
+  .county-label span{display:block;transform:translate(-50%,-50%);font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:#14213D;opacity:.7;white-space:nowrap;text-shadow:0 0 3px #fff,0 0 3px #fff;pointer-events:none;}
+  .dot.prop{background:var(--paper-light) !important;border-style:dashed;border-width:2.5px;}
+  .dot.prop.l-resort{color:#2F5A8F;border-color:#2F5A8F;} .dot.prop.l-dev{color:#A5301E;border-color:#A5301E;} .dot.prop.l-city{color:#3F6B3B;border-color:#3F6B3B;} .dot.prop.l-data{color:var(--l-data);border-color:var(--l-data);} .dot.prop.l-pid{color:var(--l-pid);border-color:var(--l-pid);} .dot.prop.l-cra{color:var(--l-cra);border-color:var(--l-cra);} .dot.prop.l-mida{color:var(--l-mida);border-color:var(--l-mida);} .dot.prop.l-other{color:var(--l-other);border-color:var(--l-other);}
+  .status-key{max-width:1200px;margin:0 auto;padding:0 20px 14px;display:flex;flex-wrap:wrap;gap:18px;font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--manila);align-items:center;}
+  .status-key span{display:inline-flex;align-items:center;gap:7px;}
+  .status-line{margin:0 18px 12px;font-family:'IBM Plex Mono',monospace;font-size:11.5px;letter-spacing:.04em;text-transform:uppercase;display:inline-flex;align-items:center;gap:7px;padding:4px 10px;border-radius:3px;}
+  .status-line.final{background:rgba(63,107,59,.12);color:var(--green);}
+  .status-line.prop{background:rgba(165,48,30,.08);color:var(--red);border:1px dashed var(--red);}
+  .glossary{max-width:1200px;margin:28px auto 0;padding:0 20px;}
+  .glossary h2{font-family:'Special Elite',monospace;font-weight:400;font-size:15px;letter-spacing:.18em;text-transform:uppercase;color:var(--manila);margin:0 0 4px;}
+  .gl-sub{margin:0 0 14px;font-size:14px;color:rgba(237,231,216,.6);}
+  .flip-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:12px;}
+  .flip-card{perspective:900px;height:215px;cursor:pointer;outline:none;}
+  .flip-card:focus-visible .flip-inner{box-shadow:0 0 0 3px var(--gold);}
+  .flip-inner{position:relative;width:100%;height:100%;transition:transform .5s;transform-style:preserve-3d;border-radius:2px;}
+  .flip-card.flipped .flip-inner{transform:rotateY(180deg);}
+  .flip-front,.flip-back{position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;border-radius:2px;padding:14px 16px;display:flex;flex-direction:column;}
+  .flip-front{background:var(--paper);color:var(--ink);justify-content:space-between;border-top:4px solid var(--gold);}
+  .flip-front .ft{font-family:'Source Serif 4',Georgia,serif;font-weight:700;font-size:21px;line-height:1.2;}
+  .flip-front .fh{font-family:'IBM Plex Mono',monospace;font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-soft);}
+  .flip-back{background:var(--navy-deep);color:var(--paper-light);transform:rotateY(180deg);border:1px solid var(--gold);overflow:auto;gap:8px;}
+  .flip-back .fd{font-size:13px;line-height:1.5;}
+  .flip-link{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--gold);}
+  @media (prefers-reduced-motion:reduce){.flip-inner{transition:none;}}
+  .story-btn{display:inline-block;margin:8px 18px 0;font-family:'IBM Plex Mono',monospace;font-size:12.5px;font-weight:600;color:var(--paper-light);background:var(--navy);text-decoration:none;padding:10px 16px;border-radius:4px;}
+  .story-btn:hover{background:var(--navy-deep);}
+  .city-label{background:none;border:none;}
+  .city-label.key span{font-weight:600;font-size:11.5px;color:#14213D;}
+  .city-label span{display:block;transform:translate(-50%,-50%);font-family:'IBM Plex Mono',monospace;font-size:10.5px;color:#4a2f55;white-space:nowrap;text-shadow:0 0 3px #fff,0 0 3px #fff,0 0 3px #fff;pointer-events:none;}
+  .leaflet-tooltip{font-family:'IBM Plex Mono',monospace;font-size:11.5px;}
+
+  .notes{max-width:1200px;margin:26px auto 0;padding:0 20px;display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:18px;}
+  .note{border:1px solid rgba(217,201,163,.25);border-radius:2px;padding:16px 18px;font-size:14.5px;line-height:1.6;color:rgba(237,231,216,.78);}
+  .note h4{font-family:'Special Elite',monospace;font-weight:400;font-size:12.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--manila);margin:0 0 8px;}
+  .note p{margin:0 0 8px;}
+  .note strong{color:var(--paper-light);}
+
+  footer{max-width:1200px;margin:30px auto 0;padding:18px 20px 30px;border-top:1px solid rgba(217,201,163,.15);font-family:'IBM Plex Mono',monospace;font-size:11.5px;color:rgba(237,231,216,.45);line-height:1.6;}
+  .hb-foot{background:#0d0b0a;color:#b8956a;text-align:center;padding:26px 20px 30px;font-family:Georgia,serif;}
+  .hb-foot img{width:52px;height:52px;display:block;margin:0 auto 10px;}
+  .hb-foot .hb-name{font-size:14px;}
+  .hb-foot .hb-tag{font-size:10.5px;letter-spacing:.2em;text-transform:uppercase;color:#8a7650;margin-top:8px;display:block;}
+  @media(max-width:600px){.hb-bar img{width:38px;height:38px}.hb-name{font-size:13px}.masthead{padding-top:24px}}
+</style>
+</head>
+<body>
+
+<div class="hb-bar"><a href="https://webercountyhive.substack.com/" target="_blank" rel="noopener"><img src="uhp-badge.png" alt="Utah Hive Politics logo" onerror="this.style.display='none'"><span><span class="hb-name">Utah Hive Politics</span><span class="hb-sub">from the publisher of The Weber County Hive</span></span></a></div>
+
+<header class="masthead">
+  <a class="back" href="index.html">&larr; All Utah Maps</a>
+  <p class="eyebrow">MAP 003 &middot; Ogden Valley</p>
+  <h1>Ogden Valley Development</h1>
+  <p class="intro">Resorts, developments, and the public financing tied to them across Ogden Valley, plus the new city drawn around them. Click a pin to see who approved it, what the record shows, and the Hive case file behind it. Each pin also lists anything the records have not settled yet. Pin locations are general, not exact boundaries.</p>
+</header>
+
+<div class="toolbar" id="toolbar" role="group" aria-label="Choose which places to show"></div>
+
+<div class="status-key" aria-label="Pin style key"><span><span class="dot l-pid" aria-hidden="true">P</span>Solid pin: approved and in effect</span><span><span class="dot l-pid prop" aria-hidden="true">P</span>Dashed pin: proposed, pending, or not final</span></div>
+
+<div class="stage">
+  <div id="map" role="region" aria-label="Map of Ogden Valley"></div>
+  <aside class="panel" id="panel" aria-live="polite"></aside>
+</div>
+
+<section class="glossary" aria-labelledby="gl-h">
+  <h2 id="gl-h">Words on this map</h2>
+  <p class="gl-sub">Tap a card to flip it.</p>
+  <div class="flip-grid">
+    <div class="flip-card" tabindex="0" role="button" aria-label="PID: tap to see the meaning">
+      <div class="flip-inner">
+        <div class="flip-front"><span class="ft">PID</span><span class="fh">Tap to flip &#8635;</span></div>
+        <div class="flip-back"><span class="fd">Public infrastructure district. A district usually created at a developer's request that can borrow (issue bonds) for roads, water, and sewer. The debt is repaid by property tax or assessments on land inside the district.</span><a class="flip-link" href="https://weber-county-hive.github.io/PIDS-Utah/pid_mechanism_map.html" target="_blank" rel="noopener" onclick="event.stopPropagation()">How PIDs work: PID Mechanism Map &rarr;</a></div>
+      </div>
+    </div>
+    <div class="flip-card" tabindex="0" role="button" aria-label="CRA: tap to see the meaning">
+      <div class="flip-inner">
+        <div class="flip-front"><span class="ft">CRA</span><span class="fh">Tap to flip &#8635;</span></div>
+        <div class="flip-back"><span class="fd">Community reinvestment area. A project area where part of the future property tax growth is set aside for the project for a set number of years, with the taxing entities' agreement.</span></div>
+      </div>
+    </div>
+    <div class="flip-card" tabindex="0" role="button" aria-label="Tax increment: tap to see the meaning">
+      <div class="flip-inner">
+        <div class="flip-front"><span class="ft">Tax increment</span><span class="fh">Tap to flip &#8635;</span></div>
+        <div class="flip-back"><span class="fd">The growth in property tax an area produces above its starting (base year) value. In a CRA, a share of that growth goes to the project instead of the usual taxing entities.</span></div>
+      </div>
+    </div>
+    <div class="flip-card" tabindex="0" role="button" aria-label="Interlocal agreement: tap to see the meaning">
+      <div class="flip-inner">
+        <div class="flip-front"><span class="ft">Interlocal agreement</span><span class="fh">Tap to flip &#8635;</span></div>
+        <div class="flip-back"><span class="fd">A contract between governments. For Nordic Village, the county, school district, water district, and fire district each signed one agreeing to share their growth.</span></div>
+      </div>
+    </div>
+    <div class="flip-card" tabindex="0" role="button" aria-label="Development agreement: tap to see the meaning">
+      <div class="flip-inner">
+        <div class="flip-front"><span class="ft">Development agreement</span><span class="fh">Tap to flip &#8635;</span></div>
+        <div class="flip-back"><span class="fd">The contract between the county and a developer that sets what can be built, where, and on what terms. It can reserve options, such as using a PID later.</span></div>
+      </div>
+    </div>
+    <div class="flip-card" tabindex="0" role="button" aria-label="Rezone: tap to see the meaning">
+      <div class="flip-inner">
+        <div class="flip-front"><span class="ft">Rezone</span><span class="fh">Tap to flip &#8635;</span></div>
+        <div class="flip-back"><span class="fd">A change to what a piece of land is allowed to be used for, such as from agricultural to mixed-use. The county commission makes the final decision.</span></div>
+      </div>
+    </div>
+    <div class="flip-card" tabindex="0" role="button" aria-label="Planning commission: tap to see the meaning">
+      <div class="flip-inner">
+        <div class="flip-front"><span class="ft">Planning commission</span><span class="fh">Tap to flip &#8635;</span></div>
+        <div class="flip-back"><span class="fd">An appointed board that reviews land-use applications and recommends approval or denial. Its vote is a recommendation; the elected commission or council decides.</span></div>
+      </div>
+    </div>
+    <div class="flip-card" tabindex="0" role="button" aria-label="Feasibility study: tap to see the meaning">
+      <div class="flip-inner">
+        <div class="flip-front"><span class="ft">Feasibility study</span><span class="fh">Tap to flip &#8635;</span></div>
+        <div class="flip-back"><span class="fd">The state-required study of whether a proposed city can pay for itself. For Ogden Valley City it projected the tax base, including which resort sales to leave out.</span></div>
+      </div>
+    </div>
+    <div class="flip-card" tabindex="0" role="button" aria-label="Incorporation: tap to see the meaning">
+      <div class="flip-inner">
+        <div class="flip-front"><span class="ft">Incorporation</span><span class="fh">Tap to flip &#8635;</span></div>
+        <div class="flip-back"><span class="fd">The process of forming a new city. Residents petition, a boundary is drawn, a feasibility study is done, and voters decide.</span></div>
+      </div>
+    </div>
+    <div class="flip-card" tabindex="0" role="button" aria-label="Consent agenda: tap to see the meaning">
+      <div class="flip-inner">
+        <div class="flip-front"><span class="ft">Consent agenda</span><span class="fh">Tap to flip &#8635;</span></div>
+        <div class="flip-back"><span class="fd">A list of routine items a board approves in one vote without separate discussion. Board appointments are often placed there.</span></div>
+      </div>
+    </div>
+    <div class="flip-card" tabindex="0" role="button" aria-label="Bond: tap to see the meaning">
+      <div class="flip-inner">
+        <div class="flip-front"><span class="ft">Bond</span><span class="fh">Tap to flip &#8635;</span></div>
+        <div class="flip-back"><span class="fd">Money a district borrows up front and repays over years with interest. "Authorized" is the most it may borrow. "Issued" is what it actually borrowed.</span></div>
+      </div>
+    </div>
+    <div class="flip-card" tabindex="0" role="button" aria-label="Water and sewer district: tap to see the meaning">
+      <div class="flip-inner">
+        <div class="flip-front"><span class="ft">Water and sewer district</span><span class="fh">Tap to flip &#8635;</span></div>
+        <div class="flip-back"><span class="fd">A special district that supplies culinary water or sewer service. New homes need its "can and will serve" letter before they can be built.</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="notes">
+  <div class="note">
+    <h4>What's on this map</h4>
+    <p>The resorts that shape Ogden Valley, the developments and public financing tied to them, and the new city. The gold line is Weber County; dashed purple lines are city and town limits. Ogden Valley City incorporated after the Census boundaries were drawn, so its pin marks a general location.</p>
+  </div>
+  <div class="note">
+    <h4>How this map is sourced</h4>
+    <p>Every figure comes from a public document or the Hive case file that cites it: county minutes and resolutions, district budgets, the state feasibility study, and financing plans. Where records disagree with each other, the pin says so instead of choosing one number.</p>
+  </div>
+  <div class="note">
+    <h4>Related maps</h4>
+    <p><a href="utah-tax-increment-map.html">MAP 001: Where Utah's Tax Increment Goes</a> places Nordic Village among districts statewide. <a href="weber-county-tax-increases-2026.html">MAP 002: Who's Raising Taxes This Year</a> covers Ogden Valley City's 2026 tax increase.</p>
+  </div>
+</section>
+
+<footer>
+  Sources: Weber County Commission and Ogden Valley Planning Commission minutes and resolutions, district budgets, the LRB feasibility study for Ogden Valley City, the LYRB Nordic Village financing plan, and reporting as cited on each pin. Compiled by Utah Hive Politics, from the publisher of The Weber County Hive. Last updated Sep 26, 2026.<br>
+  Map tiles &copy; OpenStreetMap contributors. State, county, and city boundaries: U.S. Census Bureau.
+</footer>
+<div class="hb-foot"><img src="hive-bee.png" alt="" onerror="this.style.display='none'"><span class="hb-name">Utah Hive Politics</span><span class="hb-sub">from the publisher of The Weber County Hive</span><span class="hb-tag">Independent · Accountability · Journalism</span></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<script src="utah-geo.js"></script>
+<script>
+// ---------------------------------------------------------------
+// LAYERS: the toggles above the map.
+// ---------------------------------------------------------------
+const LAYERS = {
+  resort: { name: "Resorts",       letter: "R" },
+  dev:    { name: "Developments",  letter: "D" },
+  pid:    { name: "PIDs & CRAs",   letter: "P" },
+  city:   { name: "Ogden Valley City", letter: "V" }
+};
+
+// Case file pages (Hive repos)
+const HIVE = "https://weber-county-hive.github.io/";
+const CF = {
+  nordic:     { label: "Case File: Nordic Village (PIDS-Utah)", url: HIVE + "PIDS-Utah/nordic-village-case-file.html" },
+  nordicDeed: { label: "The Trustee Signed His Own Deal (Follow the Deed)", url: HIVE + "followthedeed/weber-hive-nordic-village-froerer.html" },
+  ratchford:  { label: "Three Boards, One Man, No Disclosure (PIDS-Utah)", url: HIVE + "PIDS-Utah/mount-ogden-pid-ratchford.html" },
+  boundary:   { label: "The Boundary That Left Them Out (PIDS-Utah)", url: HIVE + "PIDS-Utah/ogden-valley-boundary-exclusion.html" },
+  schools:    { label: "Where Does Your School-Tax Dollar Go? (PIDS-Utah)", url: HIVE + "PIDS-Utah/weber-pid-school-funds.html" },
+  zions:      { label: "One Firm, Every Hat: Zions and Utah's PID Market (PIDS-Utah)", url: HIVE + "PIDS-Utah/weber-pid-zions.html" },
+  sb206:      { label: "S.B. 206, Tax Amendments (Bill Tracker)", url: HIVE + "Bill-Tracker/weber-hive-sb206.html" },
+  sb228:      { label: "S.B. 228, Public Infrastructure District Act (Bill Tracker)", url: HIVE + "Bill-Tracker/weber-hive-sb228.html" },
+  map002:     { label: "MAP 002: Who's Raising Taxes This Year", url: "weber-county-tax-increases-2026.html" }
+};
+const LRB = { t: "LRB Public Finance Advisors, Feasibility Study for the Proposed Incorporation of Ogden Valley, Dec. 2023 (Office of the Lt. Governor)" };
+
+// ---------------------------------------------------------------
+// PINS. To add a pin, copy one object, give it a new id, and fill in
+// the fields. lat/lng are general locations only.
+//   status: "prop" makes a dashed pin (proposed, pending, not final)
+//   facts:   [text, source]
+//   caution: things the records have not settled
+//   stories: [{ t: "Story title", u: "https://webercountyhive.substack.com/p/..." }]  (optional)
+// ---------------------------------------------------------------
+const PINS = [
+  {
+    id: "snowbasin", layer: "resort", lat: 41.216, lng: -111.857,
+    title: "Snowbasin Resort",
+    place: "Snowbasin, above Huntsville (outside Ogden Valley City)",
+    summary: "The resort sits outside Ogden Valley City's boundary. The state feasibility study for the new city removed Snowbasin's sales from the city's projected tax base.",
+    approved: "Aug. 2022: the Ogden Valley Planning Commission reviewed Snowbasin's development agreement second amendment (ZDA 2022-03). Nov. 22, 2022: the Weber County Commission created the Mount Ogden PIDs at Snowbasin's request.",
+    facts: [
+      ["The feasibility study says Snowbasin made up 60% of taxable sales in its zip code, and that share was subtracted from the new city's projected sales-tax base.", "LRB feasibility study, Dec. 2023"],
+      ["Snowbasin and Club Med agreed in April 2023 to shelve a planned 300-room hotel.", "Mountain Luxury Real Estate, Apr. 2023; planning commission minutes, Aug. 2022"],
+      ["General manager Davy Ratchford was appointed to the Mount Ogden PID board and the Trappers Loop Water Improvement District on Aug. 26, 2025, and reappointed to the Wheeler Basin District on Dec. 2, 2025, each as a consent-agenda item.", "Weber County Commission minutes, Aug. 26 and Dec. 2, 2025"],
+      ["Selected as the Alpine skiing venue for the 2034 Winter Olympics.", "Snowbasin public statements"]
+    ],
+    sharing: "",
+    caution: [],
+    sources: [ LRB, { t: "Weber County Commission minutes: Nov. 22, 2022; Aug. 26, 2025; Dec. 2, 2025" } ],
+    cf: CF.ratchford, more: [CF.boundary]
+  },
+  {
+    id: "powder-mountain", layer: "resort", lat: 41.379, lng: -111.781,
+    title: "Powder Mountain",
+    place: "Above Eden, on the Weber / Cache county line",
+    summary: "The Weber County side of Powder Mountain was drawn outside the Ogden Valley City boundary. The state feasibility study reduced projected sales in the resort's zip code to account for it.",
+    approved: "The boundary was drawn by the incorporation sponsors on the original petition. Voters approved incorporation Nov. 5, 2024, 2,927 to 1,597.",
+    facts: [
+      ["Sales in Powder Mountain's zip code \"were reduced by 20 percent to account for sales generated by Powder Mountain.\"", "LRB feasibility study, Dec. 2023"],
+      ["Brandi Hammon was an incorporation sponsor and sat on the boundary committee. She joined Powder Mountain as chief revenue officer in 2023 and became its president in Nov. 2025.", "Incorporation records; SKI Magazine, Utah Business, Ski Area Management"],
+      ["In 2021 the Wolf Creek Water and Sewer Improvement District stopped issuing new \"can and will serve\" letters, which halted new home construction on the hillside below Powder Mountain.", "Wolf Creek Water and Sewer Improvement District records"]
+    ],
+    sharing: "",
+    caution: [ "Her name is spelled \"Hammon\" in the published case file and \"Hammond\" in earlier notes. Confirm the spelling." ],
+    sources: [ LRB ],
+    cf: CF.boundary
+  },
+  {
+    id: "nordic-valley", layer: "resort", lat: 41.311, lng: -111.866,
+    title: "Nordic Valley Ski Resort",
+    place: "Nordic Valley, inside Ogden Valley City",
+    summary: "The ski area where the Nordic Village project, its PIDs, and its reinvestment area are planned. It was unincorporated Weber County when those were approved.",
+    approved: "",
+    facts: [
+      ["Held through Liberty Ski Ventures LLC and Skyline Mountain Base LLC, and operated by Mountain Capital Partners since 2018 or 2019.", "Research records on resort ownership"],
+      ["Bought in 2014 out of a bank after a bankruptcy, for 3 to 4 million euros, according to French outlet Mediapart.", "Mediapart (Karl Laske), as cited in the Follow the Deed case file"],
+      ["The feasibility study says nearly 90% of the study area's commercial acreage comes from the Wolf Creek and Nordic Valley resorts.", "LRB feasibility study, Dec. 2023"]
+    ],
+    sharing: "",
+    caution: [ "The purchase price comes from Mediapart's reporting, not a Utah record." ],
+    sources: [ LRB, { t: "Mediapart; Standard-Examiner and Park Record coverage" } ],
+    cf: CF.nordicDeed, more: [CF.nordic]
+  },
+  {
+    id: "wolf-creek", layer: "resort", lat: 41.333, lng: -111.828,
+    title: "Wolf Creek Resort area",
+    place: "Wolf Creek, Eden",
+    summary: "Golf, resort, and residential land tied to entities connected to John Lewis and Shane Dunleavy. One of those entities sued the local water and sewer district in May 2025 over water access.",
+    approved: "",
+    facts: [
+      ["Wolf Creek Resort Holdings sued the Wolf Creek Water and Sewer Improvement District in May 2025. The case file puts the suit at $19.5 million.", "Court filing, as cited in the Follow the Deed case file"],
+      ["The district has one culinary water source, the Warm Springs well. Dunleavy told KSL the district is \"just actively choosing not to use it\" regarding a second source.", "KSL, as cited in the case file"],
+      ["Nearly 90% of the study area's commercial acreage comes from the Wolf Creek and Nordic Valley resorts.", "LRB feasibility study, Dec. 2023"]
+    ],
+    sharing: "",
+    caution: [ "The outcome of the lawsuit is not in the records reviewed." ],
+    sources: [ LRB ],
+    cf: CF.nordicDeed
+  },
+  {
+    id: "nordic-village", layer: "dev", status: "prop", statusNote: "Approved by the county; construction not started; approvals challenged in court", lat: 41.305, lng: -111.876,
+    title: "Nordic Village",
+    place: "Nordic Valley, about 512 acres",
+    summary: "A planned resort village at Nordic Valley financed through a combination of developer money, a PID, and a community reinvestment area.",
+    approved: "Weber County adopted the project area plan by ordinance in Dec. 2024. PIDs created Nov. 20, 2024 (Resolution 53-2024). Reinvestment area adopted Dec. 17, 2024 (Resolution CRA06-2024).",
+    facts: [
+      ["Plan: 428 condos, 159 chalets, 230 hotel rooms, 50 employee housing units, and 56,059 square feet of commercial space on about 512 acres.", "LYRB financing plan"],
+      ["Project total $120,870,032: developer $79,942,771; PID $24,355,615; tax increment from school, water, and fire $11,525,738; tax increment from the county $5,045,908.", "LYRB Nordic Village financing plan review"],
+      ["Developer Nordic Village Venture LLC is owned 45% by Clyde Capital Group, 5% by John Lewis, and 50% by Skyline Mountain Base LLC.", "Master development agreement, beneficiary identification document (2023)"],
+      ["The village plan says: \"It is expected that the vast majority will be secondary homes with no permanent residents.\"", "Nordic Village plan, as reported by Utah Stories, May 2025"],
+      ["David Carver and Ogden Valley Smart Growth filed suit in 2nd District Court on Jan. 28, 2025, seeking review of the county's Nordic Village ordinances and reinvestment area.", "KSL, Feb. 2025"]
+    ],
+    sharing: "See the Nordic Village reinvestment area pin for how the property tax growth is shared.",
+    caution: [ "The outcome of the lawsuit is not in the records reviewed.", "The developer's stated build-out is 10 to 15 years. A 2025 infrastructure start had slipped by April 2026 (reporting cited in the case file)." ],
+    sources: [ { t: "Nordic Village PID petition and governing document" }, { t: "LYRB Nordic Village financing plan review" } ],
+    cf: CF.nordic, more: [CF.nordicDeed]
+  },
+  {
+    id: "eden-crossing", layer: "dev", lat: 41.302, lng: -111.826,
+    title: "Eden Crossing",
+    place: "New Eden, near Hwy 166 and SR 158",
+    summary: "A mixed-use development the County Commission approved 2-1 after the Ogden Valley Planning Commission recommended denial.",
+    approved: "Nov. 14, 2023: the Ogden Valley Planning Commission recommended denial, 5-2. Dec. 5, 2023: the Weber County Commission approved the rezone, 2-1. A development agreement followed in Dec. 2023, and an amendment adding 8.73 acres went through in late 2025.",
+    facts: [
+      ["About 20 acres, with up to 325 housing units plus commercial space and a possible hotel, per public reporting.", "Public reporting, Dec. 2023"],
+      ["Held by two LLCs, Eden Crossing LLC and Eden Crossing PWC LLC.", "Weber County Assessor"],
+      ["The Utah Division of Water Rights denied the project's water application in March 2025. An appeal is pending in district court.", "Division of Water Rights; court records"],
+      ["The development agreement reserves the option to use a PID for infrastructure. See the separate Eden Crossing PID pin.", "Eden Crossing Development Agreement, Dec. 2023"]
+    ],
+    sharing: "",
+    caution: [ "Reported unit counts differ (325 and 185).", "The planning commission vote on the Sept. 23, 2025 amendment appears as 6-1 in the minutes notes and 5-2 on a published page. Check the minutes before quoting it." ],
+    sources: [ { t: "Eden Crossing Development Agreement (Weber County), Dec. 2023" }, { t: "Ogden Valley Planning Commission minutes, Nov. 14, 2023 and Sept. 23, 2025" } ],
+    cf: CF.nordicDeed
+  },
+  {
+    id: "powder-canyon", layer: "dev", status: "prop", statusNote: "Developer lawsuit over water access; outcome not recorded", lat: 41.339, lng: -111.820,
+    title: "Powder Canyon at Wolf Creek",
+    place: "Village at Wolf Creek, Eden",
+    summary: "A 60-unit project whose developer also sued the Wolf Creek Water and Sewer Improvement District, the month after the Wolf Creek Resort Holdings suit.",
+    approved: "",
+    facts: [
+      ["60-unit project by P.C. Luminary LLC. Its registered agent and manager differ from the Lewis and Dunleavy entities.", "Utah Division of Corporations, as cited in the case file"],
+      ["Filed suit against the Wolf Creek Water and Sewer Improvement District in June 2025.", "Court filing, as cited in the case file"]
+    ],
+    sharing: "",
+    caution: [ "The outcome of the lawsuit is not in the records reviewed." ],
+    sources: [ { t: "Weber County plat records" } ],
+    cf: CF.nordicDeed
+  },
+  {
+    id: "mount-ogden-pids", layer: "pid", lat: 41.225, lng: -111.845,
+    title: "Mount Ogden PIDs Nos. 1–3",
+    place: "Snowbasin",
+    summary: "Three public infrastructure districts created for Snowbasin in 2022. Their own budgets report no debt so far.",
+    approved: "Weber County Commission, Nov. 22, 2022.",
+    facts: [
+      ["Authorized to borrow up to $300 million over 40 years, with bonds of up to 31 years, according to the deputy county attorney.", "Standard-Examiner, Dec. 1, 2022"],
+      ["PID No. 1's 2025 budget states: \"The District has no debt or leases.\" It is funded by a $36,000-a-year developer advance.", "Mount Ogden PID No. 1, 2025 annual budget"],
+      ["PID No. 2 reports zero revenue and spending for 2024 and 2025, and \"does not anticipate having any activity in 2026.\"", "Mount Ogden PID No. 2, 2026 annual budget"],
+      ["The infrastructure is meant to transfer to existing entities, including the Trappers Loop Water Improvement District.", "2022 reporting, as cited in the case file"]
+    ],
+    sharing: "",
+    caution: [ "The district boundaries have not been obtained." ],
+    sources: [ { t: "Weber County Commission minutes, Nov. 22, 2022" }, { t: "Mount Ogden PID Nos. 1 and 2 annual budgets" } ],
+    cf: CF.ratchford, more: [CF.boundary]
+  },
+  {
+    id: "nordic-village-pids", layer: "pid", lat: 41.318, lng: -111.858,
+    title: "Nordic Village PIDs Nos. 1–3",
+    place: "Nordic Valley",
+    summary: "Three PIDs created for the Nordic Village project. They have issued bonds; their own budget shows no property tax revenue yet.",
+    approved: "Weber County Resolution 53-2024, Nov. 20, 2024. Series 2026A/B bonds ($25 million) authorized April 15, 2026.",
+    facts: [
+      ["Series 2025 bonds of $39.38 million. $1.89 million in interest was paid from capitalized interest, and the property tax line is $0.", "Nordic Village PID No. 1, 2026 final budget"],
+      ["Trustees Brook Cole, Brandon Henrie, and Laurent Jouffray each filed a conflict-of-interest disclosure on Oct. 7, 2024. Jouffray's disclosure states that Skyline Mountain Base holds 50% of the developer.", "Trustee disclosures, Oct. 7, 2024"],
+      ["Maximum debt tax rate: 0.0050.", "PID governing document"],
+      ["Zions Bank was named trustee on Nov. 28, 2025, replacing UMB Bank.", "PID board records"]
+    ],
+    sharing: "PID debt is repaid by property tax and assessments on land inside the district.",
+    caution: [ "Total bonding authority appears as $80 million in some records and \"up to $240 million combined\" in the case file. Which is correct has not been settled." ],
+    sources: [ { t: "Nordic Village PID No. 1, 2026 final budget" }, { t: "Joint Board of Trustees agenda, Dec. 17, 2024", u: "https://www.utah.gov/pmn/sitemap/notice/961563.html" } ],
+    cf: CF.nordic, more: [CF.zions, CF.nordicDeed]
+  },
+  {
+    id: "nordic-village-cra", layer: "pid", lat: 41.300, lng: -111.868,
+    title: "Nordic Village Reinvestment Area",
+    place: "Nordic Valley, same project area",
+    summary: "Four taxing entities agreed to share part of this area's future property tax growth with the project for 15 years, starting in 2027.",
+    approved: "Community Reinvestment Agency of Weber County, Resolution CRA06-2024, Dec. 17, 2024, with interlocal agreements from Weber County, Weber School District, Weber Basin Water Conservancy District, and Weber Fire District.",
+    facts: [
+      ["Shares of the growth for 15 years (2027–2041): Weber County 75%; school district, Weber Basin Water, and Weber Fire District 50% each. Base year 2024.", "LYRB financing plan review"],
+      ["Combined increment in the financing plan: $16,571,646 ($11,525,738 from school, water, and fire plus $5,045,908 from the county).", "LYRB financing plan review"],
+      ["The fire district's share is capped at $6 million. Its model shows $428,158 a year during the sharing period and $856,315 a year after it ends.", "Weber Fire District interlocal agreement; LYRB financing plan review"]
+    ],
+    sharing: "County 75%; school, water, and fire districts 50% each, for 15 years.",
+    caution: [ "Other published figures for the total ($55 million, and up to $30 million from the school district) do not match the financing plan's $16.57 million. The financing plan is the primary source used here.", "The interlocal agreement date appears as April 2, 2026 in the case file text and March 25, 2025 in its source list." ],
+    sources: [ { t: "Weber County notice, Nordic Village CRA adoption", u: "https://webercountyutah.gov/news/post.php?id=185" }, { t: "Weber Fire District CRA interlocal agreement", u: "https://www.utah.gov/pmn/files/1207813.pdf" } ],
+    cf: CF.nordic, more: [CF.schools, CF.sb206]
+  },
+  {
+    id: "eden-crossing-pid", layer: "pid", status: "prop", statusNote: "Option reserved in the development agreement; not formed", lat: 41.297, lng: -111.820,
+    title: "Eden Crossing PID (reserved, not formed)",
+    place: "Eden Crossing site, New Eden",
+    summary: "The Eden Crossing development agreement keeps the option to use a PID. As of Sept. 6, 2026, none had been formed or bonded.",
+    approved: "None. Only the Dec. 2023 development agreement language.",
+    facts: [
+      ["The agreement says infrastructure \"may be undertaken, performed, and completed by a Public Infrastructure District,\" subject to the PID Act and a separate agreement.", "Eden Crossing Development Agreement, Dec. 2023"],
+      ["No PID petition, bond resolution, or trustee appointment for Eden Crossing was found in County Commission minutes checked through Sept. 6, 2026.", "Weber County Commission minutes"]
+    ],
+    sharing: "",
+    caution: [ "This is based on a minutes review, not a complete list of county PID resolutions." ],
+    sources: [ { t: "Eden Crossing Development Agreement, Dec. 2023" } ],
+    cf: CF.sb228
+  },
+  {
+    id: "ogden-valley-city", layer: "city", status: "prop", statusNote: "2026 tax increase approved by the council but under appeal", lat: 41.270, lng: -111.790,
+    title: "Ogden Valley City",
+    place: "Eden, Liberty, and surrounding valley (63.3 square miles)",
+    summary: "A new city whose boundary left out Snowbasin and the Weber County side of Powder Mountain. Its first property tax increase is before the Utah Supreme Court.",
+    approved: "Voters approved incorporation Nov. 5, 2024, 2,927 to 1,597.",
+    facts: [
+      ["The city covers about 63.3 square miles and legally came into existence around January 2026.", "Incorporation records"],
+      ["The council approved a 512.6% property tax increase 3-2 on Aug. 19, 2026. The Tax Commission had rejected it over a missed deadline, and the city has appealed to the Utah Supreme Court.", "Deseret News, Aug. 20, 2026"],
+      ["The feasibility study removed Snowbasin's sales (60% of its zip code) and reduced Powder Mountain's zip code sales by 20% in projecting the city's tax base.", "LRB feasibility study, Dec. 2023"]
+    ],
+    sharing: "",
+    caution: [ "The city incorporated after the Census boundaries used on this map were drawn, so no city line is shown.", "The city's budget shortfall has been reported as both $1.25 million and $2.2 million." ],
+    sources: [ LRB, { t: "Deseret News, Aug. 20, 2026", u: "https://www.deseret.com/utah/2026/08/20/ogden-valley-leaders-ok-5126-tax-hike-but-utah-supreme-court-still-has-to-weigh-in/" } ],
+    cf: CF.boundary, more: [CF.map002]
+  }
+];
+
+// ---------------------------------------------------------------
+const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const dot = (layer, st) => `<span class="dot l-${layer}${st === 'prop' ? ' prop' : ''}" aria-hidden="true">${LAYERS[layer].letter}</span>`;
+const panel = document.getElementById('panel');
+const shown = Object.fromEntries(Object.keys(LAYERS).map(k => [k, true]));
+let active = null;
+
+const map = L.map('map', { scrollWheelZoom: false, zoomSnap: 0.25 }).setView([40.9, -111.95], 8);
+L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+  attribution: '&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a> contributors', maxZoom: 18
+}).addTo(map);
+
+// State, county, and city outlines (shared file utah-geo.js)
+addUtahOutlines(map, { highlightCounty: 'Weber', alwaysLabel: ['Huntsville', 'Ogden', 'North Ogden', 'Pleasant View'] });
+
+const markers = {};
+PINS.forEach(p => {
+  const icon = L.divIcon({ className: 'pin-icon', html: dot(p.layer, p.status), iconSize: [26, 26], iconAnchor: [13, 13] });
+  const m = L.marker([p.lat, p.lng], { icon, title: p.title, keyboard: true });
+  m.bindTooltip(p.title, { direction: 'top', offset: [0, -12] });
+  m.on('click', () => select(p.id));
+  markers[p.id] = m;
+});
+
+function refreshMarkers(){
+  PINS.forEach(p => {
+    const m = markers[p.id];
+    if (shown[p.layer]) m.addTo(map); else m.remove();
+    const el = m.getElement();
+    if (el) el.classList.toggle('active', p.id === active);
+  });
+}
+
+function renderToolbar(){
+  const tb = document.getElementById('toolbar');
+  const allOn = Object.values(shown).every(Boolean);
+  tb.innerHTML = `<button class="chip" data-layer="all" aria-pressed="${allOn}"><span class="dot" style="background:var(--navy-deep)" aria-hidden="true">&#9733;</span>Show all <span class="n">${PINS.length}</span></button>` +
+    Object.entries(LAYERS).map(([k, l]) => {
+      const n = PINS.filter(p => p.layer === k).length;
+      const on = !allOn && shown[k];
+      return `<button class="chip" data-layer="${k}" aria-pressed="${allOn || on}">${dot(k)}${l.name} <span class="n">${n}</span></button>`;
+    }).join('');
+  tb.querySelectorAll('.chip').forEach(b => b.onclick = () => {
+    const k = b.dataset.layer;
+    Object.keys(shown).forEach(x => shown[x] = (k === 'all' || x === k));
+    if (active && !shown[PINS.find(p => p.id === active).layer]) active = null;
+    renderToolbar(); refreshMarkers(); active ? renderDetail() : renderList();
+  });
+}
+
+function renderList(){
+  const list = PINS.filter(p => shown[p.layer]);
+  panel.innerHTML = `<div class="list-head">${list.length} places on the map &middot; click one</div>` +
+    list.map(p => `<button class="pin-item" data-id="${p.id}">${dot(p.layer, p.status)}<span><b>${esc(p.title)}</b><span class="pl">${esc(p.place)}</span></span></button>`).join('');
+  panel.querySelectorAll('.pin-item').forEach(b => b.onclick = () => select(b.dataset.id, true));
+}
+
+function renderDetail(){
+  const p = PINS.find(x => x.id === active);
+  const li = arr => arr.map(f => `<li>${esc(f[0])}<span class="src">Source: ${esc(f[1])}</span></li>`).join('');
+  panel.innerHTML = `
+    <div class="detail">
+      <div class="top"><button id="back">&larr; All places</button><span class="tagl">${dot(p.layer, p.status)} ${LAYERS[p.layer].name}</span></div>
+      <h2>${esc(p.title)}</h2>
+      <p class="place">${esc(p.place)}</p>
+      ${p.status === 'prop' ? `<span class="status-line prop">Proposed or not final · ${esc(p.statusNote)}</span>` : `<span class="status-line final">Approved and in effect</span>`}
+      <p class="sum">${esc(p.summary)}</p>
+      ${p.approved ? `<div class="sec"><h3>Who approved it</h3><p>${esc(p.approved)}</p></div>` : ''}
+      <div class="sec"><h3>What the record shows</h3><ul>${li(p.facts)}</ul></div>
+      ${p.sharing ? `<div class="sec"><h3>Who shares the revenue</h3><p>${esc(p.sharing)}</p></div>` : ''}
+      ${p.caution.length ? `<div class="sec caution"><h3>Not settled in the record</h3><ul>${p.caution.map(c => `<li>${esc(c)}</li>`).join('')}</ul></div>` : ''}
+      <div class="sec sources"><h3>Documents</h3><ul>${p.sources.map(s => `<li>${s.u ? `<a href="${s.u}" target="_blank" rel="noopener">${esc(s.t)}</a>` : esc(s.t)}</li>`).join('')}</ul></div>
+      ${(p.stories||[]).map(st => `<a class="story-btn" href="${st.u}" target="_blank" rel="noopener">Read the story: ${esc(st.t)} &rarr;</a>`).join('')}
+      ${(p.cf || (p.more && p.more.length)) ? `<div class="sec"><h3>Hive case files</h3></div>` + [].concat(p.cf || [], p.more || []).map(c => `<a class="case-btn" href="${c.url}" target="_blank" rel="noopener">${esc(c.label)} &rarr;</a>`).join('') : ''}
+    </div>`;
+  document.getElementById('back').onclick = () => { active = null; refreshMarkers(); renderList(); };
+  panel.scrollTop = 0;
+}
+
+function select(id, fly){
+  active = id;
+  const p = PINS.find(x => x.id === id);
+  if (fly) map.flyTo([p.lat, p.lng], Math.max(map.getZoom(), 10), { duration: 0.6 });
+  refreshMarkers(); renderDetail();
+  if (window.innerWidth <= 900) panel.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+document.querySelectorAll('.flip-card').forEach(c => {
+  const flip = () => c.classList.toggle('flipped');
+  c.addEventListener('click', flip);
+  c.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); flip(); } });
+});
+
+renderToolbar(); refreshMarkers(); renderList();
+map.fitBounds(L.latLngBounds(PINS.map(p => [p.lat, p.lng])).pad(0.25));
+</script>
+</body>
+</html>
