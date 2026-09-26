@@ -660,7 +660,7 @@
     if (live) el.href = m.link;
     el.setAttribute('data-id', m.mapId);
     const layers = (m.layers || []).map(l => `<span class="layer">${hl(l, q)}</span>`).join('');
-    const REPO_URL = { "committees": "committees", "followthedeed": "followthedeed", "Bill-Tracker": "Bill-Tracker", "PIDS-Utah": "PIDS-Utah", "candidates2026": "candidates2026", "Public-Lands": "Public-Lands", "Unelected-Power": "Unelected-Power", "audits": "audits" };
+    const REPO_URL = { "committees": "committees", "followthedeed": "followthedeed", "Bill-Tracker": "Bill-Tracker", "PIDS-Utah": "PIDS-Utah", "candidates2026": "candidates2026", "Public-Lands": "Public-Lands", "Unelected-Power": "Unelected-Power", "audits": "audits", "Transparency": "Transparency" };
     const repoLink = r => REPO_URL[r] ? `<span class="repo-link" role="link" tabindex="0" data-href="https://weber-county-hive.github.io/${REPO_URL[r]}/">${hl(r, q)}</span>` : hl(r, q);
     const repos = (m.relatedRepos || []).length ? `<div class="repos">Links to: <b>${m.relatedRepos.map(repoLink).join(' · ')}</b></div>` : '';
     const pins = m.pins ? `<span>${m.pins} pins</span>` : '';
