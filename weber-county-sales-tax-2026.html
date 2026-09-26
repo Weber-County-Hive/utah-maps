@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Weber County's New Sales Tax — Utah Hive Politics</title>
+<meta name="description" content="MAP 008 from Utah Hive Politics: Weber County's new 0.20% '5th 5th' sales tax, effective Oct. 1, 2026. What each city's rate becomes, why the rates differ, and where the $13.1 million a year goes.">
+<link rel="icon" type="image/png" href="hive-bee.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600&family=Special+Elite&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;0,8..60,700;1,8..60,400&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+<style>
+  :root{
+    --navy:#14213D; --navy-deep:#0D1728;
+    --manila:#D9C9A3; --manila-dark:#C4B389;
+    --paper:#EDE7D8; --paper-light:#F5F1E6;
+    --ink:#1F1B16; --ink-soft:#4A443A;
+    --red:#A5301E; --green:#3F6B3B; --gold:#A9822F; --rule:#B7AC91;
+    --l-data:#A5301E; --l-pid:#A9822F; --l-cra:#3F6B3B; --l-mida:#2F5A8F; --l-other:#6E4A78;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;background:var(--navy);color:var(--paper);font-family:'Source Serif 4',Georgia,serif;-webkit-font-smoothing:antialiased;}
+  a{color:inherit;}
+
+  .hb-bar{background:#0d0b0a;border-bottom:1px solid #3a2f1c;padding:10px 20px;}
+  .hb-bar a{display:flex;align-items:center;gap:12px;max-width:1200px;margin:0 auto;text-decoration:none;}
+  .hb-bar img{width:52px;height:52px;border-radius:4px;display:block;flex:none;}
+  .hb-name{font-family:'Cinzel',Georgia,serif;color:#d4af37;font-size:16px;letter-spacing:.14em;text-transform:uppercase;line-height:1.2;display:block;}
+  .hb-sub{font-family:Georgia,serif;font-style:italic;color:#b8956a;font-size:12.5px;display:block;margin-top:2px;}
+
+  .masthead{max-width:1200px;margin:0 auto;padding:34px 20px 22px;}
+  .back{font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--manila);text-decoration:none;border-bottom:1px solid rgba(217,201,163,.4);}
+  .back:hover{color:var(--gold);border-color:var(--gold);}
+  .eyebrow{font-family:'Special Elite',monospace;font-size:12px;letter-spacing:.22em;text-transform:uppercase;color:var(--manila);margin:18px 0 8px;}
+  h1{font-size:clamp(30px,4.6vw,48px);line-height:1.08;margin:0 0 12px;font-weight:700;color:var(--paper-light);}
+  .intro{max-width:70ch;font-size:16.5px;line-height:1.6;color:rgba(237,231,216,.75);margin:0;}
+
+  .toolbar{max-width:1200px;margin:0 auto;padding:0 20px 14px;display:flex;flex-wrap:wrap;gap:8px;align-items:center;}
+  .chip{display:inline-flex;align-items:center;gap:7px;font-family:'IBM Plex Mono',monospace;font-size:12px;background:rgba(255,255,255,.05);border:1px solid rgba(217,201,163,.3);color:var(--paper-light);border-radius:20px;padding:6px 12px 6px 7px;cursor:pointer;}
+  .chip[aria-pressed="false"]{opacity:.45;}
+  .chip .dot{width:20px;height:20px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:10.5px;font-weight:600;color:#fff;border:1.5px solid #fff;}
+  .chip .n{color:var(--manila);}
+
+  .stage{max-width:1200px;margin:0 auto;padding:0 20px;display:grid;grid-template-columns:minmax(0,1fr) 400px;gap:18px;}
+  #map{height:640px;border-radius:2px;border:2px solid var(--gold);background:#d8d4c8;}
+  .panel{background:var(--paper);color:var(--ink);border-radius:2px;height:640px;overflow:auto;box-shadow:0 14px 30px -14px rgba(0,0,0,.55);}
+  @media (max-width:900px){
+    .stage{grid-template-columns:1fr;}
+    #map{height:430px;}
+    .panel{height:auto;max-height:none;}
+  }
+
+  .list-head{position:sticky;top:0;background:var(--manila-dark);padding:10px 18px;font-family:'IBM Plex Mono',monospace;font-size:11.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink);z-index:2;}
+  .pin-item{display:flex;gap:12px;align-items:flex-start;width:100%;text-align:left;background:none;border:none;border-bottom:1px dashed var(--rule);padding:13px 18px;cursor:pointer;font-family:inherit;color:inherit;}
+  .pin-item:hover{background:rgba(169,130,47,.1);}
+  .pin-item .dot{flex:none;margin-top:2px;}
+  .pin-item b{display:block;font-size:16px;line-height:1.3;}
+  .pin-item span.pl{display:block;font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--ink-soft);margin-top:3px;}
+
+  .dot{width:24px;height:24px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:600;color:#fff;border:2px solid #fff;box-shadow:0 1px 4px rgba(0,0,0,.4);}
+  .l-data{background:var(--l-data);} .l-pid{background:var(--l-pid);} .l-cra{background:var(--l-cra);} .l-mida{background:var(--l-mida);} .l-other{background:var(--l-other);}
+
+  .detail{padding:0 0 20px;}
+  .detail .top{background:var(--manila-dark);padding:10px 18px;display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;z-index:2;}
+  .detail .top button{font-family:'IBM Plex Mono',monospace;font-size:11.5px;background:none;border:none;cursor:pointer;color:var(--ink);padding:0;}
+  .detail .top .tagl{font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.06em;text-transform:uppercase;}
+  .detail h2{font-size:23px;line-height:1.2;margin:16px 18px 4px;}
+  .detail .place{font-family:'IBM Plex Mono',monospace;font-size:11.5px;color:var(--ink-soft);margin:0 18px 12px;text-transform:uppercase;letter-spacing:.04em;}
+  .detail .sum{margin:0 18px 14px;font-size:15.5px;line-height:1.55;color:var(--ink-soft);}
+  .sec{margin:0 18px 14px;}
+  .sec h3{font-family:'Special Elite',monospace;font-weight:400;font-size:12.5px;letter-spacing:.14em;text-transform:uppercase;margin:0 0 7px;color:var(--ink);border-bottom:1px solid var(--rule);padding-bottom:4px;}
+  .sec ul{margin:0;padding-left:18px;}
+  .sec li{font-size:14.5px;line-height:1.5;margin-bottom:7px;color:var(--ink);}
+  .src{display:block;font-family:'IBM Plex Mono',monospace;font-size:10.5px;color:var(--ink-soft);margin-top:2px;}
+  .sec.caution{background:rgba(165,48,30,.07);border-left:3px solid var(--red);padding:9px 12px;}
+  .sec.caution h3{color:var(--red);border:none;padding:0;}
+  .sec p{margin:0;font-size:14.5px;line-height:1.5;}
+  .case-btn{display:block;width:fit-content;margin:0 18px 8px;font-family:'IBM Plex Mono',monospace;font-size:12.5px;font-weight:600;color:var(--navy-deep);background:var(--gold);text-decoration:none;padding:10px 16px;border-radius:4px;}
+  .case-btn:hover{background:#C29A3D;}
+  .sources a{color:var(--red);}
+
+  .leaflet-container{font-family:'Source Serif 4',Georgia,serif;}
+  .pin-icon{background:none;border:none;}
+  .pin-icon .dot{width:26px;height:26px;font-size:11.5px;transition:transform .12s;}
+  .pin-icon.active .dot{transform:scale(1.35);box-shadow:0 0 0 4px rgba(169,130,47,.55),0 2px 6px rgba(0,0,0,.5);}
+  .county-label{background:none;border:none;}
+  .county-label span{display:block;transform:translate(-50%,-50%);font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:#14213D;opacity:.7;white-space:nowrap;text-shadow:0 0 3px #fff,0 0 3px #fff;pointer-events:none;}
+  .dot.prop{background:var(--paper-light) !important;border-style:dashed;border-width:2.5px;}
+  .dot.prop.l-data{color:var(--l-data);border-color:var(--l-data);} .dot.prop.l-pid{color:var(--l-pid);border-color:var(--l-pid);} .dot.prop.l-cra{color:var(--l-cra);border-color:var(--l-cra);} .dot.prop.l-mida{color:var(--l-mida);border-color:var(--l-mida);} .dot.prop.l-other{color:var(--l-other);border-color:var(--l-other);}
+  .status-key{max-width:1200px;margin:0 auto;padding:0 20px 14px;display:flex;flex-wrap:wrap;gap:18px;font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--manila);align-items:center;}
+  .status-key span{display:inline-flex;align-items:center;gap:7px;}
+  .status-line{margin:0 18px 12px;font-family:'IBM Plex Mono',monospace;font-size:11.5px;letter-spacing:.04em;text-transform:uppercase;display:inline-flex;align-items:center;gap:7px;padding:4px 10px;border-radius:3px;}
+  .status-line.final{background:rgba(63,107,59,.12);color:var(--green);}
+  .status-line.prop{background:rgba(165,48,30,.08);color:var(--red);border:1px dashed var(--red);}
+  .glossary{max-width:1200px;margin:28px auto 0;padding:0 20px;}
+  .glossary h2{font-family:'Special Elite',monospace;font-weight:400;font-size:15px;letter-spacing:.18em;text-transform:uppercase;color:var(--manila);margin:0 0 4px;}
+  .gl-sub{margin:0 0 14px;font-size:14px;color:rgba(237,231,216,.6);}
+  .flip-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:12px;}
+  .flip-card{perspective:900px;height:215px;cursor:pointer;outline:none;}
+  .flip-card:focus-visible .flip-inner{box-shadow:0 0 0 3px var(--gold);}
+  .flip-inner{position:relative;width:100%;height:100%;transition:transform .5s;transform-style:preserve-3d;border-radius:2px;}
+  .flip-card.flipped .flip-inner{transform:rotateY(180deg);}
+  .flip-front,.flip-back{position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;border-radius:2px;padding:14px 16px;display:flex;flex-direction:column;}
+  .flip-front{background:var(--paper);color:var(--ink);justify-content:space-between;border-top:4px solid var(--gold);}
+  .flip-front .ft{font-family:'Source Serif 4',Georgia,serif;font-weight:700;font-size:21px;line-height:1.2;}
+  .flip-front .fh{font-family:'IBM Plex Mono',monospace;font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-soft);}
+  .flip-back{background:var(--navy-deep);color:var(--paper-light);transform:rotateY(180deg);border:1px solid var(--gold);overflow:auto;gap:8px;}
+  .flip-back .fd{font-size:13px;line-height:1.5;}
+  .flip-link{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--gold);}
+  @media (prefers-reduced-motion:reduce){.flip-inner{transition:none;}}
+  .story-btn{display:inline-block;margin:8px 18px 0;font-family:'IBM Plex Mono',monospace;font-size:12.5px;font-weight:600;color:var(--paper-light);background:var(--navy);text-decoration:none;padding:10px 16px;border-radius:4px;}
+  .story-btn:hover{background:var(--navy-deep);}
+  .city-label{background:none;border:none;}
+  .city-label.key span{font-weight:600;font-size:11.5px;color:#14213D;}
+  .city-label span{display:block;transform:translate(-50%,-50%);font-family:'IBM Plex Mono',monospace;font-size:10.5px;color:#4a2f55;white-space:nowrap;text-shadow:0 0 3px #fff,0 0 3px #fff,0 0 3px #fff;pointer-events:none;}
+  .leaflet-tooltip{font-family:'IBM Plex Mono',monospace;font-size:11.5px;}
+
+  .notes{max-width:1200px;margin:26px auto 0;padding:0 20px;display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:18px;}
+  .note{border:1px solid rgba(217,201,163,.25);border-radius:2px;padding:16px 18px;font-size:14.5px;line-height:1.6;color:rgba(237,231,216,.78);}
+  .note h4{font-family:'Special Elite',monospace;font-weight:400;font-size:12.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--manila);margin:0 0 8px;}
+  .note p{margin:0 0 8px;}
+  .note strong{color:var(--paper-light);}
+
+  footer{max-width:1200px;margin:30px auto 0;padding:18px 20px 30px;border-top:1px solid rgba(217,201,163,.15);font-family:'IBM Plex Mono',monospace;font-size:11.5px;color:rgba(237,231,216,.45);line-height:1.6;}
+  .hb-foot{background:#0d0b0a;color:#b8956a;text-align:center;padding:26px 20px 30px;font-family:Georgia,serif;}
+  .hb-foot img{width:52px;height:52px;display:block;margin:0 auto 10px;}
+  .hb-foot .hb-name{font-size:14px;}
+  .hb-foot .hb-tag{font-size:10.5px;letter-spacing:.2em;text-transform:uppercase;color:#8a7650;margin-top:8px;display:block;}
+  @media(max-width:600px){.hb-bar img{width:38px;height:38px}.hb-name{font-size:13px}.masthead{padding-top:24px}}
+
+  .pct{display:inline-flex;align-items:center;justify-content:center;min-width:54px;height:28px;padding:0 8px;border-radius:14px;font-family:'IBM Plex Mono',monospace;font-size:12px;font-weight:600;color:#fff;border:2px solid #fff;box-shadow:0 1px 5px rgba(0,0,0,.45);white-space:nowrap;}
+  .pct.s1{background:#A9822F;} .pct.s2{background:#C0632B;} .pct.s3{background:#A5301E;}
+  .pct.pend{border-style:dashed;border-width:2.5px;background:var(--paper-light) !important;}
+  .pct.pend.s1{color:#8a6a24;border-color:#A9822F;} .pct.pend.s2{color:#C0632B;border-color:#C0632B;} .pct.pend.s3{color:#A5301E;border-color:#A5301E;}
+  .pin-icon.active .pct{transform:scale(1.2);box-shadow:0 0 0 4px rgba(169,130,47,.55);}
+  .pin-item .pct{flex:none;min-width:62px;}
+  .kv{display:grid;grid-template-columns:auto 1fr;gap:6px 14px;margin:0;font-size:14.5px;}
+  .kv dt{font-family:'IBM Plex Mono',monospace;font-size:11.5px;text-transform:uppercase;letter-spacing:.04em;color:var(--ink-soft);padding-top:2px;}
+  .kv dd{margin:0;}
+  .bill{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;margin:0 18px 14px;font-family:'IBM Plex Mono',monospace;}
+  .bill .from{font-size:18px;color:var(--ink-soft);text-decoration:line-through;}
+  .bill .to{font-size:26px;font-weight:600;color:var(--ink);}
+  .bill .cap{flex-basis:100%;font-size:11px;color:var(--ink-soft);}
+
+  .rate{display:inline-flex;align-items:center;justify-content:center;min-width:58px;height:26px;padding:0 8px;border-radius:13px;font-family:'IBM Plex Mono',monospace;font-size:12px;font-weight:600;border:2px solid #fff;box-shadow:0 1px 4px rgba(0,0,0,.35);}
+  .r1{background:#E6CF8E;color:#3d2f10;} .r2{background:#C0632B;color:#fff;} .r3{background:#A5301E;color:#fff;}
+  .split{display:grid;gap:8px;margin:0 18px 14px;}
+  .split .row{display:grid;grid-template-columns:92px 1fr;gap:10px;align-items:center;font-size:14px;}
+  .split .bar{height:14px;background:var(--gold);border-radius:2px;}
+  .split .amt{font-family:'IBM Plex Mono',monospace;font-weight:600;font-size:13px;}
+  .big{font-family:'IBM Plex Mono',monospace;font-size:30px;font-weight:600;margin:0 18px 2px;color:var(--ink);}
+  .big small{font-size:14px;color:var(--ink-soft);font-weight:400;}
+  .why{margin:0 18px 14px;background:rgba(169,130,47,.1);border-left:3px solid var(--gold);padding:10px 12px;font-size:14.5px;line-height:1.55;}
+  .why b{color:var(--ink);}
+  .stack{display:flex;height:22px;border-radius:2px;overflow:hidden;margin:6px 0 4px;font-family:'IBM Plex Mono',monospace;font-size:10.5px;color:#fff;}
+  .stack span{display:flex;align-items:center;justify-content:center;white-space:nowrap;overflow:hidden;}
+  .leaflet-interactive:focus{outline:none;}
+</style>
+</head>
+<body>
+
+<div class="hb-bar"><a href="https://webercountyhive.substack.com/" target="_blank" rel="noopener"><img src="uhp-badge.png" alt="Utah Hive Politics logo" onerror="this.style.display='none'"><span><span class="hb-name">Utah Hive Politics</span><span class="hb-sub">from the publisher of The Weber County Hive</span></span></a></div>
+
+<header class="masthead">
+  <a class="back" href="index.html">&larr; All Utah Maps</a>
+  <p class="eyebrow">MAP 008 &middot; Weber County &middot; Sales tax</p>
+  <h1>Weber County's New Sales Tax</h1>
+  <p class="intro">Starting Oct. 1, 2026, sales tax goes up 0.20% everywhere in Weber County. That is 20 cents on every $100 of taxable purchases. The County Commission approved it unanimously; there was no ballot question and no mailed notice. Click a city to see its rate before and after, why some cities pay more than others, and how much new transportation money it gets.</p>
+</header>
+
+<div class="status-key" aria-label="Map key">
+  <span><span class="rate r1" aria-hidden="true">7.45%</span>Most of the county</span>
+  <span><span class="rate r2" aria-hidden="true">7.65%</span>Riverdale</span>
+  <span><span class="rate r3" aria-hidden="true">8.45%</span>Huntsville</span>
+  <span>New combined rate after Oct. 1, 2026</span>
+</div>
+
+<div class="stage">
+  <div id="map" role="region" aria-label="Map of Weber County sales tax rates"></div>
+  <aside class="panel" id="panel" aria-live="polite"></aside>
+</div>
+
+<section class="glossary" aria-labelledby="gl-h">
+  <h2 id="gl-h">Words on this map</h2>
+  <p class="gl-sub">Tap a card to flip it.</p>
+  <div class="flip-grid">
+    <div class="flip-card" tabindex="0" role="button" aria-label="Sales and use tax: tap to see the meaning">
+      <div class="flip-inner">
+        <div class="flip-front"><span class="ft">Sales and use tax</span><span class="fh">Tap to flip &#8635;</span></div>
+        <div class="flip-back"><span class="fd">Tax charged on most purchases. "Use tax" is the same tax owed on items bought without Utah sales tax, such as some online purchases.</span></div>
+      </div>
+    </div>
+    <div class="flip-card" tabindex="0" role="button" aria-label="Combined rate: tap to see the meaning">
+      <div class="flip-inner">
+        <div class="flip-front"><span class="ft">Combined rate</span><span class="fh">Tap to flip &#8635;</span></div>
+        <div class="flip-back"><span class="fd">The total you pay at the register: the state's 4.85% plus every local piece the county and your city add.</span></div>
+      </div>
+    </div>
+    <div class="flip-card" tabindex="0" role="button" aria-label="Local option tax: tap to see the meaning">
+      <div class="flip-inner">
+        <div class="flip-front"><span class="ft">Local option tax</span><span class="fh">Tap to flip &#8635;</span></div>
+        <div class="flip-back"><span class="fd">A sales tax the Legislature allows a county or city to add if it chooses. The 5th 5th is one of these.</span></div>
+      </div>
+    </div>
+    <div class="flip-card" tabindex="0" role="button" aria-label="5th 5th: tap to see the meaning">
+      <div class="flip-inner">
+        <div class="flip-front"><span class="ft">5th 5th</span><span class="fh">Tap to flip &#8635;</span></div>
+        <div class="flip-back"><span class="fd">The nickname for a 0.20% county option sales tax for highways, transit, and related uses, set in Utah Code 59-12-2220. Weber County adopted it effective Oct. 1, 2026.</span></div>
+      </div>
+    </div>
+    <div class="flip-card" tabindex="0" role="button" aria-label="Truth in Taxation: tap to see the meaning">
+      <div class="flip-inner">
+        <div class="flip-front"><span class="ft">Truth in Taxation</span><span class="fh">Tap to flip &#8635;</span></div>
+        <div class="flip-back"><span class="fd">The notice-and-hearing process required before collecting more property tax. It does not apply to sales tax, so no household notice was mailed for this tax.</span></div>
+      </div>
+    </div>
+    <div class="flip-card" tabindex="0" role="button" aria-label="Opinion question: tap to see the meaning">
+      <div class="flip-inner">
+        <div class="flip-front"><span class="ft">Opinion question</span><span class="fh">Tap to flip &#8635;</span></div>
+        <div class="flip-back"><span class="fd">A nonbinding ballot question the county could have placed before voters. Utah law allowed it but did not require it.</span></div>
+      </div>
+    </div>
+    <div class="flip-card" tabindex="0" role="button" aria-label="Point of sale: tap to see the meaning">
+      <div class="flip-inner">
+        <div class="flip-front"><span class="ft">Point of sale</span><span class="fh">Tap to flip &#8635;</span></div>
+        <div class="flip-back"><span class="fd">Sales tax is charged where you buy, not where you live. Shoppers from other cities and visitors pay the rate of the place they shop.</span></div>
+      </div>
+    </div>
+    <div class="flip-card" tabindex="0" role="button" aria-label="Distribution formula: tap to see the meaning">
+      <div class="flip-inner">
+        <div class="flip-front"><span class="ft">Distribution formula</span><span class="fh">Tap to flip &#8635;</span></div>
+        <div class="flip-back"><span class="fd">How the cities' share is divided: half by population and half by where sales happen, per the Wasatch Front Regional Council's document.</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="notes">
+  <div class="note">
+    <h4>Why the rates are not all the same</h4>
+    <p>Utah sales tax is built in layers. Everyone pays the state's 4.85%. Counties add local layers on top, and some cities and towns add one more of their own.</p>
+    <p>The new 0.20% is a county layer, so it is added in every part of Weber County. Riverdale and Huntsville already had an extra local layer of their own before this tax: <strong>0.20% in Riverdale</strong> and <strong>1.00% in Huntsville</strong>, according to the Utah State Tax Commission's rate charts. So they start higher and end higher. Everyone's increase is the same 0.20%.</p>
+  </div>
+  <div class="note">
+    <h4>Who pays, and where the money goes</h4>
+    <p>Sales tax is charged where you shop, not where you live. Visitors and shoppers from other places pay it too, which the county named as an advantage.</p>
+    <p>Of the $13.1 million a year, $3.27 million goes to the cities for transportation, $3.27 million to the county for transportation or public safety, and $6.54 million to the county for any purpose through Sept. 30, 2029. After that, half goes to transportation and half to FrontRunner projects in Weber County.</p>
+  </div>
+  <div class="note">
+    <h4>Read the full case file</h4>
+    <p><a href="https://weber-county-hive.github.io/Transparency/weber-hive-5th5th-sales-tax.html" target="_blank" rel="noopener">Weber County's New Sales Tax: A Public Vote, but No Vote by the Public</a> (Transparency) has the full record and a calculator for your own spending. <a href="https://weber-county-hive.github.io/Bill-Tracker/weber-hive-sb242.html" target="_blank" rel="noopener">S.B. 242</a> (Bill Tracker) is the 2026 bill that set this tax's rules. <a href="weber-county-tax-increases-2026.html">MAP 002</a> shows this year's property tax increases.</p>
+  </div>
+</section>
+
+<footer>
+  Sources: Weber County announcement, July 1, 2026; KSL.com, Sept. 17, 2026, reporting the Wasatch Front Regional Council's revenue estimates; Utah State Tax Commission sales and use tax rate charts; Utah Code 59-12-2220. Compiled by Utah Hive Politics, from the publisher of The Weber County Hive. Last updated Sep 26, 2026.<br>
+  Map tiles &copy; OpenStreetMap contributors. State, county, and city boundaries: U.S. Census Bureau.
+</footer>
+<div class="hb-foot"><img src="hive-bee.png" alt="" onerror="this.style.display='none'"><span class="hb-name">Utah Hive Politics</span><span class="hb-sub">from the publisher of The Weber County Hive</span><span class="hb-tag">Independent · Accountability · Journalism</span></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<script src="utah-geo.js"></script>
+<script>
+// ---------------------------------------------------------------
+// PLACES: each city's rate before and after Oct. 1, 2026, and its
+// estimated share of the cities' $3.27 million for transportation.
+// Rates: Utah State Tax Commission. Shares: Wasatch Front Regional
+// Council estimates as reported by KSL, Sept. 17, 2026.
+// ---------------------------------------------------------------
+const PLACES = [
+ {
+  "n": "Ogden",
+  "share": 1179776,
+  "before": 7.25,
+  "after": 7.45
+ },
+ {
+  "n": "Roy",
+  "share": 338175,
+  "before": 7.25,
+  "after": 7.45
+ },
+ {
+  "n": "Riverdale",
+  "share": 311778,
+  "before": 7.45,
+  "after": 7.65
+ },
+ {
+  "n": "West Haven",
+  "share": 270851,
+  "before": 7.25,
+  "after": 7.45
+ },
+ {
+  "n": "South Ogden",
+  "share": 211486,
+  "before": 7.25,
+  "after": 7.45
+ },
+ {
+  "n": "North Ogden",
+  "share": 194712,
+  "before": 7.25,
+  "after": 7.45
+ },
+ {
+  "n": "Pleasant View",
+  "share": 111043,
+  "before": 7.25,
+  "after": 7.45
+ },
+ {
+  "n": "Farr West",
+  "share": 93569,
+  "before": 7.25,
+  "after": 7.45
+ },
+ {
+  "n": "Harrisville",
+  "share": 83685,
+  "before": 7.25,
+  "after": 7.45
+ },
+ {
+  "n": "Hooper",
+  "share": 77175,
+  "before": 7.25,
+  "after": 7.45
+ },
+ {
+  "n": "Washington Terrace",
+  "share": 72611,
+  "before": 7.25,
+  "after": 7.45
+ },
+ {
+  "n": "Plain City",
+  "share": 70289,
+  "before": 7.25,
+  "after": 7.45
+ },
+ {
+  "n": "Marriott-Slaterville",
+  "share": 60993,
+  "before": 7.25,
+  "after": 7.45
+ },
+ {
+  "n": "Ogden Valley City",
+  "share": 45557,
+  "before": 7.25,
+  "after": 7.45
+ },
+ {
+  "n": "Uintah",
+  "share": 15148,
+  "before": 7.25,
+  "after": 7.45
+ },
+ {
+  "n": "Huntsville",
+  "share": 9080,
+  "before": 8.25,
+  "after": 8.45
+ },
+ {
+  "n": "Unincorporated Weber County",
+  "share": 127934,
+  "before": 7.25,
+  "after": 7.45
+ }
+];
+
+const WHY = {
+  "Riverdale": "Riverdale already had an extra 0.20% local sales tax of its own, so its rate goes from 7.45% to 7.65%.",
+  "Huntsville": "Huntsville already had an extra 1.00% local sales tax of its own, so its rate goes from 8.25% to 8.45%.",
+  "Ogden Valley City": "Ogden Valley City has the countywide rate. Its city limits are not drawn on this map because the city incorporated after the Census boundaries were made.",
+  "Unincorporated Weber County": "Areas outside any city pay the countywide rate. The unincorporated share goes to the county for transportation."
+};
+const SOURCES = [
+  { t: "Weber County announcement, July 1, 2026", u: "https://webercountyutah.gov/news/post.php?id=292" },
+  { t: "KSL.com, Sept. 17, 2026: Weber County sales tax taking effect Oct. 1", u: "https://www.ksl.com/article/51625459/weber-county-sales-tax-taking-effect-oct-1-expected-to-generate-131m-a-year" },
+  { t: "Utah State Tax Commission sales and use tax rates", u: "https://tax.utah.gov/sales/rates" }
+];
+const CASES = [
+  { label: "A Public Vote, but No Vote by the Public (Transparency)", url: "https://weber-county-hive.github.io/Transparency/weber-hive-5th5th-sales-tax.html" },
+  { label: "S.B. 242, the bill behind the tax (Bill Tracker)", url: "https://weber-county-hive.github.io/Bill-Tracker/weber-hive-sb242.html" }
+];
+
+const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const money = n => '$' + n.toLocaleString('en-US');
+const cls = r => r >= 8 ? 'r3' : r > 7.5 ? 'r2' : 'r1';
+const fill = r => r >= 8 ? '#A5301E' : r > 7.5 ? '#C0632B' : '#E6CF8E';
+const chip = p => `<span class="rate ${cls(p.after)}" aria-hidden="true">${p.after.toFixed(2)}%</span>`;
+const panel = document.getElementById('panel');
+let active = null;
+
+const map = L.map('map', { scrollWheelZoom: false, zoomSnap: 0.25 });
+L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+  attribution: '&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a> contributors', maxZoom: 18
+}).addTo(map);
+
+// Whole county at the countywide rate, then cities on top.
+const weber = UTAH_GEO.counties.features.filter(f => f.properties.n === 'Weber');
+L.geoJSON(weber, { style: { color: '#A9822F', weight: 3, fillColor: fill(7.45), fillOpacity: 0.35 } })
+  .on('click', () => select('Unincorporated Weber County')).addTo(map);
+addUtahOutlines(map, { highlightCounty: 'Weber', alwaysLabel: PLACES.map(p => p.n) });
+const shapes = {};
+UTAH_GEO.cities.features.forEach(f => {
+  const p = PLACES.find(x => x.n === f.properties.n);
+  if (!p) return;
+  const layer = L.geoJSON(f, { style: { color: '#14213D', weight: 1.5, fillColor: fill(p.after), fillOpacity: 0.6 } });
+  layer.bindTooltip(`${p.n}: ${p.after.toFixed(2)}%`, { sticky: true });
+  layer.on('click', () => select(p.n));
+  layer.addTo(map);
+  shapes[p.n] = layer;
+});
+
+function highlight(){
+  Object.entries(shapes).forEach(([n, l]) => l.setStyle({ weight: n === active ? 4 : 1.5, color: n === active ? '#0D1728' : '#14213D' }));
+}
+
+function renderOverview(){
+  const list = PLACES.slice().sort((a, b) => b.share - a.share);
+  const max = list[0].share;
+  panel.innerHTML = `
+    <div class="list-head">The tax at a glance</div>
+    <div class="detail" style="padding-top:14px">
+      <p class="big">$13.1M <small>a year, estimated</small></p>
+      <p class="place" style="margin-bottom:10px">0.20% more on taxable purchases &middot; starts Oct. 1, 2026</p>
+      <div class="sec"><h3>Where the money goes</h3>
+        <div class="stack" role="img" aria-label="Cities 25 percent, county restricted 25 percent, county open use 50 percent">
+          <span style="width:25%;background:#3F6B3B">Cities</span><span style="width:25%;background:#2F5A8F">County</span><span style="width:50%;background:#A9822F">County, any use to 2029</span>
+        </div>
+        <p style="font-size:13.5px">$3.27M to cities for transportation &middot; $3.27M to the county for transportation or public safety &middot; $6.54M to the county for any purpose through Sept. 30, 2029</p>
+      </div>
+      <div class="sec"><h3>New transportation money by city</h3><p style="font-size:13px;color:var(--ink-soft);margin-bottom:8px">Half by population, half by where sales happen. Click a name for details.</p></div>
+    </div>` +
+    list.map(p => `<button class="pin-item" data-n="${esc(p.n)}">${chip(p)}<span style="flex:1"><b>${esc(p.n)}</b><span class="pl">${money(p.share)} a year</span><span style="display:block;height:6px;margin-top:5px;border-radius:2px;background:var(--gold);width:${Math.max(2, p.share / max * 100)}%"></span></span></button>`).join('');
+  panel.querySelectorAll('.pin-item').forEach(b => b.onclick = () => select(b.dataset.n, true));
+}
+
+function renderDetail(){
+  const p = PLACES.find(x => x.n === active);
+  const why = WHY[p.n] || `${p.n} has the countywide rate, so it goes from 7.25% to 7.45%, the same 0.20% increase as everywhere in the county.`;
+  panel.innerHTML = `
+    <div class="detail">
+      <div class="top"><button id="back">&larr; Overview</button><span class="tagl">Sales tax</span></div>
+      <h2>${esc(p.n)}</h2>
+      <p class="place">Combined sales tax rate</p>
+      <div class="bill"><span class="from">${p.before.toFixed(2)}%</span><span class="to">${p.after.toFixed(2)}%</span><span class="cap">Before and after Oct. 1, 2026. On $100 of taxable purchases, that is 20 cents more.</span></div>
+      <div class="why">${esc(why)}</div>
+      <div class="sec"><h3>New transportation money</h3><dl class="kv">
+        <dt>Per year</dt><dd>${money(p.share)}</dd>
+        <dt>Use</dt><dd>Transportation only</dd>
+        <dt>Estimate by</dt><dd>Wasatch Front Regional Council, as reported by KSL, Sept. 17, 2026</dd>
+      </dl></div>
+      <div class="sec caution"><h3>Good to know</h3><p>The Wasatch Front Regional Council's document says a city receives its share only if it meets state moderate-income housing planning requirements. Each city's compliance status has not been confirmed.</p></div>
+      <div class="sec sources"><h3>Documents</h3><ul>${SOURCES.map(s => `<li><a href="${s.u}" target="_blank" rel="noopener">${esc(s.t)}</a></li>`).join('')}</ul></div>
+      <div class="sec"><h3>Hive case files</h3></div>
+      ${CASES.map(c => `<a class="case-btn" href="${c.url}" target="_blank" rel="noopener">${esc(c.label)} &rarr;</a>`).join('')}
+    </div>`;
+  document.getElementById('back').onclick = () => { active = null; highlight(); renderOverview(); };
+  panel.scrollTop = 0;
+}
+
+function select(n, fly){
+  active = n; highlight(); renderDetail();
+  if (fly && shapes[n]) map.flyToBounds(shapes[n].getBounds(), { maxZoom: 12, duration: 0.6 });
+  if (fly && n === 'Ogden Valley City') map.flyTo([41.27, -111.79], 11, { duration: 0.6 });
+  if (window.innerWidth <= 900) panel.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+document.querySelectorAll('.flip-card').forEach(c => {
+  const flip = () => c.classList.toggle('flipped');
+  c.addEventListener('click', flip);
+  c.addEventListener('keydown', ev => { if (ev.key === 'Enter' || ev.key === ' ') { ev.preventDefault(); flip(); } });
+});
+
+renderOverview();
+map.fitBounds(L.geoJSON(weber).getBounds().pad(0.02));
+</script>
+</body>
+</html>
