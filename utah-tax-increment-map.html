@@ -241,7 +241,9 @@
     <p><strong>Drafts are labeled as drafts.</strong> An unsigned agreement is not an operative contract.</p>
   </div>
   <div class="note">
-    <h4>What's next</h4>
+    <h4>Related maps</h4>
+    <p><a href="ogden-valley-development.html">MAP 003: Ogden Valley Development</a> zooms in on Nordic Village, Snowbasin's PIDs, and the other Ogden Valley projects.</p>
+    <h4 style="margin-top:12px">What's next</h4>
     <p>This is a starting set of pins, taken from records already reviewed for Hive case files. More pins will be added as records are reviewed, including more county CRAs and RDAs and the rest of the state's data center sites.</p>
   </div>
 </section>
@@ -274,7 +276,9 @@ const CF = {
   midaAreas: { label: "Eight Project Areas (MIDA)", url: "https://weber-county-hive.github.io/committees/weberhivecommitteemidaprojectareas.html" },
   stratos: { label: "Stratos, the Ruby Pipeline, and MIDA (PIDS-Utah)", url: "https://weber-county-hive.github.io/PIDS-Utah/stratos-ruby-pipeline-mida.html" },
   nordic: { label: "Case File: Nordic Village (PIDS-Utah)", url: "https://weber-county-hive.github.io/PIDS-Utah/nordic-village-case-file.html" },
-  nordicDeed: { label: "The Trustee Signed His Own Deal (Follow the Deed)", url: "https://weber-county-hive.github.io/followthedeed/weber-hive-nordic-village-froerer.html" }
+  nordicDeed: { label: "The Trustee Signed His Own Deal (Follow the Deed)", url: "https://weber-county-hive.github.io/followthedeed/weber-hive-nordic-village-froerer.html" },
+  ratchford: { label: "Three Boards, One Man, No Disclosure (PIDS-Utah)", url: "https://weber-county-hive.github.io/PIDS-Utah/mount-ogden-pid-ratchford.html" },
+  map003: { label: "MAP 003: Ogden Valley Development", url: "ogden-valley-development.html" }
 };
 
 const MIDA_BUDGET = { t: "MIDA budget filing, fiscal year ended June 30, 2026 (Utah Public Notice Website)", u: "https://www.utah.gov/pmn/files/1453631.pdf" };
@@ -507,20 +511,39 @@ const PINS = [
     cf: CF.west
   },
   {
-    id: "nordic-village", more: [CF.nordic, CF.nordicDeed], layer: "pid", lat: 41.311, lng: -111.866,
-    title: "Nordic Village PID Nos. 1–3",
+    id: "nordic-village", more: [CF.nordic, CF.nordicDeed, CF.map003], layer: "pid", lat: 41.311, lng: -111.866,
+    title: "Nordic Village PIDs Nos. 1–3",
     place: "Nordic Valley, Ogden Valley City, Weber County",
-    summary: "Three public infrastructure districts for the Nordic Village development at Nordic Valley ski resort.",
-    approved: "Weber County Resolution 53-2024 (Nov. 20, 2024).",
+    summary: "Three public infrastructure districts for the Nordic Village development at Nordic Valley ski resort. A separate reinvestment area shares part of the area's future property tax growth with the project.",
+    approved: "Weber County Resolution 53-2024 (Nov. 20, 2024). Reinvestment area: Resolution CRA06-2024 (Dec. 17, 2024).",
     facts: [
+      ["Series 2025 bonds of $39.38 million; the property tax line is $0 so far.", "Nordic Village PID No. 1, 2026 final budget"],
       ["Developer Nordic Village Venture LLC is owned 45% by Clyde Capital Group, 5% by John Lewis, and 50% by Skyline Mountain Base LLC.", "Nordic Village master development agreement, beneficiary identification document (2023)"],
-      ["Trustees: Brook Cole, Brandon Henrie, and Laurent Jouffray. Each disclosed financial interests in the development. Jouffray manages Skyline Mountain Base LLC, the 50% member.", "Trustee conflict-of-interest disclosures, Oct. 7, 2024; beneficiary identification document"]
+      ["Trustees Brook Cole, Brandon Henrie, and Laurent Jouffray each disclosed financial interests in the development. Jouffray's disclosure states that Skyline Mountain Base holds 50% of the developer.", "Trustee conflict-of-interest disclosures, Oct. 7, 2024"],
+      ["For 15 years (2027–2041) the county shares 75% of the area's property tax growth, and the school, water, and fire districts 50% each. The financing plan puts the combined increment at $16,571,646.", "LYRB Nordic Village financing plan review"]
     ],
-    sharing: "",
-    caution: [ "The notes record two different bonding figures ($80 million authorized and \"$25 million-plus\"). Whether each is authorized or issued has not been confirmed." ],
-    sources: [ { t: "Weber County Resolution 53-2024" }, { t: "Trustee disclosure forms, Oct. 7, 2024; PID petition, Feb. 6, 2024" } ],
+    sharing: "County 75%; Weber School District, Weber Basin Water, and Weber Fire District 50% each, for 15 years.",
+    caution: [ "Total bonding authority appears as $80 million in some records and \"up to $240 million combined\" in the case file. Which is correct has not been settled." ],
+    sources: [ { t: "Weber County Resolution 53-2024" }, { t: "Nordic Village PID No. 1, 2026 final budget" }, { t: "Weber Fire District CRA interlocal agreement", u: "https://www.utah.gov/pmn/files/1207813.pdf" } ],
     cf: null
   },
+  {
+    id: "mount-ogden-pids", more: [CF.ratchford, CF.map003], layer: "pid", lat: 41.216, lng: -111.857,
+    title: "Mount Ogden PIDs Nos. 1–3 (Snowbasin)",
+    place: "Snowbasin, Weber County",
+    summary: "Three public infrastructure districts created for Snowbasin in 2022. Their own budgets report no debt so far.",
+    approved: "Weber County Commission, Nov. 22, 2022.",
+    facts: [
+      ["Authorized to borrow up to $300 million over 40 years, with bonds of up to 31 years, according to the deputy county attorney.", "Standard-Examiner, Dec. 1, 2022"],
+      ["PID No. 1's 2025 budget states: \"The District has no debt or leases.\"", "Mount Ogden PID No. 1, 2025 annual budget"],
+      ["PID No. 2 \"does not anticipate having any activity in 2026.\"", "Mount Ogden PID No. 2, 2026 annual budget"]
+    ],
+    sharing: "",
+    caution: [ "The district boundaries have not been obtained." ],
+    sources: [ { t: "Weber County Commission minutes, Nov. 22, 2022" }, { t: "Mount Ogden PID Nos. 1 and 2 annual budgets" } ],
+    cf: null
+  },
+
   {
     id: "wonderblock", layer: "cra", lat: 41.2195, lng: -111.9745,
     title: "WonderBlock / Continental CRA",
