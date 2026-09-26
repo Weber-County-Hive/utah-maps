@@ -1,0 +1,1087 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Great Salt Lake Pressures — Utah Hive Politics</title>
+<meta name="description" content="MAP 004 from Utah Hive Politics: the state of the lake, where its water goes, the money to help it, and data centers, Inland Port areas, water and mineral projects, conservation actions, and military project areas around the Great Salt Lake, each tied to the public record.">
+<link rel="icon" type="image/png" href="hive-bee.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600&family=Special+Elite&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;0,8..60,700;1,8..60,400&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+<style>
+  :root{
+    --navy:#14213D; --navy-deep:#0D1728;
+    --manila:#D9C9A3; --manila-dark:#C4B389;
+    --paper:#EDE7D8; --paper-light:#F5F1E6;
+    --ink:#1F1B16; --ink-soft:#4A443A;
+    --red:#A5301E; --green:#3F6B3B; --gold:#A9822F; --rule:#B7AC91;
+    --l-data:#A5301E; --l-pid:#A9822F; --l-cra:#3F6B3B; --l-mida:#2F5A8F; --l-other:#6E4A78;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;background:var(--navy);color:var(--paper);font-family:'Source Serif 4',Georgia,serif;-webkit-font-smoothing:antialiased;}
+  a{color:inherit;}
+
+  .hb-bar{background:#0d0b0a;border-bottom:1px solid #3a2f1c;padding:10px 20px;}
+  .hb-bar a{display:flex;align-items:center;gap:12px;max-width:1200px;margin:0 auto;text-decoration:none;}
+  .hb-bar img{width:52px;height:52px;border-radius:4px;display:block;flex:none;}
+  .hb-name{font-family:'Cinzel',Georgia,serif;color:#d4af37;font-size:16px;letter-spacing:.14em;text-transform:uppercase;line-height:1.2;display:block;}
+  .hb-sub{font-family:Georgia,serif;font-style:italic;color:#b8956a;font-size:12.5px;display:block;margin-top:2px;}
+
+  .masthead{max-width:1200px;margin:0 auto;padding:34px 20px 22px;}
+  .back{font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--manila);text-decoration:none;border-bottom:1px solid rgba(217,201,163,.4);}
+  .back:hover{color:var(--gold);border-color:var(--gold);}
+  .eyebrow{font-family:'Special Elite',monospace;font-size:12px;letter-spacing:.22em;text-transform:uppercase;color:var(--manila);margin:18px 0 8px;}
+  h1{font-size:clamp(30px,4.6vw,48px);line-height:1.08;margin:0 0 12px;font-weight:700;color:var(--paper-light);}
+  .intro{max-width:70ch;font-size:16.5px;line-height:1.6;color:rgba(237,231,216,.75);margin:0;}
+
+  .toolbar{max-width:1200px;margin:0 auto;padding:0 20px 14px;display:flex;flex-wrap:wrap;gap:8px;align-items:center;}
+  .chip{display:inline-flex;align-items:center;gap:7px;font-family:'IBM Plex Mono',monospace;font-size:12px;background:rgba(255,255,255,.05);border:1px solid rgba(217,201,163,.3);color:var(--paper-light);border-radius:20px;padding:6px 12px 6px 7px;cursor:pointer;}
+  .chip[aria-pressed="false"]{opacity:.45;}
+  .chip .dot{width:20px;height:20px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:10.5px;font-weight:600;color:#fff;border:1.5px solid #fff;}
+  .chip .n{color:var(--manila);}
+
+  .stage{max-width:1200px;margin:0 auto;padding:0 20px;display:grid;grid-template-columns:minmax(0,1fr) 400px;gap:18px;}
+  #map{height:640px;border-radius:2px;border:2px solid var(--gold);background:#d8d4c8;position:relative;overflow:hidden;}
+  .panel{background:var(--paper);color:var(--ink);border-radius:2px;height:640px;overflow:auto;box-shadow:0 14px 30px -14px rgba(0,0,0,.55);}
+  @media (max-width:900px){
+    .stage{grid-template-columns:1fr;}
+    #map{height:430px;}
+    .panel{height:auto;max-height:none;}
+  }
+
+  .list-head{position:sticky;top:0;background:var(--manila-dark);padding:10px 18px;font-family:'IBM Plex Mono',monospace;font-size:11.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink);z-index:2;}
+  .pin-item{display:flex;gap:12px;align-items:flex-start;width:100%;text-align:left;background:none;border:none;border-bottom:1px dashed var(--rule);padding:13px 18px;cursor:pointer;font-family:inherit;color:inherit;}
+  .pin-item:hover{background:rgba(169,130,47,.1);}
+  .pin-item .dot{flex:none;margin-top:2px;}
+  .pin-item b{display:block;font-size:16px;line-height:1.3;}
+  .pin-item span.pl{display:block;font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--ink-soft);margin-top:3px;}
+
+  .dot{width:24px;height:24px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:600;color:#fff;border:2px solid #fff;box-shadow:0 1px 4px rgba(0,0,0,.4);}
+  .l-data{background:var(--l-data);} .l-port{background:#2F5A8F;} .l-water{background:#1F7A8C;} .l-cons{background:#3F6B3B;} .l-mil{background:#4A443A;} .l-pid{background:var(--l-pid);} .l-cra{background:var(--l-cra);} .l-mida{background:var(--l-mida);} .l-other{background:var(--l-other);}
+
+  .detail{padding:0 0 20px;}
+  .detail .top{background:var(--manila-dark);padding:10px 18px;display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;z-index:2;}
+  .detail .top button{font-family:'IBM Plex Mono',monospace;font-size:11.5px;background:none;border:none;cursor:pointer;color:var(--ink);padding:0;}
+  .detail .top .tagl{font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.06em;text-transform:uppercase;}
+  .detail h2{font-size:23px;line-height:1.2;margin:16px 18px 4px;}
+  .detail .place{font-family:'IBM Plex Mono',monospace;font-size:11.5px;color:var(--ink-soft);margin:0 18px 12px;text-transform:uppercase;letter-spacing:.04em;}
+  .detail .sum{margin:0 18px 14px;font-size:15.5px;line-height:1.55;color:var(--ink-soft);}
+  .sec{margin:0 18px 14px;}
+  .sec h3{font-family:'Special Elite',monospace;font-weight:400;font-size:12.5px;letter-spacing:.14em;text-transform:uppercase;margin:0 0 7px;color:var(--ink);border-bottom:1px solid var(--rule);padding-bottom:4px;}
+  .sec ul{margin:0;padding-left:18px;}
+  .sec li{font-size:14.5px;line-height:1.5;margin-bottom:7px;color:var(--ink);}
+  .src{display:block;font-family:'IBM Plex Mono',monospace;font-size:10.5px;color:var(--ink-soft);margin-top:2px;}
+  .sec.caution{background:rgba(165,48,30,.07);border-left:3px solid var(--red);padding:9px 12px;}
+  .sec.caution h3{color:var(--red);border:none;padding:0;}
+  .sec p{margin:0;font-size:14.5px;line-height:1.5;}
+  .case-btn{display:block;width:fit-content;margin:0 18px 8px;font-family:'IBM Plex Mono',monospace;font-size:12.5px;font-weight:600;color:var(--navy-deep);background:var(--gold);text-decoration:none;padding:10px 16px;border-radius:4px;}
+  .case-btn:hover{background:#C29A3D;}
+  .sources a{color:var(--red);}
+
+  .leaflet-container{font-family:'Source Serif 4',Georgia,serif;}
+  .pin-icon{background:none;border:none;}
+  .pin-icon .dot{width:26px;height:26px;font-size:11.5px;transition:transform .12s;}
+  .pin-icon.active .dot{transform:scale(1.35);box-shadow:0 0 0 4px rgba(169,130,47,.55),0 2px 6px rgba(0,0,0,.5);}
+  .county-label{background:none;border:none;}
+  .county-label span{display:block;transform:translate(-50%,-50%);font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:#14213D;opacity:.7;white-space:nowrap;text-shadow:0 0 3px #fff,0 0 3px #fff;pointer-events:none;}
+  .dot.prop{background:var(--paper-light) !important;border-style:dashed;border-width:2.5px;}
+  .dot.prop.l-port{color:#2F5A8F;border-color:#2F5A8F;} .dot.prop.l-water{color:#1F7A8C;border-color:#1F7A8C;} .dot.prop.l-cons{color:#3F6B3B;border-color:#3F6B3B;} .dot.prop.l-mil{color:#4A443A;border-color:#4A443A;} .dot.prop.l-data{color:var(--l-data);border-color:var(--l-data);} .dot.prop.l-pid{color:var(--l-pid);border-color:var(--l-pid);} .dot.prop.l-cra{color:var(--l-cra);border-color:var(--l-cra);} .dot.prop.l-mida{color:var(--l-mida);border-color:var(--l-mida);} .dot.prop.l-other{color:var(--l-other);border-color:var(--l-other);}
+  .status-key{max-width:1200px;margin:0 auto;padding:0 20px 14px;display:flex;flex-wrap:wrap;gap:18px;font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--manila);align-items:center;}
+  .status-key span{display:inline-flex;align-items:center;gap:7px;}
+  .status-line{margin:0 18px 12px;font-family:'IBM Plex Mono',monospace;font-size:11.5px;letter-spacing:.04em;text-transform:uppercase;display:inline-flex;align-items:center;gap:7px;padding:4px 10px;border-radius:3px;}
+  .status-line.final{background:rgba(63,107,59,.12);color:var(--green);}
+  .status-line.prop{background:rgba(165,48,30,.08);color:var(--red);border:1px dashed var(--red);}
+  .glossary{max-width:1200px;margin:28px auto 0;padding:0 20px;}
+  .glossary h2{font-family:'Special Elite',monospace;font-weight:400;font-size:15px;letter-spacing:.18em;text-transform:uppercase;color:var(--manila);margin:0 0 4px;}
+  .gl-sub{margin:0 0 14px;font-size:14px;color:rgba(237,231,216,.6);}
+  .flip-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:12px;}
+  .flip-card{perspective:900px;height:215px;cursor:pointer;outline:none;}
+  .flip-card:focus-visible .flip-inner{box-shadow:0 0 0 3px var(--gold);}
+  .flip-inner{position:relative;width:100%;height:100%;transition:transform .5s;transform-style:preserve-3d;border-radius:2px;}
+  .flip-card.flipped .flip-inner{transform:rotateY(180deg);}
+  .flip-front,.flip-back{position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;border-radius:2px;padding:14px 16px;display:flex;flex-direction:column;}
+  .flip-front{background:var(--paper);color:var(--ink);justify-content:space-between;border-top:4px solid var(--gold);}
+  .flip-front .ft{font-family:'Source Serif 4',Georgia,serif;font-weight:700;font-size:21px;line-height:1.2;}
+  .flip-front .fh{font-family:'IBM Plex Mono',monospace;font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-soft);}
+  .flip-back{background:var(--navy-deep);color:var(--paper-light);transform:rotateY(180deg);border:1px solid var(--gold);overflow:auto;gap:8px;}
+  .flip-back .fd{font-size:13px;line-height:1.5;}
+  .flip-link{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--gold);}
+  @media (prefers-reduced-motion:reduce){.flip-inner{transition:none;}}
+  .story-btn{display:inline-block;margin:8px 18px 0;font-family:'IBM Plex Mono',monospace;font-size:12.5px;font-weight:600;color:var(--paper-light);background:var(--navy);text-decoration:none;padding:10px 16px;border-radius:4px;}
+  .story-btn:hover{background:var(--navy-deep);}
+  .city-label{background:none;border:none;}
+  .city-label.key span{font-weight:600;font-size:11.5px;color:#14213D;}
+  .city-label span{display:block;transform:translate(-50%,-50%);font-family:'IBM Plex Mono',monospace;font-size:10.5px;color:#4a2f55;white-space:nowrap;text-shadow:0 0 3px #fff,0 0 3px #fff,0 0 3px #fff;pointer-events:none;}
+
+  /* Lake overview sections */
+  .lake-wrap{max-width:1200px;margin:0 auto;padding:0 20px;}
+  .tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px;margin:4px 0 22px;}
+  .tile{background:var(--paper);color:var(--ink);border-radius:2px;padding:14px 14px 12px;border-top:4px solid var(--gold);display:flex;flex-direction:column;gap:4px;}
+  .tile .n{font-family:'IBM Plex Mono',monospace;font-size:26px;font-weight:600;line-height:1.1;font-variant-numeric:tabular-nums;}
+  .tile .l{font-size:13.5px;line-height:1.4;color:var(--ink-soft);}
+  .tile .s{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--ink-soft);margin-top:auto;padding-top:6px;}
+  .tile.good{border-top-color:#3F6B3B;}
+  .lake-sec{background:var(--paper);color:var(--ink);border-radius:2px;padding:22px 22px 18px;margin:26px 0 0;box-shadow:0 14px 30px -14px rgba(0,0,0,.55);}
+  .lake-sec h2{font-size:26px;margin:0 0 4px;line-height:1.2;text-wrap:balance;}
+  .lake-sec .kicker{font-family:'Special Elite',monospace;font-size:12px;letter-spacing:.18em;text-transform:uppercase;color:var(--gold);margin:0 0 6px;}
+  .lake-sec p{font-size:15.5px;line-height:1.6;color:var(--ink-soft);max-width:75ch;margin:0 0 12px;}
+  .lake-sec p b{color:var(--ink);}
+  .two{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:24px;align-items:start;}
+  @media(max-width:860px){.two{grid-template-columns:1fr;}}
+  .bars{display:flex;flex-direction:column;gap:9px;margin:8px 0 6px;}
+  .bar-row{display:grid;grid-template-columns:minmax(120px,190px) 1fr 64px;gap:10px;align-items:center;font-size:14px;}
+  .bar-track{height:18px;background:rgba(74,68,58,.12);border-radius:2px;overflow:hidden;}
+  .bar-fill{height:100%;background:#1F7A8C;border-radius:2px;}
+  .bar-fill.gold{background:var(--gold);} .bar-fill.green{background:#3F6B3B;} .bar-fill.red{background:var(--red);} .bar-fill.gray{background:#8a8170;}
+  .bar-val{font-family:'IBM Plex Mono',monospace;font-size:13px;font-weight:600;text-align:right;font-variant-numeric:tabular-nums;}
+  .lake-sec p.src-line,.src-line{font-family:'IBM Plex Mono',monospace;font-size:10.5px;line-height:1.5;color:var(--ink-soft);margin:4px 0 0;}
+  .callout{background:rgba(169,130,47,.1);border-left:3px solid var(--gold);padding:10px 12px;font-size:14.5px;line-height:1.55;margin:12px 0 0;}
+  .callout.good{background:rgba(63,107,59,.1);border-left-color:#3F6B3B;}
+  .callout.open{background:rgba(165,48,30,.07);border-left-color:var(--red);}
+  .mermaid-box{background:#fff;border:1px solid var(--rule);border-radius:2px;padding:12px;overflow-x:auto;margin:10px 0 4px;}
+  .mermaid-box pre.mermaid{margin:0;background:none;font-size:14px;}
+  .split-bar{display:flex;height:34px;border-radius:2px;overflow:hidden;font-family:'IBM Plex Mono',monospace;font-size:12px;color:#fff;margin:8px 0 4px;}
+  .split-bar span{display:flex;align-items:center;justify-content:center;white-space:nowrap;overflow:hidden;padding:0 6px;}
+  .unmapped{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px;margin-top:10px;}
+  .unmapped div{border:1px dashed var(--rule);border-radius:2px;padding:12px 14px;font-size:14px;line-height:1.5;}
+  .unmapped b{display:block;font-size:15px;margin-bottom:3px;}
+  .unmapped a{color:var(--red);}
+  .river-label{background:none;border:none;}
+  .river-label span{display:block;transform:translate(-50%,-50%);font-family:'Source Serif 4',Georgia,serif;font-style:italic;font-weight:600;font-size:13px;color:#1F5F70;white-space:nowrap;text-shadow:0 0 3px #fff,0 0 3px #fff,0 0 3px #fff;}
+
+  .who-table{width:100%;border-collapse:collapse;font-size:14.5px;margin:10px 0 4px;}
+  .who-table th,.who-table td{text-align:left;padding:10px 10px;border-bottom:1px solid var(--rule);vertical-align:top;}
+  .who-table th{font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-soft);font-weight:600;}
+  .who-table td:first-child{font-weight:700;min-width:140px;}
+  .who-wrap{overflow-x:auto;}
+  @media (max-width:700px){
+    .who-table thead{display:none;}
+    .who-table,.who-table tbody,.who-table tr,.who-table td{display:block;width:auto;}
+    .who-table tr{border-bottom:1px solid rgba(0,0,0,.18);padding:10px 0;}
+    .who-table td{padding:3px 0;border:0;}
+    .who-table td:nth-child(1){font-weight:700;font-size:1.08em;}
+    .who-table td:nth-child(2)::before{content:"Share of use: ";font-weight:700;}
+    .who-table td:nth-child(3)::before{content:"What is required: ";font-weight:700;}
+    .callout ul{margin-left:0 !important;padding-left:20px;}
+  }
+  .chip-req,.chip-vol,.chip-none,.chip-part{display:inline-block;font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:600;padding:3px 8px;border-radius:3px;white-space:nowrap;}
+  .chip-req{background:#3F6B3B;color:#fff;} .chip-vol{background:#A9822F;color:#fff;} .chip-none{background:#A5301E;color:#fff;} .chip-part{background:#fff;color:#1F1B16;border:1.5px solid #A9822F;}
+  .defs{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px;margin:6px 0 14px;}
+  .defs div{border:1px solid var(--rule);border-radius:2px;padding:10px 12px;font-size:14px;line-height:1.5;background:rgba(255,255,255,.4);}
+  .defs b{display:block;font-size:16px;margin-bottom:2px;}
+
+  /* Readability pass: larger type, one column, calmer diagrams */
+  .lake-sec{padding:28px 28px 24px;}
+  .lake-sec h2{font-size:30px;}
+  .lake-sec .kicker{font-size:13px;}
+  .lake-sec p{font-size:17.5px;line-height:1.65;color:var(--ink);}
+  .lake-sec .two{grid-template-columns:1fr;gap:26px;max-width:820px;}
+  .lake-sec .bars{gap:12px;}
+  .lake-sec .bar-row{grid-template-columns:minmax(150px,230px) 1fr 84px;font-size:16.5px;}
+  .lake-sec .bar-track{height:24px;}
+  .lake-sec .bar-val{font-size:15.5px;}
+  .lake-sec p.src-line,.lake-sec .src-line{font-size:12.5px;color:var(--ink-soft);}
+  .lake-sec .callout{font-size:16.5px;line-height:1.6;padding:14px 16px;max-width:820px;}
+  .lake-sec .split-bar{height:44px;font-size:14.5px;}
+  .lake-sec .mermaid-box{max-width:820px;padding:18px;}
+  .lake-sec .who-table{font-size:16px;}
+  .lake-sec .who-table th{font-size:12px;}
+  .lake-sec .defs div{font-size:16px;}
+  .lake-sec .defs b{font-size:18px;}
+  .lake-sec .unmapped div{font-size:16px;}
+  .tile .n{font-size:30px;} .tile .l{font-size:15.5px;} .tile .s{font-size:11.5px;}
+  .lake-sec .chart-title{font-size:18px;font-weight:700;margin:6px 0 8px;color:var(--ink);}
+
+  /* Simple HTML flow diagrams (no library, nothing clipped) */
+  .flow{display:flex;flex-direction:column;gap:10px;max-width:820px;margin:10px 0 6px;}
+  .flow-row{display:flex;align-items:stretch;gap:10px;flex-wrap:wrap;}
+  .fbox{border:2px solid var(--gold);background:#fff;border-radius:4px;padding:10px 14px;font-size:16.5px;line-height:1.4;color:var(--ink);}
+  .fbox b{display:block;font-size:20px;font-family:'IBM Plex Mono',monospace;}
+  .fbox.lake{background:#1F7A8C;border-color:#14213D;color:#fff;}
+  .fbox.good{background:#3F6B3B;border-color:#14213D;color:#fff;}
+  .fbox.muted{background:#ECE7DA;border-color:#8a8170;}
+  .farrow{font-size:22px;color:var(--ink-soft);text-align:center;line-height:1;}
+  .fgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px;}
+  .leaflet-tooltip{font-family:'IBM Plex Mono',monospace;font-size:11.5px;}
+
+  .notes{max-width:1200px;margin:26px auto 0;padding:0 20px;display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:18px;}
+  .note{border:1px solid rgba(217,201,163,.25);border-radius:2px;padding:16px 18px;font-size:14.5px;line-height:1.6;color:rgba(237,231,216,.78);}
+  .note h4{font-family:'Special Elite',monospace;font-weight:400;font-size:12.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--manila);margin:0 0 8px;}
+  .note p{margin:0 0 8px;}
+  .note strong{color:var(--paper-light);}
+
+  footer{max-width:1200px;margin:30px auto 0;padding:18px 20px 30px;border-top:1px solid rgba(217,201,163,.15);font-family:'IBM Plex Mono',monospace;font-size:11.5px;color:rgba(237,231,216,.45);line-height:1.6;}
+  .hb-foot{background:#0d0b0a;color:#b8956a;text-align:center;padding:26px 20px 30px;font-family:Georgia,serif;}
+  .hb-foot img{width:52px;height:52px;display:block;margin:0 auto 10px;}
+  .hb-foot .hb-name{font-size:14px;}
+  .hb-foot .hb-tag{font-size:10.5px;letter-spacing:.2em;text-transform:uppercase;color:#8a7650;margin-top:8px;display:block;}
+  @media(max-width:600px){.hb-bar img{width:38px;height:38px}.hb-name{font-size:13px}.masthead{padding-top:24px}}
+</style>
+</head>
+<body>
+
+<div class="hb-bar"><a href="https://webercountyhive.substack.com/" target="_blank" rel="noopener"><img src="uhp-badge.png" alt="Utah Hive Politics logo" onerror="this.style.display='none'"><span><span class="hb-name">Utah Hive Politics</span><span class="hb-sub">from the publisher of The Weber County Hive</span></span></a></div>
+
+<header class="masthead">
+  <a class="back" href="index.html">&larr; All Utah Maps</a>
+  <p class="eyebrow">MAP 004 &middot; Great Salt Lake</p>
+  <h1>Great Salt Lake Pressures</h1>
+  <p class="intro">What is being built, permitted, bought, and protected around the Great Salt Lake: data centers, Inland Port areas, water and mineral projects, conservation actions, and military project areas. Click a pin for who approved it, what the record shows, and the Hive case file behind it. Conservation actions are on the map too, not only pressures. Pin locations are general, not exact boundaries.</p>
+</header>
+
+
+<div class="lake-wrap">
+  <div class="tiles" role="list" aria-label="The lake at a glance">
+    <div class="tile" role="listitem"><span class="n">44%</span><span class="l">of the lake's surface area lost compared with its average</span><span class="s">State-commissioned report, June 2026</span></div>
+    <div class="tile" role="listitem"><span class="n">$2.1–2.8B</span><span class="l">estimated yearly cost of the lake's decline, including dust, health, and lost business</span><span class="s">ECONorthwest study, 2025</span></div>
+    <div class="tile" role="listitem"><span class="n">68 sq mi</span><span class="l">of exposed lakebed actively producing dust</span><span class="s">State-commissioned report, June 2026</span></div>
+    <div class="tile good" role="listitem"><span class="n">~80%</span><span class="l">of Utah's wetlands surround the lake, used by 10 million+ migratory birds</span><span class="s">State-commissioned report, June 2026</span></div>
+    <div class="tile" role="listitem"><span class="n">4,192 ft</span><span class="l">lake level that triggered required cuts for mineral companies in 2025</span><span class="s">State distribution management plan</span></div>
+    <div class="tile good" role="listitem"><span class="n">288,000</span><span class="l">acre-feet approved or dedicated for the lake so far (committed, not measured arriving)</span><span class="s">State-commissioned report, June 2026</span></div>
+  </div>
+</div>
+
+<div class="toolbar" id="toolbar" role="group" aria-label="Choose which places to show"></div>
+
+<div class="status-key" aria-label="Pin style key"><span><span class="dot l-water" aria-hidden="true">W</span>Solid pin: approved and in effect</span><span><span class="dot l-water prop" aria-hidden="true">W</span>Dashed pin: proposed, pending, or not final</span></div>
+
+<div class="stage">
+  <div id="map" role="region" aria-label="Map of the Great Salt Lake area"></div>
+  <aside class="panel" id="panel" aria-live="polite"></aside>
+</div>
+
+
+<div class="lake-wrap">
+
+<section class="lake-sec" aria-labelledby="w-h">
+  <p class="kicker">Where the water goes</p>
+  <h2 id="w-h">Most of the water used in the lake's basin goes to farms</h2>
+  <p>Rivers carry snowmelt toward the lake. Along the way, people use some of it up. This is called <b>depletion</b>: water that is consumed and does not flow back. The pins on the map above are individual projects; the biggest uses, farms and lawns, are spread across thousands of fields and yards and cannot be shown as a single pin.</p>
+  <div class="two">
+    <div>
+      <div class="flow" role="img" aria-label="Snow and rain feed the Bear, Weber, and Jordan rivers. Of the water people use up in the basin, farms use 65 percent, cities and industry 26.8 percent, mineral companies 5.7 percent, and other uses 2.5 percent. What is left reaches the lake.">
+  <div class="flow-row"><div class="fbox" style="flex:1">Snow and rain in the mountains</div></div>
+  <div class="farrow" aria-hidden="true">&darr;</div>
+  <div class="flow-row"><div class="fbox" style="flex:1">The Bear, Weber, and Jordan rivers carry it toward the lake</div></div>
+  <div class="farrow" aria-hidden="true">&darr; people use some of it up along the way</div>
+  <div class="fgrid">
+    <div class="fbox"><b>65%</b>Farms</div>
+    <div class="fbox"><b>26.8%</b>Cities and industry</div>
+    <div class="fbox"><b>5.7%</b>Mineral companies</div>
+    <div class="fbox"><b>2.5%</b>Other</div>
+  </div>
+  <div class="farrow" aria-hidden="true">&darr;</div>
+  <div class="flow-row"><div class="fbox lake" style="flex:1">What is left reaches the Great Salt Lake</div></div>
+</div>
+      <p class="src-line">Simplified. Percentages are shares of human-caused depletion in the basin, 2020–2024.</p>
+    </div>
+    <div>
+      <div class="bars" role="img" aria-label="Human-caused water depletion in the Great Salt Lake basin, 2020 to 2024: agriculture 65 percent, cities and industry 26.8 percent, mineral extraction 5.7 percent, farm incidental losses 1.4 percent, reservoir evaporation 1.1 percent">
+        <div class="bar-row"><span>Farms</span><span class="bar-track"><span class="bar-fill" style="width:65%;display:block"></span></span><span class="bar-val">65%</span></div>
+        <div class="bar-row"><span>Cities and industry</span><span class="bar-track"><span class="bar-fill" style="width:26.8%;display:block"></span></span><span class="bar-val">26.8%</span></div>
+        <div class="bar-row"><span>Mineral companies</span><span class="bar-track"><span class="bar-fill" style="width:5.7%;display:block"></span></span><span class="bar-val">5.7%</span></div>
+        <div class="bar-row"><span>Farm incidental losses</span><span class="bar-track"><span class="bar-fill" style="width:1.4%;display:block"></span></span><span class="bar-val">1.4%</span></div>
+        <div class="bar-row"><span>Reservoir evaporation</span><span class="bar-track"><span class="bar-fill" style="width:1.1%;display:block"></span></span><span class="bar-val">1.1%</span></div>
+      </div>
+      <p class="src-line">Source: Utah Division of Water Resources, Great Salt Lake Basin Water Budget (updated model); Great Salt Lake Strike Team.</p>
+      <div class="callout"><b>Agriculture is the largest use by far (65%).</b> Within city use, outdoor watering at homes is the largest part: 96.9% of residential depletion, added up across hundreds of thousands of homes. Watering home lawns and landscaping alone used an estimated 408,500 acre-feet in 2024, about a quarter as much as agriculture in the basin. Golf courses are counted separately, under business use (about 23,600 acre-feet in 2022).</div>
+      <div class="callout open"><b>Totals vs. one user: why both matter</b>
+        <p style="margin:6px 0">Added together, homes use more water than today's data centers. But that total is spread across hundreds of thousands of households. A single large user can equal hundreds or thousands of homes, and some of the largest users have no reporting or cut requirement.</p>
+        <table style="width:100%;border-collapse:collapse;margin-top:6px;font-size:15px">
+          <tr><th style="text-align:left;padding:4px 8px 4px 0">One user</th><th style="text-align:right">Acre-feet a year</th><th style="text-align:right">Same as about</th></tr>
+          <tr><td style="padding:4px 8px 4px 0">One Utah household (average)</td><td style="text-align:right">0.5</td><td style="text-align:right">1 home</td></tr>
+          <tr><td style="padding:4px 8px 4px 0">Aligned data center, West Valley City</td><td style="text-align:right">about 245</td><td style="text-align:right">490 homes</td></tr>
+          <tr><td style="padding:4px 8px 4px 0">NSA Utah Data Center, Bluffdale</td><td style="text-align:right">about 387</td><td style="text-align:right">770 homes</td></tr>
+          <tr><td style="padding:4px 8px 4px 0">River Oaks wells, Sandy (golf course, up to)</td><td style="text-align:right">500</td><td style="text-align:right">1,000 homes</td></tr>
+          <tr><td style="padding:4px 8px 4px 0">Keller Cattle new water right, Promontory</td><td style="text-align:right">556.7</td><td style="text-align:right">1,110 homes</td></tr>
+          <tr><td style="padding:4px 8px 4px 0">Copper Club golf course, Magna (2022, reported)</td><td style="text-align:right">1,085</td><td style="text-align:right">2,170 homes</td></tr>
+          <tr><td style="padding:4px 8px 4px 0">Stratos, proposed (published estimate, power generation only)</td><td style="text-align:right">up to about 50,000</td><td style="text-align:right">100,000 homes</td></tr>
+        </table>
+        <p style="margin:8px 0 4px">At the high estimate, Stratos alone would equal about 12% of all home lawn and landscape watering in the basin (50,000 ÷ 408,500), and about 2% of all water used up in the basin, from one project.</p>
+        <span class="src-line" style="display:block;margin-top:6px">Hive calculation. Household average of 0.5 acre-feet a year as used by the Salt Lake Tribune (Feb. 10, 2025). Data center figures converted from gallons (1 acre-foot = 325,851 gallons), Tribune, Jan. 14, 2026. River Oaks: Division of Water Rights notices (up to 500 acre-feet). Keller Cattle: State Engineer approval, July 2024. Copper Club: Tribune golf data, April 2023; Rio Tinto Kennecott has said this figure includes a shared industrial well. Stratos: Utah Clean Energy, 2026, not a developer figure; developers say plans are still under design. Some of these are water rights or withdrawals, not water used up, so they are not exact comparisons.</span></div>
+      <div class="callout"><b>Share of all water used up in the basin:</b> home lawns and landscaping are roughly <b>16%</b>. Golf courses are roughly <b>1%</b>, but the exact share is unknown because golf water reporting is voluntary.
+        <span class="src-line" style="display:block;margin-top:6px">Hive calculation from the figures above, not a published state number. Cities and industry are 26.8% of the total; homes are about 61% of that; outdoor watering is 96.9% of home use (0.268 × 0.61 × 0.969 ≈ 16%). A second check gives the same result: 408,500 acre-feet is about a quarter of farm use, which puts the basin total near 2.5 million acre-feet. The figures come from different years (2020–2024 average, 2024, and 2022).</span></div>
+      <div class="callout"><b>Golf math, step by step (Hive calculation)</b>
+        <table class="mathbox" style="width:100%;border-collapse:collapse;margin-top:8px;font-size:15px">
+          <tr><td style="padding:4px 8px 4px 0">1. Courses operating in Utah (2022 data set)</td><td style="text-align:right"><b>111</b></td></tr>
+          <tr><td style="padding:4px 8px 4px 0">2. Share that did not track or did not share water use</td><td style="text-align:right"><b>about 25%</b> (about 28 courses)</td></tr>
+          <tr><td style="padding:4px 8px 4px 0">3. Water reported by the courses that did share (2022)</td><td style="text-align:right"><b>about 23,600 acre-feet</b></td></tr>
+          <tr><td style="padding:4px 8px 4px 0">4. If non-reporters used water at the same average rate: 23,600 ÷ 0.75</td><td style="text-align:right"><b>about 31,500 acre-feet</b></td></tr>
+          <tr><td style="padding:4px 8px 4px 0">5. Estimated water not reported (31,500 − 23,600)</td><td style="text-align:right"><b>about 7,900 acre-feet</b></td></tr>
+          <tr><td style="padding:4px 8px 4px 0">6. Share of basin total (about 2.5 million acre-feet), reported only</td><td style="text-align:right"><b>about 0.9%</b></td></tr>
+          <tr><td style="padding:4px 8px 4px 0">7. Share of basin total, with the estimate for non-reporters</td><td style="text-align:right"><b>about 1.3%</b></td></tr>
+        </table>
+        <span class="src-line" style="display:block;margin-top:6px">Assumptions: courses that did not report are the same size and water the same way as those that did; this is not known. Golf figures are water applied, not water used up, so the true share of water used up is likely lower than shown. Some reported totals are statewide, not only in the lake basin. The state GIS map layer lists 118 courses, not 111; the two counts may define a course differently, and the difference is not explained in the records reviewed. No newer statewide golf total was found after the 2022 figures published in April 2023. Source: Salt Lake Tribune / Great Salt Lake Collaborative, April 10, 2023.</span></div>
+      <div class="callout open"><b>No public number for most business water.</b> Business and industry are 8% of statewide diversions, about 408,000 acre-feet a year. Only golf courses (voluntary reports) and seven named data centers have public figures, together about 6% of that. Offices, stores, churches, schools, manufacturing, and other buildings have no public user-by-user accounting.</div>
+      <div class="callout open"><b>Who faced required cuts.</b> In 2025, required cuts applied to mineral companies. Cuts for agriculture were voluntary and paid through incentives. The Strike Team says: "all sectors contribute to depletions in the basin and no single sector can bear the full responsibility for restoring the lake."</div>
+    </div>
+  </div>
+  <p class="src-line" style="margin-top:12px">The June 2026 state-commissioned report gives agriculture as about 63% and municipal use as about 11% of consumptive use. That report measures differently from the water budget shown above; the two sets of figures are not directly comparable.</p>
+  <p style="margin-top:10px"><a class="case-btn" style="margin:0" href="https://weber-county-hive.github.io/Great-Salt-Lake/weber-gsl-outflows-by-user.html" target="_blank" rel="noopener">Read: Who's Actually Using the Water? &rarr;</a></p>
+</section>
+
+<section class="lake-sec" aria-labelledby="d-h">
+  <p class="kicker">Diversions, then and now</p>
+  <h2 id="d-h">Water taken from the rivers has not gone down overall</h2>
+  <div class="defs">
+    <div><b>Diversion</b>Water pulled out of a river, canal, or well. Some of it flows back later.</div>
+    <div><b>Depletion</b>Water that is used up and does not flow back, mostly lost to plants and evaporation. This is what the lake loses.</div>
+  </div>
+  <div class="two">
+    <div>
+      <p class="chart-title">Statewide water diversions, by use</p>
+      <div class="bars" role="img" aria-label="Statewide diversions: agriculture 82 percent, of which alfalfa and hay 68 percent; commercial and industrial 8 percent; residential outdoor 6 percent; residential indoor 3 to 4 percent">
+        <div class="bar-row"><span>Agriculture (all)</span><span class="bar-track"><span class="bar-fill" style="width:82%;display:block"></span></span><span class="bar-val">82%</span></div>
+        <div class="bar-row"><span>&nbsp;&nbsp;of which alfalfa and hay</span><span class="bar-track"><span class="bar-fill gold" style="width:68%;display:block"></span></span><span class="bar-val">68%</span></div>
+        <div class="bar-row"><span>Business and industry</span><span class="bar-track"><span class="bar-fill" style="width:8%;display:block"></span></span><span class="bar-val">8%</span></div>
+        <div class="bar-row"><span>Homes, outdoor (lawns)</span><span class="bar-track"><span class="bar-fill" style="width:6%;display:block"></span></span><span class="bar-val">6%</span></div>
+        <div class="bar-row"><span>Homes, indoor</span><span class="bar-track"><span class="bar-fill" style="width:3.5%;display:block"></span></span><span class="bar-val">3–4%</span></div>
+      </div>
+      <p class="src-line">Sources: Utah Foundation; KSL; Salt Lake Tribune / Great Salt Lake Collaborative, Nov. 2022. Statewide diversions, a different measure from basin depletion above.</p>
+    </div>
+    <div>
+      <p class="chart-title">How the basin's water use has shifted</p>
+      <div class="bars" role="img" aria-label="Share of basin depletion: agriculture 71 percent in the 1990s and 65 percent in the 2020s; cities and industry 24 percent in the 1990s and 27 percent in the 2020s">
+        <div class="bar-row"><span>Farms, 1990s</span><span class="bar-track"><span class="bar-fill gray" style="width:71%;display:block"></span></span><span class="bar-val">71%</span></div>
+        <div class="bar-row"><span>Farms, 2020s</span><span class="bar-track"><span class="bar-fill" style="width:65%;display:block"></span></span><span class="bar-val">65%</span></div>
+        <div class="bar-row"><span>Cities and industry, 1990s</span><span class="bar-track"><span class="bar-fill gray" style="width:24%;display:block"></span></span><span class="bar-val">24%</span></div>
+        <div class="bar-row"><span>Cities and industry, 2020s</span><span class="bar-track"><span class="bar-fill" style="width:27%;display:block"></span></span><span class="bar-val">27%</span></div>
+      </div>
+      <div class="callout"><b>Total use went up.</b> Basin-wide depletion in the early 2020s ran about 5% higher than in the early 1990s. Per-person use has mostly fallen since 1989, but there are more people.</div>
+    </div>
+  </div>
+  <div class="two" style="margin-top:14px">
+    <div>
+      <p class="chart-title">Over about 150 years: how much each use lowered the lake</p>
+      <div class="bars" role="img" aria-label="Estimated lake level drop by use: agriculture 7.0 feet, mineral extraction 1.4 feet, cities and industry 1.3 feet, impounded wetlands 1.1 feet, reservoir evaporation 0.3 feet">
+        <div class="bar-row"><span>Agriculture</span><span class="bar-track"><span class="bar-fill" style="width:100%;display:block"></span></span><span class="bar-val">7.0 ft</span></div>
+        <div class="bar-row"><span>Mineral extraction</span><span class="bar-track"><span class="bar-fill" style="width:20%;display:block"></span></span><span class="bar-val">1.4 ft</span></div>
+        <div class="bar-row"><span>Cities and industry</span><span class="bar-track"><span class="bar-fill" style="width:18.6%;display:block"></span></span><span class="bar-val">1.3 ft</span></div>
+        <div class="bar-row"><span>Impounded wetlands</span><span class="bar-track"><span class="bar-fill" style="width:15.7%;display:block"></span></span><span class="bar-val">1.1 ft</span></div>
+        <div class="bar-row"><span>Reservoir evaporation</span><span class="bar-track"><span class="bar-fill" style="width:4.3%;display:block"></span></span><span class="bar-val">0.3 ft</span></div>
+      </div>
+      <p class="src-line">Source: Wurtsbaugh et al., Utah State University, 2016. The study found water use cut river flow into the lake by 39%, leaving it about 11 feet lower with about 48% less volume.</p>
+    </div>
+    <div>
+      <p class="chart-title">Water leased for the lake, compared with the target</p>
+      <div class="bars" role="img" aria-label="Water leasing: 18,000 acre-feet in 2021, 163,468 acre-feet in the most recent year, compared with a target of 800,000 additional acre-feet a year">
+        <div class="bar-row"><span>Leased, 2021</span><span class="bar-track"><span class="bar-fill green" style="width:2.25%;display:block"></span></span><span class="bar-val">18,000</span></div>
+        <div class="bar-row"><span>Leased, latest year</span><span class="bar-track"><span class="bar-fill green" style="width:20.4%;display:block"></span></span><span class="bar-val">163,468</span></div>
+        <div class="bar-row"><span>Yearly target by 2034</span><span class="bar-track"><span class="bar-fill gray" style="width:100%;display:block"></span></span><span class="bar-val">800,000</span></div>
+      </div>
+      <p class="src-line">Acre-feet a year. Source: Great Salt Lake Strike Team, Data and Insights Summary, Jan. 7, 2026. The target is additional water each year to reach a healthy minimum lake level by 2034.</p>
+      <div class="callout good"><b>Leasing has grown about nine times since 2021.</b> It is still about a fifth of the yearly target.</div>
+      <div class="callout"><b>Who makes these deals.</b> Legislators do not lease the water themselves. They passed the laws that allow it and set aside money. The deals are made between:
+        <ul style="margin:8px 0 0;padding-left:20px">
+          <li><b>Water-right holders</b> (farmers, irrigation companies, water districts, and cities), who lease or donate water to the lake and keep their underlying rights.</li>
+          <li><b>The Great Salt Lake Watershed Enhancement Trust</b>, run by the National Audubon Society and The Nature Conservancy with $40 million from the Legislature (H.B. 410, 2022). It reports 59,000 to 72,485 acre-feet a year.</li>
+          <li><b>The state:</b> the Office of the Great Salt Lake Commissioner and the Division of Forestry, Fire and State Lands, including a $50 million Water Delivery Program run with the U.S. Bureau of Reclamation (2025). The Trust Council reviews the commissioner's water purchases and leases.</li>
+        </ul>
+        <span class="src-line" style="display:block;margin-top:6px">The Strike Team's 163,468 acre-feet is a total. The records reviewed do not break it down by who arranged each deal.</span></div>
+    </div>
+  </div>
+</section>
+
+<section class="lake-sec" aria-labelledby="r-h">
+  <p class="kicker">Who is required to change</p>
+  <h2 id="r-h">What each group is required to do</h2>
+  <p>Households are under a firm deadline to meter outdoor water, and mineral companies faced required cuts in 2025. Agriculture, the largest user, has voluntary programs. Golf courses have no reporting requirement, and existing data centers are exempt from the new reporting law.</p>
+  <div class="who-wrap">
+  <table class="who-table">
+    <thead><tr><th>Who</th><th>Share of use</th><th>What is required</th><th>Status</th></tr></thead>
+    <tbody>
+      <tr><td>Households (outdoor, secondary water)</td><td>Outdoor watering at homes: 96.9% of residential depletion; home lawns and landscaping about 408,500 acre-feet in 2024</td><td>Secondary water meters statewide by Jan. 1, 2030 (H.B. 242, 2022; S.B. 251, 2023). About 85% of connections were unmetered in 2022. Where meters went in, use dropped 20 to 40%.</td><td><span class="chip-req">Required</span></td></tr>
+      <tr><td>Mineral companies</td><td>5.7% of basin depletion</td><td>Required cuts when the lake neared 4,192 feet in 2025. The mineral severance tax rose from 2.6% to 7.8% (H.B. 453, 2024).</td><td><span class="chip-req">Required</span></td></tr>
+      <tr><td>Agriculture</td><td>65% of basin depletion; alfalfa and hay 68% of statewide diversions</td><td>Reductions in 2025 were voluntary and paid through incentives. The $132 million Agriculture Water Optimization Program on the state's project list has no funding secured.</td><td><span class="chip-vol">Voluntary</span></td></tr>
+      <tr><td>Golf courses</td><td>About 23,600 acre-feet in 2022 (voluntary reports; about 25% did not report)</td><td>No reporting requirement. H.B. 188 (2023) would have required disclosure and did not pass; S.B. 195 (2024) would have studied golf water and kept the data private, and did not pass. Public water-right notices can also leave the course unnamed: Sandy's River Oaks applications were noticed as &quot;municipal use&quot; (see the map pin).</td><td><span class="chip-none">None</span></td></tr>
+      <tr><td>Data centers</td><td>Six named facilities: 3 million to 126 million gallons a year (city water records). Meta reported about 35 million gallons itself. See the data center list below.</td><td>H.B. 76 (2026) requires new large data centers to report water use starting July 1, 2026. Facilities already operating or under construction before that date are exempt.</td><td><span class="chip-part">New ones only</span></td></tr>
+    </tbody>
+  </table>
+  </div>
+  <div class="callout"><b>Data centers: which ones have a public water number</b>
+    <table style="width:100%;border-collapse:collapse;margin-top:8px;font-size:15px">
+      <tr><th style="text-align:left;padding:4px 8px 4px 0">Facility (city)</th><th style="text-align:right">Gallons a year</th></tr>
+      <tr><td style="padding:4px 8px 4px 0">NSA Utah Data Center (Bluffdale)</td><td style="text-align:right">126 million</td></tr>
+      <tr><td style="padding:4px 8px 4px 0">Aligned Data Centers (West Valley City)</td><td style="text-align:right">80 million</td></tr>
+      <tr><td style="padding:4px 8px 4px 0">Aligned Data Centers (West Jordan)</td><td style="text-align:right">47.4 million</td></tr>
+      <tr><td style="padding:4px 8px 4px 0">eBay (South Jordan)</td><td style="text-align:right">19.5 million</td></tr>
+      <tr><td style="padding:4px 8px 4px 0">DataBank Granite Point (Bluffdale)</td><td style="text-align:right">7.7 million</td></tr>
+      <tr><td style="padding:4px 8px 4px 0">Novva (West Jordan)</td><td style="text-align:right">3 million</td></tr>
+      <tr><td style="padding:4px 8px 4px 0">Meta (Eagle Mountain), 2024, reported by Meta</td><td style="text-align:right">about 35 million</td></tr>
+    </table>
+    <span class="src-line" style="display:block;margin-top:6px">The first six figures are from city water provider records for about Oct. 2024 to Sept. 2025. Together, all seven are about 318 million gallons, or about 980 acre-feet (Hive calculation).</span>
+    <p style="margin:10px 0 4px"><b>Drinking water or secondary water?</b></p>
+    <ul style="margin:0 0 0 18px">
+      <li>The six figures come from city water providers' records, meaning water bought through city systems. The reporting reviewed does not say, facility by facility, whether it is treated drinking (culinary) water or secondary water.</li>
+      <li>NSA, Bluffdale: an archived Salt Lake Tribune report says Bluffdale contracted, effective Sept. 30, 2011, to sell the NSA water at $2.05 per 1,000 gallons, below the city's $3.25 commercial rate, and describes Bluffdale as a culinary-water supplier.</li>
+      <li>Novva's CEO, Wes Swenson, said in 2022 that other data centers are "using culinary water, not irrigation [water], so it's been treated by the city." That is his statement, not a records finding.</li>
+      <li>Meta buys its water through Eagle Mountain. Joule, in Millard County, uses its own groundwater rights.</li>
+      <li>By comparison, many Wasatch Front homes use drinking water indoors and untreated secondary water for lawns. The 2030 meter requirement applies to that secondary water.</li>
+    </ul>
+    <span class="src-line" style="display:block;margin-top:6px">Sources: Salt Lake Tribune archive, "Utah town gave NSA a deal on water"; Salt Lake Tribune / Great Salt Lake Collaborative, July 11, 2022 and Jan. 14, 2026.</span>
+    <p style="margin:10px 0 4px"><b>What the NSA paid for water under its 2011 contract</b></p>
+    <p style="margin:4px 0">Under the contract, the NSA paid one flat rate of $2.05 per 1,000 gallons no matter how much it used. Other Bluffdale customers paid more per 1,000 gallons as their use went up, up to $3.25 above 100,000 gallons a month. The contract also required a $12,500 monthly maintenance fee.</p>
+    <table style="width:100%;border-collapse:collapse;margin-top:6px;font-size:15px">
+      <tr><th style="text-align:left;padding:4px 8px 4px 0">Gallons used in a month</th><th style="text-align:right">Per 1,000 gallons</th></tr>
+      <tr><td style="padding:4px 8px 4px 0">1,000 to 10,000</td><td style="text-align:right">$1.55</td></tr>
+      <tr><td style="padding:4px 8px 4px 0">10,000 to 50,000</td><td style="text-align:right">$1.95</td></tr>
+      <tr><td style="padding:4px 8px 4px 0">50,000 to 100,000</td><td style="text-align:right">$2.60</td></tr>
+      <tr><td style="padding:4px 8px 4px 0">Above 100,000</td><td style="text-align:right">$3.25</td></tr>
+      <tr><td style="padding:4px 8px 4px 0"><b>NSA, every gallon</b></td><td style="text-align:right"><b>$2.05</b></td></tr>
+    </table>
+    <p style="margin:10px 0 4px"><b>The math at 126 million gallons a year</b> (Hive calculation, using 2011 rates)</p>
+    <table style="width:100%;border-collapse:collapse;margin-top:4px;font-size:15px">
+      <tr><th style="text-align:left;padding:4px 8px 4px 0"></th><th style="text-align:right">Regular rates</th><th style="text-align:right">NSA contract</th></tr>
+      <tr><td style="padding:4px 8px 4px 0">Water charges a year</td><td style="text-align:right">about $420,900</td><td style="text-align:right">about $258,300</td></tr>
+      <tr><td style="padding:4px 8px 4px 0">Maintenance fee a year</td><td style="text-align:right">none</td><td style="text-align:right">$150,000</td></tr>
+      <tr><td style="padding:4px 8px 4px 0"><b>Total a year</b></td><td style="text-align:right"><b>about $420,900</b></td><td style="text-align:right"><b>about $408,300</b></td></tr>
+    </table>
+    <p style="margin:8px 0 4px">Water charges alone: about $162,600 a year less, or about 39% less. With the maintenance fee: about $12,600 a year less, or about 3% less. The contract also set a minimum monthly payment, but that amount was redacted, so the full total cannot be calculated from public records.</p>
+    <span class="src-line" style="display:block;margin-top:6px">Assumes use spread evenly, about 10.5 million gallons a month, and includes the 10-cent elevation charge in both columns. The 10-year contract took effect Sept. 30, 2011; its current terms were not found. This shows how the 2011 pricing worked, not an actual bill. Utah's average rate in 2011 was $2.09 per 1,000 gallons. Source: Salt Lake Tribune, "Utah town gave NSA a deal on water," Nate Carlisle, Nov. 30, 2013; 126 million gallons from the Tribune, Jan. 14, 2026.</span>
+    <p style="margin:10px 0 4px"><b>No public water number found:</b></p>
+    <ul style="margin:0 0 0 18px">
+      <li>Meta, Eagle Mountain: monthly water use is kept confidential under a 2018 agreement with the city. Only Meta's own yearly total is public.</li>
+      <li>QTS and Google, Eagle Mountain: approved; under construction at the time of the report.</li>
+      <li>Joule Capital Partners, Millard County: holds rights to more than 10,000 acre-feet of groundwater (outside the lake basin). Use not reported.</li>
+      <li>Stratos, Box Elder County: proposed; published estimates range up to 16.6 billion gallons a year for power generation alone (see map pin).</li>
+      <li>Tooele Valley data center: proposed; water plan includes a brine discharge (see map pin).</li>
+      <li>Other operating sites, such as Flexential (West Jordan and Salt Lake City) and FiberNet (Orem): no figure found in the public reporting reviewed.</li>
+    </ul>
+    <span class="src-line" style="display:block;margin-top:6px">Source: Salt Lake Tribune / Great Salt Lake Collaborative, Jan. 14, 2026. "No figure found" means none appeared in that report or the other public sources reviewed; it does not mean none exists.</span></div>
+  <div class="callout open"><b>New water approved during the freeze</b>
+    <p style="margin:6px 0">Gov. Cox closed the lake basin to most new water rights in November 2022. In the two years after, about 300 applications asked for more than 230,000 acre-feet. The state approved about 2,517 acre-feet of new rights, mostly for irrigation and stock water.</p>
+    <p style="margin:6px 0">The largest approval found was Keller Cattle Corp. (associated with House Speaker Mike Schultz): 556.7 acre-feet a year near Promontory, approved July 2024. That is about 22% of all new water approved in the basin in those two years (Hive calculation: 556.7 ÷ 2,517). A nearby applicant, Mango-Spiral Jetty LLC, was approved for 240 acre-feet of a larger request and has challenged the decision in court (see map pins).</p>
+    <span class="src-line" style="display:block;margin-top:6px">The closure has exceptions: uses that return the water (such as hydropower), applications with a plan to offset water used, and small amounts. Source: Salt Lake Tribune / Great Salt Lake Collaborative, Feb. 10, 2025 (Division of Water Rights data through Oct. 29, 2024); Governor's Proclamation 2022-01.</span></div>
+
+  <p class="src-line">Sources: Utah Code 73-10-34; Consequences of Drying Lake Systems Around the World: 2026 Update; Great Salt Lake Enhancement Projects Master List; Utah Legislature bill histories; Division of Water Rights. Shares mix two measures (basin depletion and statewide diversions) as labeled.</p>
+  <p style="margin-top:12px;display:flex;flex-wrap:wrap;gap:8px"><a class="case-btn" style="margin:0" href="https://weber-county-hive.github.io/Great-Salt-Lake/weber-gsl-outflows-by-user.html" target="_blank" rel="noopener">Read: Who's Actually Using the Water? &rarr;</a><a class="case-btn" style="margin:0" href="https://weber-county-hive.github.io/Great-Salt-Lake/weber-gsl-fact-vs-fiction.html" target="_blank" rel="noopener">Read: GSL Fact vs. Fiction &rarr;</a></p>
+</section>
+
+<section class="lake-sec" aria-labelledby="m-h">
+  <p class="kicker">The money to help the lake</p>
+  <h2 id="m-h">Most identified lake projects do not have funding yet</h2>
+  <p>The state's master list has 161 projects that would help the lake, from canal piping to wetland restoration. Separately, the Legislature gave $40 million to the Great Salt Lake Watershed Enhancement Trust in 2022 to buy, lease, and accept water for the lake.</p>
+  <div class="two">
+    <div>
+      <p class="chart-title">The 161-project list: $636.5 million</p>
+      <div class="split-bar" role="img" aria-label="$130.1 million funded, $511 million not yet funded">
+        <span style="width:20.4%;background:#3F6B3B">$130.1M</span><span style="width:79.6%;background:#8a8170">$511M not yet funded</span>
+      </div>
+      <p class="src-line">Source: Great Salt Lake Enhancement Projects Master List (DWQ-2024-000314).</p>
+      <p class="chart-title">Share funded, by type of project</p>
+      <div class="bars" role="img" aria-label="Percent funded by category">
+        <div class="bar-row"><span>Habitat restoration</span><span class="bar-track"><span class="bar-fill green" style="width:100%;display:block"></span></span><span class="bar-val">104%</span></div>
+        <div class="bar-row"><span>Research and monitoring</span><span class="bar-track"><span class="bar-fill gold" style="width:19.7%;display:block"></span></span><span class="bar-val">19.7%</span></div>
+        <div class="bar-row"><span>Infrastructure</span><span class="bar-track"><span class="bar-fill gold" style="width:7.1%;display:block"></span></span><span class="bar-val">7.1%</span></div>
+        <div class="bar-row"><span>Water delivery</span><span class="bar-track"><span class="bar-fill gold" style="width:5.5%;display:block"></span></span><span class="bar-val">5.5%</span></div>
+        <div class="bar-row"><span>Water conservation</span><span class="bar-track"><span class="bar-fill gold" style="width:2.7%;display:block"></span></span><span class="bar-val">2.7%</span></div>
+        <div class="bar-row"><span>Policy and outreach</span><span class="bar-track"><span class="bar-fill gold" style="width:1.6%;display:block"></span></span><span class="bar-val">1.6%</span></div>
+        <div class="bar-row"><span>In-lake engineering</span><span class="bar-track"><span class="bar-fill gold" style="width:0.4%;display:block"></span></span><span class="bar-val">0%</span></div>
+      </div>
+      <div class="callout">Projects marked <b>"shovel ready"</b> are 4.1% funded: $11.1 million of $267.6 million. The two largest unfunded items are a $230 million water treatment upgrade and a $132 million agriculture water program.</div>
+    </div>
+    <div>
+      <p class="chart-title">The Trust's $40 million, after three years</p>
+      <div class="split-bar" role="img" aria-label="$7.24 million spent, $32.76 million not yet spent">
+        <span style="width:18.1%;background:#1F7A8C">$7.24M</span><span style="width:81.9%;background:#8a8170">$32.76M not yet spent</span>
+      </div>
+      <p class="src-line">Source: Watershed Enhancement Trust year-end reporting, through Dec. 31, 2025.</p>
+      <p class="chart-title">Water the Trust reports transacting each year (acre-feet)</p>
+      <div class="bars" role="img" aria-label="Trust water transactions: 2023 64,000; 2024 69,000; 2025 anticipated 72,485; 2026 baseline 59,000; five-year goal 100,000">
+        <div class="bar-row"><span>2023</span><span class="bar-track"><span class="bar-fill" style="width:64%;display:block"></span></span><span class="bar-val">64,000</span></div>
+        <div class="bar-row"><span>2024</span><span class="bar-track"><span class="bar-fill" style="width:69%;display:block"></span></span><span class="bar-val">69,000</span></div>
+        <div class="bar-row"><span>2025 (expected)</span><span class="bar-track"><span class="bar-fill" style="width:72.5%;display:block"></span></span><span class="bar-val">72,485</span></div>
+        <div class="bar-row"><span>Entering 2026</span><span class="bar-track"><span class="bar-fill" style="width:59%;display:block"></span></span><span class="bar-val">59,000</span></div>
+        <div class="bar-row"><span>Five-year goal</span><span class="bar-track"><span class="bar-fill gray" style="width:100%;display:block"></span></span><span class="bar-val">100,000</span></div>
+      </div>
+      <div class="callout good"><b>A goal met early.</b> The Trust's wetland grants have protected or restored 20,399 acres across three rounds, past its 20,000-acre goal and ahead of its 2028 target date.</div>
+      <div class="callout open"><b>Not yet reconciled.</b> The Trust's yearly totals (59,000 to 72,485 acre-feet) and the state report's 288,000 acre-feet "committed" are counted differently, and no public document reviewed explains the gap.</div>
+    </div>
+  </div>
+  <div class="flow" style="margin-top:16px" role="img" aria-label="$40 million from the Legislature in 2022: $7.24 million spent by the end of 2025, going to water for the lake and wetlands; $32.76 million not yet spent.">
+  <div class="flow-row"><div class="fbox" style="flex:1"><b>$40 million</b>from the Legislature to the Trust, 2022</div></div>
+  <div class="farrow" aria-hidden="true">&darr;</div>
+  <div class="fgrid">
+    <div class="fbox"><b>$7.24 million</b>spent by the end of 2025</div>
+    <div class="fbox muted"><b>$32.76 million</b>not yet spent</div>
+  </div>
+  <div class="farrow" aria-hidden="true">&darr; the spent money went to</div>
+  <div class="fgrid">
+    <div class="fbox good"><b>59,000–72,485</b>acre-feet of water a year for the lake</div>
+    <div class="fbox good"><b>20,399 acres</b>of wetlands protected or restored</div>
+  </div>
+</div>
+  <p class="src-line">Final wetland awards are made by the Trust Council and the state lands division, after a committee of experts scores the proposals.</p>
+  <p class="src-line">Simplified. A separate $53 million pool opened in 2025 for water transactions and projects; its awards were expected in spring 2026.</p>
+  <p style="margin-top:12px;display:flex;flex-wrap:wrap;gap:8px"><a class="case-btn" style="margin:0" href="https://weber-county-hive.github.io/Great-Salt-Lake/weber-gsl-funding-gap.html" target="_blank" rel="noopener">Read: $511 Million Short &rarr;</a><a class="case-btn" style="margin:0" href="https://weber-county-hive.github.io/Great-Salt-Lake/weber-gsl-trust-spending-pace.html" target="_blank" rel="noopener">Read: Three Years, $7.24 Million &rarr;</a><a class="case-btn" style="margin:0" href="https://weber-county-hive.github.io/Great-Salt-Lake/weber-gsl-drying-lake-consequences.html" target="_blank" rel="noopener">Read: What Losing the Lake Would Cost &rarr;</a></p>
+</section>
+
+<section class="lake-sec" aria-labelledby="u-h">
+  <p class="kicker">Known, but not yet on the map</p>
+  <h2 id="u-h">In the record, without a mapped location yet</h2>
+  <p>These appear in public records or Hive case files, but the records reviewed do not give a site precise enough to place a pin. They will be added when they do.</p>
+  <div class="unmapped">
+    <div><b>Golden Spike Inland Port area</b>Box Elder County. UIPA's board voted Aug. 21, 2023 to create it with a $219 million incentive package. <a href="https://weber-county-hive.github.io/followthedeed/weber-hive-schultz-water-rights.html" target="_blank" rel="noopener">Case file</a></div>
+    <div><b>Northwest Quadrant Inland Port area</b>Salt Lake County. Now under the local water-provider standard set by S.B. 225. <a href="https://weber-county-hive.github.io/Bill-Tracker/weber-hive-sb225.html" target="_blank" rel="noopener">Case file</a></div>
+    <div><b>Brigham City nuclear proposal</b>A proposed small-reactor campus, projected to use about 620 million gallons of water a year. No approving record reviewed.</div>
+    <div><b>Golf courses</b>About 23,600 acre-feet in 2022, from voluntary reporting (about 25% of courses did not report). No state law requires golf water reporting. Sandy's River Oaks course now has a pin. <a href="https://weber-county-hive.github.io/Great-Salt-Lake/weber-gsl-outflows-by-user.html" target="_blank" rel="noopener">Case file</a></div>
+    <div><b>Other data centers</b>The Salt Lake Tribune's statewide data center map (Sept. 25, 2026) lists dozens of sites. Only those with public financing or water records are pinned here.</div>
+    <div><b>Secondary water meters</b>Required statewide by Jan. 1, 2030. Where meters are installed, use has dropped 20 to 40%. <a href="https://weber-county-hive.github.io/Great-Salt-Lake/weber-gsl-outflows-by-user.html" target="_blank" rel="noopener">Case file</a></div>
+  </div>
+</section>
+
+</div>
+
+<section class="glossary" aria-labelledby="gl-h">
+  <h2 id="gl-h">Words on this map</h2>
+  <p class="gl-sub">Tap a card to flip it.</p>
+  <div class="flip-grid">
+    <div class="flip-card" tabindex="0" role="button" aria-label="Acre-foot: tap to see the meaning">
+      <div class="flip-inner">
+        <div class="flip-front"><span class="ft">Acre-foot</span><span class="fh">Tap to flip &#8635;</span></div>
+        <div class="flip-back"><span class="fd">The water needed to cover one acre one foot deep, about 326,000 gallons. Water rights and lake use are measured this way.</span></div>
+      </div>
+    </div>
+    <div class="flip-card" tabindex="0" role="button" aria-label="Water right: tap to see the meaning">
+      <div class="flip-inner">
+        <div class="flip-front"><span class="ft">Water right</span><span class="fh">Tap to flip &#8635;</span></div>
+        <div class="flip-back"><span class="fd">A legal right to use a set amount of water for a set purpose. Utah's State Engineer approves new rights and changes to old ones.</span></div>
+      </div>
+    </div>
+    <div class="flip-card" tabindex="0" role="button" aria-label="Change application: tap to see the meaning">
+      <div class="flip-inner">
+        <div class="flip-front"><span class="ft">Change application</span><span class="fh">Tap to flip &#8635;</span></div>
+        <div class="flip-back"><span class="fd">A request to change where, how, or for what an existing water right is used. Anyone affected can protest it.</span></div>
+      </div>
+    </div>
+    <div class="flip-card" tabindex="0" role="button" aria-label="Protest: tap to see the meaning">
+      <div class="flip-inner">
+        <div class="flip-front"><span class="ft">Protest</span><span class="fh">Tap to flip &#8635;</span></div>
+        <div class="flip-back"><span class="fd">A formal objection filed with the State Engineer while an application is open for comment.</span></div>
+      </div>
+    </div>
+    <div class="flip-card" tabindex="0" role="button" aria-label="Proof of beneficial use: tap to see the meaning">
+      <div class="flip-inner">
+        <div class="flip-front"><span class="ft">Proof of beneficial use</span><span class="fh">Tap to flip &#8635;</span></div>
+        <div class="flip-back"><span class="fd">The deadline to show the water has actually been put to use. A right that is never used can lapse.</span></div>
+      </div>
+    </div>
+    <div class="flip-card" tabindex="0" role="button" aria-label="UPDES permit: tap to see the meaning">
+      <div class="flip-inner">
+        <div class="flip-front"><span class="ft">UPDES permit</span><span class="fh">Tap to flip &#8635;</span></div>
+        <div class="flip-back"><span class="fd">Utah's permit for discharging wastewater or other pollutants into state waters, issued by the Division of Water Quality.</span></div>
+      </div>
+    </div>
+    <div class="flip-card" tabindex="0" role="button" aria-label="Antidegradation review: tap to see the meaning">
+      <div class="flip-inner">
+        <div class="flip-front"><span class="ft">Antidegradation review</span><span class="fh">Tap to flip &#8635;</span></div>
+        <div class="flip-back"><span class="fd">A Water Quality review of whether a new discharge would lower the quality of water that is currently cleaner than required.</span></div>
+      </div>
+    </div>
+    <div class="flip-card" tabindex="0" role="button" aria-label="Reverse osmosis brine: tap to see the meaning">
+      <div class="flip-inner">
+        <div class="flip-front"><span class="ft">Reverse osmosis brine</span><span class="fh">Tap to flip &#8635;</span></div>
+        <div class="flip-back"><span class="fd">The salty leftover water produced when reverse osmosis filters make fresh water.</span></div>
+      </div>
+    </div>
+    <div class="flip-card" tabindex="0" role="button" aria-label="North Arm and South Arm: tap to see the meaning">
+      <div class="flip-inner">
+        <div class="flip-front"><span class="ft">North Arm and South Arm</span><span class="fh">Tap to flip &#8635;</span></div>
+        <div class="flip-back"><span class="fd">A railroad causeway splits the lake. The North Arm (Gunnison Bay) is much saltier; the South Arm (Gilbert Bay) gets most of the river water.</span></div>
+      </div>
+    </div>
+    <div class="flip-card" tabindex="0" role="button" aria-label="Curtailment: tap to see the meaning">
+      <div class="flip-inner">
+        <div class="flip-front"><span class="ft">Curtailment</span><span class="fh">Tap to flip &#8635;</span></div>
+        <div class="flip-back"><span class="fd">A required cut in water use. Mineral companies' use is cut when the lake falls below a set level.</span></div>
+      </div>
+    </div>
+    <div class="flip-card" tabindex="0" role="button" aria-label="Severance tax: tap to see the meaning">
+      <div class="flip-inner">
+        <div class="flip-front"><span class="ft">Severance tax</span><span class="fh">Tap to flip &#8635;</span></div>
+        <div class="flip-back"><span class="fd">A tax on minerals taken from the land or the lake. Utah raised the rate for lake minerals in 2024.</span></div>
+      </div>
+    </div>
+    <div class="flip-card" tabindex="0" role="button" aria-label="Project area: tap to see the meaning">
+      <div class="flip-inner">
+        <div class="flip-front"><span class="ft">Project area</span><span class="fh">Tap to flip &#8635;</span></div>
+        <div class="flip-back"><span class="fd">The boundary a state authority such as the Inland Port or MIDA draws. Its tax and development rules apply only inside that line.</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="notes">
+  <div class="note">
+    <h4>What's on this map</h4>
+    <p>Projects and decisions that add demand on the lake or its water, and actions taken to protect it. Conservation pins are green. Some items cover a large area, such as the Sentinel Landscape, and are placed at a general point with a note.</p>
+  </div>
+  <div class="note">
+    <h4>How this map is sourced</h4>
+    <p>Figures come from permits, water rights orders, project area plans, budgets, and agency pages, or from the Hive case file that cites them. Estimates from advocacy groups are labeled as their claims. Where sources disagree, the pin says so.</p>
+  </div>
+  <div class="note">
+    <h4>More on the lake</h4>
+    <p>The Hive's <a href="https://weber-county-hive.github.io/Great-Salt-Lake/" target="_blank" rel="noopener">Great-Salt-Lake</a> repo has the full explainers. <a href="utah-tax-increment-map.html">MAP 001</a> shows how the Inland Port and MIDA areas are financed statewide.</p>
+  </div>
+</section>
+
+<footer>
+  Sources: Division of Water Rights and Division of Water Quality records, Inland Port Authority and MIDA plans and budgets, federal agency releases, and reporting as cited on each pin. Compiled by Utah Hive Politics, from the publisher of The Weber County Hive. Last updated Sep 26, 2026.<br>
+  Map tiles &copy; OpenStreetMap contributors. State, county, and city boundaries: U.S. Census Bureau.
+</footer>
+<div class="hb-foot"><img src="hive-bee.png" alt="" onerror="this.style.display='none'"><span class="hb-name">Utah Hive Politics</span><span class="hb-sub">from the publisher of The Weber County Hive</span><span class="hb-tag">Independent · Accountability · Journalism</span></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<script src="utah-geo.js"></script>
+<script>
+// ---------------------------------------------------------------
+// LAYERS: the toggles above the map.
+// ---------------------------------------------------------------
+const LAYERS = {
+  data:  { name: "Data Centers",     letter: "D" },
+  port:  { name: "Inland Port",      letter: "I" },
+  water: { name: "Water & Minerals", letter: "W" },
+  cons:  { name: "Conservation",     letter: "C" },
+  mil:   { name: "Military & MIDA",  letter: "M" }
+};
+
+// Case file pages (Hive repos)
+const HIVE = "https://weber-county-hive.github.io/";
+const CF = {
+  outflows:  { label: "Who's Actually Using the Water? (Great-Salt-Lake)", url: HIVE + "Great-Salt-Lake/weber-gsl-outflows-by-user.html" },
+  waterleaf: { label: "A $100 Million Lithium Project and a 20-Year Discharge (Great-Salt-Lake)", url: HIVE + "Great-Salt-Lake/weber-gsl-waterleaf-lithium.html" },
+  factcheck: { label: "GSL Fact vs. Fiction (Great-Salt-Lake)", url: HIVE + "Great-Salt-Lake/weber-gsl-fact-vs-fiction.html" },
+  life:      { label: "The Life of the Great Salt Lake: Birds, Brine, and Minerals (Great-Salt-Lake)", url: HIVE + "Great-Salt-Lake/weber-gsl-life-of-the-lake.html" },
+  didyou:    { label: "Did You Know? The Great Salt Lake, From 1847 to Today (Great-Salt-Lake)", url: HIVE + "Great-Salt-Lake/weber-gsl-did-you-know.html" },
+  sb225:     { label: "S.B. 225, Public Corporation Amendments (Bill Tracker)", url: HIVE + "Bill-Tracker/weber-hive-sb225.html" },
+  hb507:     { label: "H.B. 507 case file (Bill Tracker)", url: HIVE + "Bill-Tracker/weber-hive-hb507.html" },
+  midaAreas: { label: "Eight Project Areas (MIDA)", url: HIVE + "committees/weberhivecommitteemidaprojectareas.html" },
+  west:      { label: "More Lots, Same Playbook (Follow the Deed)", url: HIVE + "followthedeed/weber-hive-west-weber-network.html" },
+  keller:    { label: "The Applicant Holds Those Rights (Follow the Deed)", url: HIVE + "followthedeed/weber-hive-schultz-water-rights.html" },
+  lands:     { label: "How Public Land Changes Hands in Utah (Public-Lands)", url: HIVE + "Public-Lands/weber-hive-public-land-changes-hands.html" },
+  map001:    { label: "MAP 001: Where Utah's Tax Increment Goes", url: "utah-tax-increment-map.html" }
+};
+const UIPA_SITE = { t: "Utah Inland Port Authority: project area plans, annual report, AIB loan page", u: "https://inlandportauthority.utah.gov" };
+const MIDA_BUDGET = { t: "MIDA budget filing, fiscal year ended June 30, 2026", u: "https://www.utah.gov/pmn/files/1453631.pdf" };
+
+// ---------------------------------------------------------------
+// PINS. To add a pin, copy one object, give it a new id, and fill in
+// the fields. lat/lng are general locations only.
+//   status: "prop" makes a dashed pin (proposed, pending, not final)
+//   facts:   [text, source]
+//   caution: things the records have not settled
+// ---------------------------------------------------------------
+const PINS = [
+  {
+    id: "stratos", layer: "data", status: "prop", statusNote: "Project area adopted; agreements unsigned; referendum dispute pending", lat: 41.80, lng: -112.45,
+    title: "Stratos Project Area",
+    place: "Hansel Valley, Box Elder County, north of the lake",
+    summary: "A MIDA project area for a data center and energy campus. MIDA adopted the plan and an energy tax; the agreements that set most of the money and land-use terms are unsigned drafts.",
+    approved: "MIDA board, April 24, 2026: Resolution 2026-06 adopted the Project Area Plan and Ordinance 2026-01 set an energy tax. The plan took effect May 4, 2026. Box Elder County consented May 4, 2026 (Resolution 26-11).",
+    facts: [
+      ["About 40,000 acres of private land plus 1,278.96 acres of military and state land.", "Stratos Project Area Plan, Exhibit B"],
+      ["0.5% energy tax on delivered value, effective Oct. 1, 2026.", "Ordinance 2026-01 (adopted)"],
+      ["The draft agreement requires valid water rights approved by the Division of Water Resources before use, and annual reporting.", "Draft interlocal agreement §5(a), §5(i) (unsigned)"],
+      ["Two water change applications tied to the project were withdrawn in May 2026: Bar H Ranch (about 1,900 acre-feet, about 4,000 protests) and Murray Hollow (about 11 acre-feet, about 700 protests).", "Division of Water Rights records, as cited in Eight Project Areas"],
+      ["A 1971 state study: \"The estimated perennial yield of ground water in Hansel Valley is negligible.\"", "Utah Technical Publication 33 (1971)"],
+      ["The developer removed more than 20,000 acres after a June 1, 2026 letter from MIDA's chair.", "Eight Project Areas"]
+    ],
+    sharing: "",
+    caution: [ "The interlocal agreement, development agreement, and standards are unsigned drafts, not operative contracts.", "The plan's \"net positive water outcome\" (desalination) is the project's own claim.", "Sources describe the site's distance and drainage to the lake differently." ],
+    sources: [ { t: "Box Elder County Stratos Project page", u: "https://www.boxeldercountyut.gov/641/Stratos-Project" }, MIDA_BUDGET ],
+    cf: CF.midaAreas, more: [CF.outflows, CF.map001]
+  },
+  {
+    id: "tooele-valley", layer: "data", lat: 40.715, lng: -112.42,
+    title: "UIPA Tooele Valley Project Area (Zenith data center)",
+    place: "Northern Tooele County, south shore of the lake",
+    summary: "An Inland Port project area where Zenith Development plans a 500-megawatt data center campus. The project was reported paused in September 2026.",
+    approved: "Tooele County consent (Resolution 2023-09, April 11, 2023). UIPA approval (Resolution 2023-13, Dec. 5, 2023). Amended Sept. 12, 2025 and June 25, 2026.",
+    facts: [
+      ["75% of the property tax growth goes to UIPA and 25% to other taxing entities, for 25 years, extendable 15 more.", "Project Area Plan & Budget, Amendment #2"],
+      ["UIPA raised the project's wetlands set-aside from 1% to 3%, and Tooele County opted in.", "UIPA 2024 Annual Report; Amendment #1"],
+      ["The plan names data centers as one of four targeted industries. The same day it approved Amendment #2, June 25, 2026, UIPA published a statement that it is not recruiting or providing incentives to data centers.", "Plan Amendment #2; UIPA statement"],
+      ["$4.875 million infrastructure bank loan to Zenith Bolinder (April 29, 2024), reported paid off.", "UIPA 2024 Annual Report"],
+      ["Reported effectively paused as of Sept. 3, 2026.", "Utah News Dispatch"]
+    ],
+    sharing: "UIPA 75%, other taxing entities 25%; 3% of UIPA's share set aside for wetlands.",
+    caution: [ "Advocacy groups' estimate of total public financing (\"over $240 million\") is their claim and is not confirmed here." ],
+    sources: [ UIPA_SITE ],
+    cf: CF.sb225, more: [CF.hb507, CF.map001]
+  },
+  {
+    id: "ro-discharge", layer: "water", status: "prop", statusNote: "Draft permit; hearing held July 27, 2026; no decision recorded", lat: 40.765, lng: -112.37,
+    title: "Tooele Valley brine discharge permit",
+    place: "Stansbury Mudflats, about 1.6 miles from Gilbert Bay",
+    summary: "A draft state permit would let the Tooele Valley Public Infrastructure District discharge reverse-osmosis brine into a seasonally dry channel that drains toward the lake.",
+    approved: "Not approved. UPDES permit UT0026409 is in draft. Construction is proceeding under a separate state permit.",
+    facts: [
+      ["Up to 260,000 gallons a day of concentrated brine.", "Division of Water Quality hearing notice, July 27, 2026"],
+      ["Six groups requested the public hearing, including Sierra Club, Great Salt Lake Audubon, and Utah Physicians for a Healthy Environment.", "Division of Water Quality records"],
+      ["Discharge was targeted to begin Jan. 15, 2027.", "Eight Project Areas"]
+    ],
+    sharing: "",
+    caution: [ "An earlier figure of 252,000 gallons a day also circulates; the state's notice says 260,000.", "Concerns about salt, dust, and chemicals come from the groups opposing the permit." ],
+    sources: [ { t: "Division of Water Quality public notices", u: "https://deq.utah.gov/water-quality/water-quality-public-notices" } ],
+    cf: CF.sb225
+  },
+  {
+    id: "waterleaf", layer: "water", status: "prop", statusNote: "Federal selection Aug. 20, 2026; state permit decision not recorded", lat: 41.44, lng: -112.60,
+    title: "Waterleaf lithium plant (North Arm)",
+    place: "West side of the Promontory Mountains, Box Elder County",
+    summary: "A proposed plant to pull lithium from North Arm brine. The U.S. Department of Energy selected it for up to $100 million in cost-share.",
+    approved: "DOE selection Aug. 20, 2026. State permit comment periods closed July 17, July 30, and Aug. 27, 2026 (UPDES UT0026352).",
+    facts: [
+      ["About 5,000 tons a year of lithium carbonate, 20-year design life, commercial start around 2028.", "DOE; permit application, April 2, 2026"],
+      ["Intake of 18,156 acre-feet a year of brine and discharge of 18,356 acre-feet a year.", "Operator certification application"],
+      ["The company's pilot plant reported manganese rising from 0.041 to 0.239 mg/L on average between intake and discharge. It has proposed a treatment step for the full plant.", "Final monitoring report, Oct. 25, 2025"],
+      ["All six tracked salts left the pilot at lower concentrations than they entered.", "Final monitoring report, Oct. 25, 2025"]
+    ],
+    sharing: "",
+    caution: [ "The manganese treatment step has not been demonstrated at any scale.", "Its groundwater source is tied to the pending Mango-Spiral Jetty case." ],
+    sources: [ { t: "DOE Battery Materials Processing Grants", u: "https://www.energy.gov/cmei/manufacturing/battery-materials-processing-grants" } ],
+    cf: CF.waterleaf, more: [CF.life]
+  },
+  {
+    id: "mango-spiral-jetty", layer: "water", status: "prop", statusNote: "Denied; court challenge pending", lat: 41.415, lng: -112.66,
+    title: "Mango-Spiral Jetty groundwater applications",
+    place: "Promontory peninsula, near Rozel Point",
+    summary: "The State Engineer denied five of six groundwater applications on a Promontory ranch in October 2025. The applicant has challenged the denial in court.",
+    approved: "Denied by the State Engineer, Oct. 2025; reconsideration deemed denied Dec. 2025.",
+    facts: [
+      ["The denial cited water-monopoly concerns and hydrology that is \"poorly understood.\"", "State Engineer order, as cited in the Waterleaf case file"],
+      ["Suit filed January 2026, arguing the denial conflicts with a nearby approval.", "Court filing, as cited in the case file"],
+      ["Waterleaf wrote letters supporting the applications.", "Water Rights file, as cited in the case file"]
+    ],
+    sharing: "",
+    caution: [ "The court filings themselves have not been reviewed." ],
+    sources: [],
+    cf: CF.waterleaf
+  },
+  {
+    id: "river-oaks", layer: "water", status: "prop", statusNote: "Emergency application a54624 pending as of July 2026", lat: 40.585, lng: -111.905,
+    title: "River Oaks Golf Course water applications (Sandy)",
+    place: "Jordan River corridor, Sandy, Salt Lake County",
+    summary: "Water rights change applications for wells at a city golf course near the Jordan River, which flows to the lake. The public notices describe the use as city use and do not name the golf course.",
+    approved: "Application a51040 approved Nov. 22, 2024, with one proposed deep well (Point of Diversion #3, 605 feet) not approved. Application a54624 filed May 14, 2026 as an emergency.",
+    facts: [
+      ["The public notices for both applications describe the use as \"municipal use\" in the \"Sandy City Service Area.\" Neither notice names a golf course.", "Division of Water Rights public notices, a51040 and a54624"],
+      ["State Engineer correspondence dated Jan. 24, 2024 and a Sept. 23, 2024 letter from Rio Tinto Kennecott identify the project as River Oaks Golf Course.", "State Engineer file correspondence"],
+      ["The Nov. 22, 2024 approval order did not approve the 605-foot well, citing the deep principal aquifer. Application a54624 lists that well again.", "State Engineer order, Nov. 22, 2024; application a54624"],
+      ["Kennecott's Sept. 23, 2024 letter set conditions, including a 150-foot well depth limit.", "Rio Tinto Kennecott letter, Sept. 23, 2024"],
+      ["No protests were filed on a54624, and it was still pending in July 2026.", "Division of Water Rights records, July 2026"]
+    ],
+    sharing: "",
+    caution: [ "The status of a54624 after July 2026 has not been rechecked.", "Water rights 57-10180, 57-10181, and 57-10269 are involved; the amounts in each approval are in the State Engineer's file." ],
+    sources: [ { t: "Division of Water Rights, applications a51040 and a54624", u: "https://waterrights.utah.gov" } ],
+    cf: null, more: [CF.outflows]
+  },
+  {
+    id: "keller-water", layer: "water", lat: 41.52, lng: -112.52,
+    title: "Keller Cattle water rights 13-4099 and 13-4100",
+    place: "Promontory Mountains, Box Elder County",
+    summary: "The State Engineer approved 556.70 acre-feet of new water rights on the Promontory Mountains in 2024 after public notice and a protest.",
+    approved: "State Engineer order, July 18, 2024. Proof of use due July 31, 2031.",
+    facts: [
+      ["556.70 acre-feet total, filed Aug. 25, 2023, for 160 acres of irrigation and 2,000 livestock units from 8 wells and 15 springs.", "Division of Water Rights application files"],
+      ["The order says: \"even though approval may impair existing water rights, the applicant holds those water rights.\"", "State Engineer order, July 18, 2024"],
+      ["The order states no hearing was held; a hearing report and audio dated Dec. 14, 2023 are in the file.", "Order; hearing report"],
+      ["Farmland Reserve, which holds 1940 rights in the same spring system, did not oppose and asked for close review.", "Farmland Reserve letter, Jan. 15, 2024"]
+    ],
+    sharing: "",
+    caution: [ "Records place the site about 7 miles from the shoreline; one note places it at Rozel Point." ],
+    sources: [ { t: "Division of Water Rights, applications 13-4099 and 13-4100", u: "https://waterrights.utah.gov" } ],
+    cf: CF.keller
+  },
+  {
+    id: "bear-river-dev", layer: "water", status: "prop", statusNote: "Authorized in 1991; not built", lat: 41.56, lng: -112.12,
+    title: "Bear River Development (proposed diversion)",
+    place: "Bear River, above Bear River Bay",
+    summary: "A state-authorized plan to divert Bear River water before it reaches the lake. It has not been built.",
+    approved: "Bear River Development Act, 1991.",
+    facts: [
+      ["A 2016 Utah State University study estimated the completed project would lower the lake an additional 8.5 inches and expose about 30 square miles of lakebed.", "Wurtsbaugh et al., USU, 2016"],
+      ["An advocacy group estimates the diversion at 25 to 30% of the river (about 220,000 acre-feet a year).", "Utah Rivers Council (advocacy claim)"]
+    ],
+    sharing: "",
+    caution: [ "The project's current status has not been checked against the state." ],
+    sources: [ { t: "Wurtsbaugh et al., 2016", u: "https://digitalcommons.usu.edu/cgi/viewcontent.cgi?article=1891&context=wats_facpub" }, { t: "Division of Water Resources, Bear River", u: "https://water.utah.gov/interstate-streams/bear-river/" } ],
+    cf: CF.factcheck
+  },
+  {
+    id: "compass", layer: "water", lat: 41.27, lng: -112.30,
+    title: "Compass Minerals evaporation ponds",
+    place: "Evaporation ponds on the lake's east and north sides",
+    summary: "The lake's largest mineral-extraction water user. Mineral extractors were placed under mandatory cuts in 2025 as the lake neared 4,192 feet.",
+    approved: "H.B. 453 (2024) raised the mineral severance tax from 2.6% to 7.8%. Mandatory curtailment in 2025 under the state's distribution management plan.",
+    facts: [
+      ["Average depletion of about 111,700 acre-feet a year from 2017 to 2021, and about 55,000 recently; rights allow up to 428,000.", "FRIENDS of Great Salt Lake; Great Salt Lake Collaborative"],
+      ["Mineral extractors account for about 7% of the lake's depletions.", "Great Salt Lake Collaborative"]
+    ],
+    sharing: "",
+    caution: [ "The pin marks a general area; pond locations are not mapped.", "Other estimates put mineral extraction at 5.7% or 13% of depletions, depending on the method." ],
+    sources: [ { t: "FRIENDS of Great Salt Lake: Compass Minerals", u: "https://fogsl.org/advocacy-issues/compass-minerals" } ],
+    cf: CF.life, more: [CF.outflows]
+  },
+  {
+    id: "west-weber", layer: "port", lat: 41.232, lng: -112.09,
+    title: "UIPA West Weber Project Area",
+    place: "West Weber, east of the Ogden Bay wetlands",
+    summary: "An Inland Port project area near the lake's eastern wetlands. Its plan requires a wetland inventory and buffer.",
+    approved: "Weber County consented to a 342-acre project area (Resolution 39-2023, Sept. 12, 2023). UIPA adopted 8,967.74 acres on May 20, 2024, over a 1,515-signature opposition petition.",
+    facts: [
+      ["The plan mandates a wetland inventory and a 600-foot buffer, and recommends a 3% wetlands set-aside.", "West Weber Project Area Plan"],
+      ["The plan lists nine species of conservation concern within 2 miles.", "West Weber Project Area Plan"],
+      ["Projected net tax differential of $342.8 million over 25 to 40 years.", "West Weber Project Area Plan"]
+    ],
+    sharing: "Property tax growth to UIPA; the per-entity split is not in the records reviewed.",
+    caution: [ "Acreage appears as about 8,500 in one note and 8,967.74 in the plan." ],
+    sources: [ UIPA_SITE ],
+    cf: CF.west, more: [CF.map001]
+  },
+  {
+    id: "savage-rail", layer: "port", lat: 40.635, lng: -112.48,
+    title: "Savage Tooele Railroad (UIPA loan)",
+    place: "Grantsville, Tooele County",
+    summary: "An 11-mile short-line railroad financed with a state infrastructure loan, projected to take thousands of truck trips off the road.",
+    approved: "Surface Transportation Board, 2024. Loan approved by the loan committee, UIPA board, and the Legislature's Executive Appropriations Committee.",
+    facts: [
+      ["$10 million loan, 10 years at 3.45%, reported repaid.", "UIPA AIB loans page"],
+      ["Six miles rehabilitated and five miles new; projected to avoid up to 30,000 truck trips a year by year seven.", "UIPA 2024 Annual Report"]
+    ],
+    sharing: "",
+    caution: [],
+    sources: [ UIPA_SITE ],
+    cf: CF.map001
+  },
+  {
+    id: "us-mag", layer: "cons", lat: 40.91, lng: -112.73,
+    title: "Former US Magnesium site: state water purchase",
+    place: "South shore, Tooele County",
+    summary: "The state bought US Magnesium's assets in January 2026, including water rights, to keep that water in the lake.",
+    approved: "State purchase, January 2026.",
+    facts: [
+      ["$30 million for assets including about 144,000 acre-feet a year of water rights.", "Utah House; Salt Lake Tribune, Jan. 27, 2026"],
+      ["Production stopped in 2021, the lease ended in 2024, and the company filed for bankruptcy in September 2025. The site is a Superfund site.", "Utah House; reporting"]
+    ],
+    sharing: "",
+    caution: [ "Cleanup responsibility is not covered in the records reviewed." ],
+    sources: [ { t: "Utah House: 2026 Great Salt Lake laws and acquisitions", u: "https://house.utleg.gov/utahs-effort-to-save-the-great-salt-lake-historic-water-law-major-acquisitions-and-a-federal-partnership/" }, { t: "Salt Lake Tribune, Jan. 27, 2026", u: "https://www.sltrib.com/news/environment/2026/01/27/utah-buys-bankrupt-us-magnesium/" } ],
+    cf: CF.life
+  },
+  {
+    id: "antelope-island", layer: "cons", lat: 40.96, lng: -112.21,
+    title: "Antelope Island: federal land transfer",
+    place: "Antelope Island State Park, Davis County",
+    summary: "Under a 2025 federal law, 329 acres of scattered federal parcels were transferred to Antelope Island State Park.",
+    approved: "Public Law 118-181 (Utah State Parks Adjustment Act); transfer Aug. 19, 2025.",
+    facts: [ ["329 acres to Antelope Island State Park, part of 618 acres transferred statewide.", "BLM release, Aug. 19, 2025"] ],
+    sharing: "",
+    caution: [],
+    sources: [ { t: "BLM transfer release", u: "https://www.blm.gov/press-release/blm-transfers-over-600-public-acres-utah-division-state-parks" } ],
+    cf: CF.lands
+  },
+  {
+    id: "sentinel", layer: "cons", status: "prop", statusNote: "Covers a region; no single site", lat: 41.12, lng: -112.55,
+    title: "Great Salt Lake Sentinel Landscape",
+    place: "2.77 million acres across northern Utah",
+    summary: "A military and conservation partnership established in 2024 around the lake and nearby bases. It reported no acres protected or enrolled through fiscal year 2024.",
+    approved: "Established 2024.",
+    facts: [
+      ["Total protected acres: 0. Total enrolled acres: 0 (through FY2024).", "2025 Sentinel Landscape profile"],
+      ["Partners include MIDA, the Office of the Great Salt Lake Commissioner, and the Great Salt Lake Watershed Enhancement Trust.", "2025 Sentinel Landscape profile"],
+      ["A separate Defense program reports about $51.5 million and 2,443 acres protected near Camp Williams and Hill AFB through FY2021.", "DoD REPI Utah fact sheet"]
+    ],
+    sharing: "",
+    caution: [ "The pin sits in the middle of the lake because the partnership covers a region, not a site.", "The two acreage figures come from different programs and are not in conflict." ],
+    sources: [ { t: "DoD REPI Utah fact sheet", u: "https://www.repi.mil/Portals/44/Documents/State_Packages/Utah_ALLFacts.pdf" } ],
+    cf: CF.didyou, more: [CF.lands]
+  },
+  {
+    id: "bear-river-refuge", layer: "cons", lat: 41.47, lng: -112.26,
+    title: "Bear River Migratory Bird Refuge",
+    place: "Bear River Bay, Box Elder County",
+    summary: "Federal wetlands where the Bear River meets the lake, part of the ring of wetlands that holds most of Utah's wetland acreage.",
+    approved: "",
+    facts: [
+      ["About 80% of Utah's wetlands surround the Great Salt Lake.", "Consequences of Drying Lake Systems Around the World: 2026 Update"],
+      ["The lake supports more than 10 million migratory birds across about 350 species, and the Western Hemisphere Shorebird Reserve Network lists it as a site of hemispheric importance.", "Same report"]
+    ],
+    sharing: "",
+    caution: [ "The pin marks a general location in the refuge." ],
+    sources: [ { t: "Consequences of Drying Lake Systems Around the World: 2026 Update (DWQ-2026-004610)" } ],
+    cf: { label: "What Losing the Lake Would Cost (Great-Salt-Lake)", url: HIVE + "Great-Salt-Lake/weber-gsl-drying-lake-consequences.html" }, more: [CF.life]
+  },
+  {
+    id: "ogden-bay", layer: "cons", lat: 41.19, lng: -112.19,
+    title: "Ogden Bay wetlands",
+    place: "West of Ogden, Weber County",
+    summary: "Wetlands at the mouth of the Weber River, next to the West Weber Inland Port area.",
+    approved: "",
+    facts: [
+      ["The West Weber Project Area Plan mandates a wetland inventory and a 600-foot buffer, and lists nine species of conservation concern within 2 miles.", "West Weber Project Area Plan"],
+      ["For every one-foot change in lake level, about 44,000 acres of mudflat are exposed or covered.", "Consequences of Drying Lake Systems Around the World: 2026 Update"]
+    ],
+    sharing: "",
+    caution: [ "The pin marks a general location." ],
+    sources: [ { t: "Consequences of Drying Lake Systems Around the World: 2026 Update" } ],
+    cf: CF.west
+  },
+  {
+    id: "farmington-bay", layer: "cons", lat: 40.93, lng: -111.96,
+    title: "Farmington Bay wetlands",
+    place: "Where the Jordan River reaches the lake, Davis County",
+    summary: "Wetlands at the Jordan River's end, where water from the Salt Lake Valley reaches the lake.",
+    approved: "",
+    facts: [
+      ["About 9% of the lake's exposed lakebed, roughly 68 square miles, is actively producing dust, and modeling suggests it can travel more than 100 miles.", "Consequences of Drying Lake Systems Around the World: 2026 Update"],
+      ["The Trust's wetland grants have protected or restored 20,399 acres across three rounds, past its 20,000-acre goal.", "Watershed Enhancement Trust reporting"]
+    ],
+    sharing: "",
+    caution: [ "The pin marks a general location. The wetland grant acres are lake-wide, not only this bay." ],
+    sources: [ { t: "Consequences of Drying Lake Systems Around the World: 2026 Update" } ],
+    cf: { label: "Three Years, $7.24 Million (Great-Salt-Lake)", url: HIVE + "Great-Salt-Lake/weber-gsl-trust-spending-pace.html" }
+  },
+  {
+    id: "falcon-hill", layer: "mil", lat: 41.125, lng: -112.02,
+    title: "MIDA Falcon Hill Project Area",
+    place: "Hill Air Force Base, Davis and Weber counties",
+    summary: "MIDA's project area on Hill Air Force Base land, which the Stratos plan lists as land where Stratos revenue may be spent.",
+    approved: "",
+    facts: [
+      ["Spending: $5,574,453 (FY25 actual) to $29,423,359 (proposed).", "MIDA budget filing"],
+      ["About $8.9 million in FY2025 revenue; $300,000 shared with six local partners.", "MIDA Falcon Hill web page"]
+    ],
+    sharing: "$300,000 to six local partners in FY2025.",
+    caution: [ "Acreage appears as 525 and about 550 in different MIDA sources." ],
+    sources: [ MIDA_BUDGET ],
+    cf: CF.midaAreas, more: [CF.map001]
+  },
+  {
+    id: "tooele-depot", layer: "mil", status: "prop", statusNote: "Plan posted; adoption vote not confirmed in records reviewed", lat: 40.53, lng: -112.33,
+    title: "MIDA Tooele Army Depot Project Area",
+    place: "Tooele County",
+    summary: "A MIDA plan covering Tooele Army Depot land, with a stated purpose of creating revenue for and modernizing base facilities.",
+    approved: "Plan dated December 2025; public meeting Dec. 16, 2025.",
+    facts: [ ["43,228.63 acres, all military land.", "Tooele Army Depot Project Area Plan"] ],
+    sharing: "",
+    caution: [ "MIDA's current budget has no line for this area." ],
+    sources: [ MIDA_BUDGET ],
+    cf: CF.midaAreas, more: [CF.map001]
+  }
+];
+
+// ---------------------------------------------------------------
+const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const dot = (layer, st) => `<span class="dot l-${layer}${st === 'prop' ? ' prop' : ''}" aria-hidden="true">${LAYERS[layer].letter}</span>`;
+const panel = document.getElementById('panel');
+const shown = Object.fromEntries(Object.keys(LAYERS).map(k => [k, true]));
+let active = null;
+
+const map = L.map('map', { scrollWheelZoom: false, zoomSnap: 0.25 }).setView([40.9, -111.95], 8);
+L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+  attribution: '&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a> contributors', maxZoom: 18
+}).addTo(map);
+
+// State, county, and city outlines (shared file utah-geo.js)
+addUtahOutlines(map, { alwaysLabel: ['Ogden', 'Salt Lake City', 'Tooele', 'Brigham City', 'Grantsville', 'Layton'] });
+[["Great Salt Lake", 41.05, -112.45], ["North Arm", 41.45, -112.78], ["Bear River", 41.53, -112.20], ["Weber River", 41.22, -112.12], ["Jordan River", 40.86, -111.98]].forEach(([n, la, ln]) =>
+  L.marker([la, ln], { interactive: false, keyboard: false, pane: 'utahLabels', icon: L.divIcon({ className: 'river-label', html: '<span>' + n + '</span>', iconSize: null }) }).addTo(map));
+
+const markers = {};
+PINS.forEach(p => {
+  const icon = L.divIcon({ className: 'pin-icon', html: dot(p.layer, p.status), iconSize: [26, 26], iconAnchor: [13, 13] });
+  const m = L.marker([p.lat, p.lng], { icon, title: p.title, keyboard: true });
+  m.bindTooltip(p.title, { direction: 'top', offset: [0, -12] });
+  m.on('click', () => select(p.id));
+  markers[p.id] = m;
+});
+
+function refreshMarkers(){
+  PINS.forEach(p => {
+    const m = markers[p.id];
+    if (shown[p.layer]) m.addTo(map); else m.remove();
+    const el = m.getElement();
+    if (el) el.classList.toggle('active', p.id === active);
+  });
+}
+
+function renderToolbar(){
+  const tb = document.getElementById('toolbar');
+  const allOn = Object.values(shown).every(Boolean);
+  tb.innerHTML = `<button class="chip" data-layer="all" aria-pressed="${allOn}"><span class="dot" style="background:var(--navy-deep)" aria-hidden="true">&#9733;</span>Show all <span class="n">${PINS.length}</span></button>` +
+    Object.entries(LAYERS).map(([k, l]) => {
+      const n = PINS.filter(p => p.layer === k).length;
+      const on = !allOn && shown[k];
+      return `<button class="chip" data-layer="${k}" aria-pressed="${allOn || on}">${dot(k)}${l.name} <span class="n">${n}</span></button>`;
+    }).join('');
+  tb.querySelectorAll('.chip').forEach(b => b.onclick = () => {
+    const k = b.dataset.layer;
+    Object.keys(shown).forEach(x => shown[x] = (k === 'all' || x === k));
+    if (active && !shown[PINS.find(p => p.id === active).layer]) active = null;
+    renderToolbar(); refreshMarkers(); active ? renderDetail() : renderList();
+  });
+}
+
+function renderList(){
+  const list = PINS.filter(p => shown[p.layer]);
+  panel.innerHTML = `<div class="list-head">${list.length} places on the map &middot; click one</div>` +
+    list.map(p => `<button class="pin-item" data-id="${p.id}">${dot(p.layer, p.status)}<span><b>${esc(p.title)}</b><span class="pl">${esc(p.place)}</span></span></button>`).join('');
+  panel.querySelectorAll('.pin-item').forEach(b => b.onclick = () => select(b.dataset.id, true));
+}
+
+function renderDetail(){
+  const p = PINS.find(x => x.id === active);
+  const li = arr => arr.map(f => `<li>${esc(f[0])}<span class="src">Source: ${esc(f[1])}</span></li>`).join('');
+  panel.innerHTML = `
+    <div class="detail">
+      <div class="top"><button id="back">&larr; All places</button><span class="tagl">${dot(p.layer, p.status)} ${LAYERS[p.layer].name}</span></div>
+      <h2>${esc(p.title)}</h2>
+      <p class="place">${esc(p.place)}</p>
+      ${p.status === 'prop' ? `<span class="status-line prop">Proposed or not final · ${esc(p.statusNote)}</span>` : `<span class="status-line final">Approved and in effect</span>`}
+      <p class="sum">${esc(p.summary)}</p>
+      ${p.approved ? `<div class="sec"><h3>Who approved it</h3><p>${esc(p.approved)}</p></div>` : ''}
+      <div class="sec"><h3>What the record shows</h3><ul>${li(p.facts)}</ul></div>
+      ${p.sharing ? `<div class="sec"><h3>Who shares the revenue</h3><p>${esc(p.sharing)}</p></div>` : ''}
+      ${p.caution.length ? `<div class="sec caution"><h3>Not settled in the record</h3><ul>${p.caution.map(c => `<li>${esc(c)}</li>`).join('')}</ul></div>` : ''}
+      <div class="sec sources"><h3>Documents</h3><ul>${p.sources.map(s => `<li>${s.u ? `<a href="${s.u}" target="_blank" rel="noopener">${esc(s.t)}</a>` : esc(s.t)}</li>`).join('')}</ul></div>
+      ${(p.stories||[]).map(st => `<a class="story-btn" href="${st.u}" target="_blank" rel="noopener">Read the story: ${esc(st.t)} &rarr;</a>`).join('')}
+      ${(p.cf || (p.more && p.more.length)) ? `<div class="sec"><h3>Hive case files</h3></div>` + [].concat(p.cf || [], p.more || []).map(c => `<a class="case-btn" href="${c.url}" target="_blank" rel="noopener">${esc(c.label)} &rarr;</a>`).join('') : ''}
+    </div>`;
+  document.getElementById('back').onclick = () => { active = null; refreshMarkers(); renderList(); };
+  panel.scrollTop = 0;
+}
+
+function select(id, fly){
+  active = id;
+  const p = PINS.find(x => x.id === id);
+  if (fly) map.flyTo([p.lat, p.lng], Math.max(map.getZoom(), 10), { duration: 0.6 });
+  refreshMarkers(); renderDetail();
+  if (window.innerWidth <= 900) panel.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+document.querySelectorAll('.flip-card').forEach(c => {
+  const flip = () => c.classList.toggle('flipped');
+  c.addEventListener('click', flip);
+  c.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); flip(); } });
+});
+
+renderToolbar(); refreshMarkers(); renderList();
+// Fit the map to the pins, and fit again if the map's size changes before
+// anyone has touched it (for example while the diagrams below finish drawing).
+const homeBounds = L.latLngBounds(PINS.map(p => [p.lat, p.lng])).pad(0.12);
+let userMoved = false;
+const mapEl = document.getElementById('map');
+['mousedown', 'touchstart', 'wheel', 'keydown'].forEach(ev => mapEl.addEventListener(ev, () => { userMoved = true; }, { passive: true }));
+document.getElementById('panel').addEventListener('click', () => { userMoved = true; });
+document.getElementById('toolbar').addEventListener('click', () => { userMoved = true; });
+const fitHome = () => { map.invalidateSize(); if (!userMoved) map.fitBounds(homeBounds); };
+fitHome();
+if (window.ResizeObserver) new ResizeObserver(() => fitHome()).observe(mapEl);
+window.addEventListener('load', fitHome);
+</script>
+</body>
+</html>
