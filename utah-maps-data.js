@@ -37,10 +37,10 @@ const MAPS = [
     title: "Who's Raising Taxes This Year",
     scope: "Weber County",
     status: "live",
-    summary: "Every Weber County taxing entity that went through Truth in Taxation in 2026, with the percentage increase, the dollar amount, the hearing, and the outcome where the record shows it.",
+    summary: "Every Weber County taxing entity that went through Truth in Taxation in 2026, with the percentage increase, the dollar amount, the hearing, and the outcome where the record shows it. Also West Haven, which has no property tax and starts a 6% tax on power and gas bills instead.",
     layers: ["Cities", "Special Districts"],
     relatedRepos: ["PIDS-Utah", "Transparency"],
-    pins: 8,
+    pins: 9,
     link: "weber-county-tax-increases-2026.html",
     lastUpdated: "Sep 30, 2026"
   },
