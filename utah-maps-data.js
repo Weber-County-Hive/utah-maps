@@ -96,11 +96,13 @@ const MAPS = [
     mapId: "MAP 007",
     title: "Trust Lands Sales",
     scope: "Statewide",
-    status: "planned",
-    summary: "State trust land auctions, options, and sales, with the buyer, terms, and later use shown in the public record.",
-    layers: ["Auctions", "Options", "Sales"],
-    relatedRepos: ["Public-Lands"],
-    lastUpdated: "Sep 25, 2026"
+    status: "live",
+    summary: "State trust land sold at auction, listed for the Nov. 12-18, 2026 auction, and optioned for development, with the price, acreage, and case file for each. Starts with the parcels the Hive has documented.",
+    layers: ["Sold", "Up for auction", "Option / lease", "Zoning"],
+    relatedRepos: ["Public-Lands", "Transparency"],
+    pins: 7,
+    link: "trust-lands-sales.html",
+    lastUpdated: "Sep 30, 2026"
   },
   {
     mapId: "MAP 008",
