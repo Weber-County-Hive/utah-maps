@@ -250,11 +250,12 @@
   <div class="note">
     <h4>Read the full case file</h4>
     <p><a href="https://weber-county-hive.github.io/Transparency/weber-hive-5th5th-sales-tax.html" target="_blank" rel="noopener">Weber County's New Sales Tax: A Public Vote, but No Vote by the Public</a> (Transparency) has the full record and a calculator for your own spending. <a href="https://weber-county-hive.github.io/Bill-Tracker/weber-hive-sb242.html" target="_blank" rel="noopener">S.B. 242</a> (Bill Tracker) is the 2026 bill that set this tax's rules. <a href="weber-county-tax-increases-2026.html">MAP 002</a> shows this year's property tax increases.</p>
+    <p><strong>West Haven</strong> starts a second new tax the same day: a 6% city tax on electricity and natural gas. <a href="https://weber-county-hive.github.io/Transparency/west-haven-energy-tax.html" target="_blank" rel="noopener">Read the West Haven case file</a> (Transparency), or click West Haven on the map.</p>
   </div>
 </section>
 
 <footer>
-  Sources: Weber County announcement, July 1, 2026; KSL.com, Sept. 17, 2026, reporting the Wasatch Front Regional Council's revenue estimates; Utah State Tax Commission sales and use tax rate charts; Utah Code 59-12-2220. Compiled by Utah Hive Politics, from the publisher of The Weber County Hive. Last updated Sep 26, 2026.<br>
+  Sources: Weber County announcement, July 1, 2026; KSL.com, Sept. 17, 2026, reporting the Wasatch Front Regional Council's revenue estimates; Utah State Tax Commission sales and use tax rate charts; Utah Code 59-12-2220; West Haven City Council minutes, June 17, 2026. Compiled by Utah Hive Politics, from the publisher of The Weber County Hive. Last updated Sep 30, 2026.<br>
   Map tiles &copy; OpenStreetMap contributors. State, county, and city boundaries: U.S. Census Bureau.
 </footer>
 <div class="hb-foot"><img src="hive-bee.png" alt="" onerror="this.style.display='none'"><span class="hb-name">Utah Hive Politics</span><span class="hb-sub">from the publisher of The Weber County Hive</span><span class="hb-tag">Independent · Accountability · Journalism</span></div>
@@ -379,6 +380,15 @@ const WHY = {
   "Ogden Valley City": "Ogden Valley City has the countywide rate. Its city limits are not drawn on this map because the city incorporated after the Census boundaries were made.",
   "Unincorporated Weber County": "Areas outside any city pay the countywide rate. The unincorporated share goes to the county for transportation."
 };
+// ALSO: other new city taxes starting the same day, shown on that city's panel.
+const ALSO = {
+  "West Haven": {
+    title: "Also starting Oct. 1: a 6% energy tax",
+    text: "West Haven has no city property tax. On June 17, 2026, the City Council voted 3-2 to start collecting a 6% tax on electricity and natural gas, enacted in 1998 and never collected. The city expects about $1.2 million a year; KSL.com reported about $11 a month for the average household. It applies to renters and owners alike.",
+    src: { t: "West Haven City Council minutes, June 17, 2026", u: "https://www.utah.gov/pmn/files/1458397.pdf" },
+    cs: { label: "West Haven's 6% Energy Tax (Transparency)", url: "https://weber-county-hive.github.io/Transparency/west-haven-energy-tax.html" }
+  }
+};
 const SOURCES = [
   { t: "Weber County announcement, July 1, 2026", u: "https://webercountyutah.gov/news/post.php?id=292" },
   { t: "KSL.com, Sept. 17, 2026: Weber County sales tax taking effect Oct. 1", u: "https://www.ksl.com/article/51625459/weber-county-sales-tax-taking-effect-oct-1-expected-to-generate-131m-a-year" },
@@ -438,7 +448,7 @@ function renderOverview(){
       </div>
       <div class="sec"><h3>New transportation money by city</h3><p style="font-size:13px;color:var(--ink-soft);margin-bottom:8px">Half by population, half by where sales happen. Click a name for details.</p></div>
     </div>` +
-    list.map(p => `<button class="pin-item" data-n="${esc(p.n)}">${chip(p)}<span style="flex:1"><b>${esc(p.n)}</b><span class="pl">${money(p.share)} a year</span><span style="display:block;height:6px;margin-top:5px;border-radius:2px;background:var(--gold);width:${Math.max(2, p.share / max * 100)}%"></span></span></button>`).join('');
+    list.map(p => `<button class="pin-item" data-n="${esc(p.n)}">${chip(p)}<span style="flex:1"><b>${esc(p.n)}</b><span class="pl">${money(p.share)} a year${ALSO[p.n] ? ' &middot; <b style="color:#A5301E">+ 6% energy tax</b>' : ''}</span><span style="display:block;height:6px;margin-top:5px;border-radius:2px;background:var(--gold);width:${Math.max(2, p.share / max * 100)}%"></span></span></button>`).join('');
   panel.querySelectorAll('.pin-item').forEach(b => b.onclick = () => select(b.dataset.n, true));
 }
 
@@ -457,10 +467,11 @@ function renderDetail(){
         <dt>Use</dt><dd>Transportation only</dd>
         <dt>Estimate by</dt><dd>Wasatch Front Regional Council, as reported by KSL, Sept. 17, 2026</dd>
       </dl></div>
+      ${ALSO[p.n] ? `<div class="sec caution" style="border-left-color:#A5301E"><h3>${esc(ALSO[p.n].title)}</h3><p>${esc(ALSO[p.n].text)}</p><p style="margin-top:6px"><a href="${ALSO[p.n].src.u}" target="_blank" rel="noopener">${esc(ALSO[p.n].src.t)}</a></p></div>` : ''}
       <div class="sec caution"><h3>Good to know</h3><p>The Wasatch Front Regional Council's document says a city receives its share only if it meets state moderate-income housing planning requirements. Each city's compliance status has not been confirmed.</p></div>
       <div class="sec sources"><h3>Documents</h3><ul>${SOURCES.map(s => `<li><a href="${s.u}" target="_blank" rel="noopener">${esc(s.t)}</a></li>`).join('')}</ul></div>
       <div class="sec"><h3>Hive case files</h3></div>
-      ${CASES.map(c => `<a class="case-btn" href="${c.url}" target="_blank" rel="noopener">${esc(c.label)} &rarr;</a>`).join('')}
+      ${(ALSO[p.n] ? [ALSO[p.n].cs] : []).concat(CASES).map(c => `<a class="case-btn" href="${c.url}" target="_blank" rel="noopener">${esc(c.label)} &rarr;</a>`).join('')}
     </div>`;
   document.getElementById('back').onclick = () => { active = null; highlight(); renderOverview(); };
   panel.scrollTop = 0;
