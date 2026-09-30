@@ -84,11 +84,13 @@ const MAPS = [
     mapId: "MAP 006",
     title: "Citizen Referendums",
     scope: "Statewide",
-    status: "planned",
-    summary: "Where residents have filed referendums against local government actions, and where each one stands.",
-    layers: ["Active", "Qualified", "Closed"],
-    relatedRepos: ["referendums"],
-    lastUpdated: "Sep 25, 2026"
+    status: "live",
+    summary: "Where Utah residents have tried to put a city or county decision to a public vote, and where each effort stands: Eagle Mountain, Roy, Box Elder County's Stratos referendum, and Summit County's Kimball Junction referendum.",
+    layers: ["Active", "In court", "Closed"],
+    relatedRepos: ["referendum"],
+    pins: 4,
+    link: "citizen-referendums.html",
+    lastUpdated: "Sep 30, 2026"
   },
   {
     mapId: "MAP 007",
