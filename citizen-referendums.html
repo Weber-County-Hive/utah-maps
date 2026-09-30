@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Citizen Referendums — Utah Hive Politics</title>
+<meta name="description" content="MAP 006 from Utah Hive Politics: where Utah residents have tried to put a local government decision to a public vote, and where each referendum stands.">
+<link rel="icon" type="image/png" href="hive-bee.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600&family=Special+Elite&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;0,8..60,700;1,8..60,400&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+<style>
+  :root{
+    --navy:#14213D; --navy-deep:#0D1728;
+    --manila:#D9C9A3; --manila-dark:#C4B389;
+    --paper:#EDE7D8; --paper-light:#F5F1E6;
+    --ink:#1F1B16; --ink-soft:#4A443A;
+    --red:#A5301E; --green:#3F6B3B; --gold:#A9822F; --rule:#B7AC91;
+    --l-data:#A5301E; --l-pid:#A9822F; --l-cra:#3F6B3B; --l-mida:#2F5A8F; --l-other:#6E4A78;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;background:var(--navy);color:var(--paper);font-family:'Source Serif 4',Georgia,serif;-webkit-font-smoothing:antialiased;}
+  a{color:inherit;}
+
+  .hb-bar{background:#0d0b0a;border-bottom:1px solid #3a2f1c;padding:10px 20px;}
+  .hb-bar a{display:flex;align-items:center;gap:12px;max-width:1200px;margin:0 auto;text-decoration:none;}
+  .hb-bar img{width:52px;height:52px;border-radius:4px;display:block;flex:none;}
+  .hb-name{font-family:'Cinzel',Georgia,serif;color:#d4af37;font-size:16px;letter-spacing:.14em;text-transform:uppercase;line-height:1.2;display:block;}
+  .hb-sub{font-family:Georgia,serif;font-style:italic;color:#b8956a;font-size:12.5px;display:block;margin-top:2px;}
+
+  .masthead{max-width:1200px;margin:0 auto;padding:34px 20px 22px;}
+  .back{font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--manila);text-decoration:none;border-bottom:1px solid rgba(217,201,163,.4);}
+  .back:hover{color:var(--gold);border-color:var(--gold);}
+  .eyebrow{font-family:'Special Elite',monospace;font-size:12px;letter-spacing:.22em;text-transform:uppercase;color:var(--manila);margin:18px 0 8px;}
+  h1{font-size:clamp(30px,4.6vw,48px);line-height:1.08;margin:0 0 12px;font-weight:700;color:var(--paper-light);}
+  .intro{max-width:70ch;font-size:16.5px;line-height:1.6;color:rgba(237,231,216,.75);margin:0;}
+
+  .toolbar{max-width:1200px;margin:0 auto;padding:0 20px 14px;display:flex;flex-wrap:wrap;gap:8px;align-items:center;}
+  .chip{display:inline-flex;align-items:center;gap:7px;font-family:'IBM Plex Mono',monospace;font-size:12px;background:rgba(255,255,255,.05);border:1px solid rgba(217,201,163,.3);color:var(--paper-light);border-radius:20px;padding:6px 12px 6px 7px;cursor:pointer;}
+  .chip[aria-pressed="false"]{opacity:.45;}
+  .chip .dot{width:20px;height:20px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:10.5px;font-weight:600;color:#fff;border:1.5px solid #fff;}
+  .chip .n{color:var(--manila);}
+
+  .stage{max-width:1200px;margin:0 auto;padding:0 20px;display:grid;grid-template-columns:minmax(0,1fr) 400px;gap:18px;}
+  #map{height:640px;border-radius:2px;border:2px solid var(--gold);background:#d8d4c8;}
+  .panel{background:var(--paper);color:var(--ink);border-radius:2px;height:640px;overflow:auto;box-shadow:0 14px 30px -14px rgba(0,0,0,.55);}
+  @media (max-width:900px){
+    .stage{grid-template-columns:1fr;}
+    #map{height:430px;}
+    .panel{height:auto;max-height:none;}
+  }
+
+  .list-head{position:sticky;top:0;background:var(--manila-dark);padding:10px 18px;font-family:'IBM Plex Mono',monospace;font-size:11.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink);z-index:2;}
+  .pin-item{display:flex;gap:12px;align-items:flex-start;width:100%;text-align:left;background:none;border:none;border-bottom:1px dashed var(--rule);padding:13px 18px;cursor:pointer;font-family:inherit;color:inherit;}
+  .pin-item:hover{background:rgba(169,130,47,.1);}
+  .pin-item .dot{flex:none;margin-top:2px;}
+  .pin-item b{display:block;font-size:16px;line-height:1.3;}
+  .pin-item span.pl{display:block;font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--ink-soft);margin-top:3px;}
+
+  .dot{width:24px;height:24px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:600;color:#fff;border:2px solid #fff;box-shadow:0 1px 4px rgba(0,0,0,.4);}
+  .l-data{background:var(--l-data);} .l-pid{background:var(--l-pid);} .l-cra{background:var(--l-cra);} .l-mida{background:var(--l-mida);} .l-other{background:var(--l-other);}
+
+  .detail{padding:0 0 20px;}
+  .detail .top{background:var(--manila-dark);padding:10px 18px;display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;z-index:2;}
+  .detail .top button{font-family:'IBM Plex Mono',monospace;font-size:11.5px;background:none;border:none;cursor:pointer;color:var(--ink);padding:0;}
+  .detail .top .tagl{font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.06em;text-transform:uppercase;}
+  .detail h2{font-size:23px;line-height:1.2;margin:16px 18px 4px;}
+  .detail .place{font-family:'IBM Plex Mono',monospace;font-size:11.5px;color:var(--ink-soft);margin:0 18px 12px;text-transform:uppercase;letter-spacing:.04em;}
+  .detail .sum{margin:0 18px 14px;font-size:15.5px;line-height:1.55;color:var(--ink-soft);}
+  .sec{margin:0 18px 14px;}
+  .sec h3{font-family:'Special Elite',monospace;font-weight:400;font-size:12.5px;letter-spacing:.14em;text-transform:uppercase;margin:0 0 7px;color:var(--ink);border-bottom:1px solid var(--rule);padding-bottom:4px;}
+  .sec ul{margin:0;padding-left:18px;}
+  .sec li{font-size:14.5px;line-height:1.5;margin-bottom:7px;color:var(--ink);}
+  .src{display:block;font-family:'IBM Plex Mono',monospace;font-size:10.5px;color:var(--ink-soft);margin-top:2px;}
+  .sec.caution{background:rgba(165,48,30,.07);border-left:3px solid var(--red);padding:9px 12px;}
+  .sec.caution h3{color:var(--red);border:none;padding:0;}
+  .sec p{margin:0;font-size:14.5px;line-height:1.5;}
+  .case-btn{display:block;width:fit-content;margin:0 18px 8px;font-family:'IBM Plex Mono',monospace;font-size:12.5px;font-weight:600;color:var(--navy-deep);background:var(--gold);text-decoration:none;padding:10px 16px;border-radius:4px;}
+  .case-btn:hover{background:#C29A3D;}
+  .sources a{color:var(--red);}
+
+  .leaflet-container{font-family:'Source Serif 4',Georgia,serif;}
+  .pin-icon{background:none;border:none;}
+  .pin-icon .dot{width:26px;height:26px;font-size:11.5px;transition:transform .12s;}
+  .pin-icon.active .dot{transform:scale(1.35);box-shadow:0 0 0 4px rgba(169,130,47,.55),0 2px 6px rgba(0,0,0,.5);}
+  .county-label{background:none;border:none;}
+  .county-label span{display:block;transform:translate(-50%,-50%);font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:#14213D;opacity:.7;white-space:nowrap;text-shadow:0 0 3px #fff,0 0 3px #fff;pointer-events:none;}
+  .dot.prop{background:var(--paper-light) !important;border-style:dashed;border-width:2.5px;}
+  .dot.prop.l-data{color:var(--l-data);border-color:var(--l-data);} .dot.prop.l-pid{color:var(--l-pid);border-color:var(--l-pid);} .dot.prop.l-cra{color:var(--l-cra);border-color:var(--l-cra);} .dot.prop.l-mida{color:var(--l-mida);border-color:var(--l-mida);} .dot.prop.l-other{color:var(--l-other);border-color:var(--l-other);}
+  .status-key{max-width:1200px;margin:0 auto;padding:0 20px 14px;display:flex;flex-wrap:wrap;gap:18px;font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--manila);align-items:center;}
+  .status-key span{display:inline-flex;align-items:center;gap:7px;}
+  .status-line{margin:0 18px 12px;font-family:'IBM Plex Mono',monospace;font-size:11.5px;letter-spacing:.04em;text-transform:uppercase;display:inline-flex;align-items:center;gap:7px;padding:4px 10px;border-radius:3px;}
+  .status-line.final{background:rgba(63,107,59,.12);color:var(--green);}
+  .status-line.prop{background:rgba(165,48,30,.08);color:var(--red);border:1px dashed var(--red);}
+  .glossary{max-width:1200px;margin:28px auto 0;padding:0 20px;}
+  .glossary h2{font-family:'Special Elite',monospace;font-weight:400;font-size:15px;letter-spacing:.18em;text-transform:uppercase;color:var(--manila);margin:0 0 4px;}
+  .gl-sub{margin:0 0 14px;font-size:14px;color:rgba(237,231,216,.6);}
+  .flip-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:12px;}
+  .flip-card{perspective:900px;height:215px;cursor:pointer;outline:none;}
+  .flip-card:focus-visible .flip-inner{box-shadow:0 0 0 3px var(--gold);}
+  .flip-inner{position:relative;width:100%;height:100%;transition:transform .5s;transform-style:preserve-3d;border-radius:2px;}
+  .flip-card.flipped .flip-inner{transform:rotateY(180deg);}
+  .flip-front,.flip-back{position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;border-radius:2px;padding:14px 16px;display:flex;flex-direction:column;}
+  .flip-front{background:var(--paper);color:var(--ink);justify-content:space-between;border-top:4px solid var(--gold);}
+  .flip-front .ft{font-family:'Source Serif 4',Georgia,serif;font-weight:700;font-size:21px;line-height:1.2;}
+  .flip-front .fh{font-family:'IBM Plex Mono',monospace;font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-soft);}
+  .flip-back{background:var(--navy-deep);color:var(--paper-light);transform:rotateY(180deg);border:1px solid var(--gold);overflow:auto;gap:8px;}
+  .flip-back .fd{font-size:13px;line-height:1.5;}
+  .flip-link{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--gold);}
+  @media (prefers-reduced-motion:reduce){.flip-inner{transition:none;}}
+  .story-btn{display:inline-block;margin:8px 18px 0;font-family:'IBM Plex Mono',monospace;font-size:12.5px;font-weight:600;color:var(--paper-light);background:var(--navy);text-decoration:none;padding:10px 16px;border-radius:4px;}
+  .story-btn:hover{background:var(--navy-deep);}
+  .city-label{background:none;border:none;}
+  .city-label.key span{font-weight:600;font-size:11.5px;color:#14213D;}
+  .city-label span{display:block;transform:translate(-50%,-50%);font-family:'IBM Plex Mono',monospace;font-size:10.5px;color:#4a2f55;white-space:nowrap;text-shadow:0 0 3px #fff,0 0 3px #fff,0 0 3px #fff;pointer-events:none;}
+  .leaflet-tooltip{font-family:'IBM Plex Mono',monospace;font-size:11.5px;}
+
+  .notes{max-width:1200px;margin:26px auto 0;padding:0 20px;display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:18px;}
+  .note{border:1px solid rgba(217,201,163,.25);border-radius:2px;padding:16px 18px;font-size:14.5px;line-height:1.6;color:rgba(237,231,216,.78);}
+  .note h4{font-family:'Special Elite',monospace;font-weight:400;font-size:12.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--manila);margin:0 0 8px;}
+  .note p{margin:0 0 8px;}
+  .note strong{color:var(--paper-light);}
+
+  footer{max-width:1200px;margin:30px auto 0;padding:18px 20px 30px;border-top:1px solid rgba(217,201,163,.15);font-family:'IBM Plex Mono',monospace;font-size:11.5px;color:rgba(237,231,216,.45);line-height:1.6;}
+  .hb-foot{background:#0d0b0a;color:#b8956a;text-align:center;padding:26px 20px 30px;font-family:Georgia,serif;}
+  .hb-foot img{width:52px;height:52px;display:block;margin:0 auto 10px;}
+  .hb-foot .hb-name{font-size:14px;}
+  .hb-foot .hb-tag{font-size:10.5px;letter-spacing:.2em;text-transform:uppercase;color:#8a7650;margin-top:8px;display:block;}
+  @media(max-width:600px){.hb-bar img{width:38px;height:38px}.hb-name{font-size:13px}.masthead{padding-top:24px}}
+
+  .pct{display:inline-flex;align-items:center;justify-content:center;min-width:54px;height:28px;padding:0 8px;border-radius:14px;font-family:'IBM Plex Mono',monospace;font-size:12px;font-weight:600;color:#fff;border:2px solid #fff;box-shadow:0 1px 5px rgba(0,0,0,.45);white-space:nowrap;}
+  .pct.s1{background:#A9822F;} .pct.s2{background:#C0632B;} .pct.s3{background:#A5301E;}
+  .pct.pend{border-style:dashed;border-width:2.5px;background:var(--paper-light) !important;}
+  .pct.pend.s1{color:#8a6a24;border-color:#A9822F;} .pct.pend.s2{color:#C0632B;border-color:#C0632B;} .pct.pend.s3{color:#A5301E;border-color:#A5301E;}
+  .pin-icon.active .pct{transform:scale(1.2);box-shadow:0 0 0 4px rgba(169,130,47,.55);}
+  .pin-item .pct{flex:none;min-width:62px;}
+  .kv{display:grid;grid-template-columns:auto 1fr;gap:6px 14px;margin:0;font-size:14.5px;}
+  .kv dt{font-family:'IBM Plex Mono',monospace;font-size:11.5px;text-transform:uppercase;letter-spacing:.04em;color:var(--ink-soft);padding-top:2px;}
+  .kv dd{margin:0;}
+  .bill{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;margin:0 18px 14px;font-family:'IBM Plex Mono',monospace;}
+  .bill .from{font-size:18px;color:var(--ink-soft);text-decoration:line-through;}
+  .bill .to{font-size:26px;font-weight:600;color:var(--ink);}
+  .bill .cap{flex-basis:100%;font-size:11px;color:var(--ink-soft);}
+
+  .rate{display:inline-flex;align-items:center;justify-content:center;min-width:58px;height:26px;padding:0 8px;border-radius:13px;font-family:'IBM Plex Mono',monospace;font-size:12px;font-weight:600;border:2px solid #fff;box-shadow:0 1px 4px rgba(0,0,0,.35);}
+  .r1{background:#E6CF8E;color:#3d2f10;} .r2{background:#C0632B;color:#fff;} .r3{background:#A5301E;color:#fff;}
+  .split{display:grid;gap:8px;margin:0 18px 14px;}
+  .split .row{display:grid;grid-template-columns:92px 1fr;gap:10px;align-items:center;font-size:14px;}
+  .split .bar{height:14px;background:var(--gold);border-radius:2px;}
+  .split .amt{font-family:'IBM Plex Mono',monospace;font-weight:600;font-size:13px;}
+  .big{font-family:'IBM Plex Mono',monospace;font-size:30px;font-weight:600;margin:0 18px 2px;color:var(--ink);}
+  .big small{font-size:14px;color:var(--ink-soft);font-weight:400;}
+  .why{margin:0 18px 14px;background:rgba(169,130,47,.1);border-left:3px solid var(--gold);padding:10px 12px;font-size:14.5px;line-height:1.55;}
+  .why b{color:var(--ink);}
+  .stack{display:flex;height:22px;border-radius:2px;overflow:hidden;margin:6px 0 4px;font-family:'IBM Plex Mono',monospace;font-size:10.5px;color:#fff;}
+  .stack span{display:flex;align-items:center;justify-content:center;white-space:nowrap;overflow:hidden;}
+  .leaflet-interactive:focus{outline:none;}
+</style>
+<style>
+  .vbtn{display:inline-flex;align-items:center;gap:8px;font-family:'IBM Plex Mono',monospace;font-size:12px;background:rgba(255,255,255,.05);border:1px solid rgba(217,201,163,.3);color:var(--paper-light);border-radius:20px;padding:6px 13px;cursor:pointer;}
+  .vbtn[aria-pressed="true"]{background:var(--paper);color:var(--ink);border-color:var(--paper);}
+  .vbtn .n{color:var(--manila);} .vbtn[aria-pressed="true"] .n{color:var(--ink-soft);}
+  .vbtn:focus-visible,.pin-item:focus-visible,.case-btn:focus-visible{outline:3px solid var(--gold);outline-offset:2px;}
+  .st{display:inline-flex;align-items:center;justify-content:center;min-width:74px;height:26px;padding:0 9px;border-radius:13px;font-family:'IBM Plex Mono',monospace;font-size:11.5px;font-weight:600;color:#fff;border:2px solid #fff;box-shadow:0 1px 5px rgba(0,0,0,.45);white-space:nowrap;}
+  .st.active{background:#A5301E;} .st.court{background:#2F5A8F;} .st.closed{background:#6b6457;}
+  .pin-icon.active .st{transform:scale(1.18);box-shadow:0 0 0 4px rgba(169,130,47,.55);}
+  .pin-item .st{flex:none;}
+  .law{margin:14px 18px;padding:12px 14px;background:rgba(20,33,61,.07);border:1px solid var(--rule);font-size:14.5px;line-height:1.5;}
+  .law a{color:var(--red);font-weight:600;}
+</style>
+</head>
+<body>
+
+<div class="hb-bar"><a href="https://webercountyhive.substack.com/" target="_blank" rel="noopener"><img src="uhp-badge.png" alt="Utah Hive Politics logo" onerror="this.style.display='none'"><span><span class="hb-name">Utah Hive Politics</span><span class="hb-sub">from the publisher of The Weber County Hive</span></span></a></div>
+
+<header class="masthead">
+  <a class="back" href="index.html">&larr; All Utah Maps</a>
+  <p class="eyebrow">MAP 006 &middot; Statewide &middot; Referendums</p>
+  <h1>Citizen Referendums</h1>
+  <p class="intro">Where Utah residents have tried to put a city or county decision to a public vote, and where each effort stands. Click a pin for what was challenged, the key dates, and the case file. The map grows as new referendums are filed.</p>
+</header>
+
+<div class="toolbar" id="toolbar" role="group" aria-label="Choose which referendums to show"></div>
+<div class="status-key" aria-label="Map key">
+  <span><span class="st active" aria-hidden="true">Active</span>Filed, and signatures or materials still pending</span>
+  <span><span class="st court" aria-hidden="true">In court</span>Blocked, and the fight is now in court</span>
+  <span><span class="st closed" aria-hidden="true">Closed</span>Over, with no public vote</span>
+</div>
+
+<div class="stage">
+  <div id="map" role="region" aria-label="Map of Utah citizen referendums"></div>
+  <aside class="panel" id="panel" aria-live="polite"></aside>
+</div>
+
+<section class="glossary" aria-labelledby="gl-h">
+  <h2 id="gl-h">Words on this map</h2>
+  <p class="gl-sub">Tap a card to flip it.</p>
+  <div class="flip-grid">
+    <div class="flip-card" tabindex="0" role="button" aria-label="Referendum: tap to see the meaning">
+      <div class="flip-inner">
+        <div class="flip-front"><span class="ft">Referendum</span><span class="fh">Tap to flip &#8635;</span></div>
+        <div class="flip-back"><span class="fd">A citizen petition that asks voters to keep or reverse a law their city, county or state just passed. If enough valid signatures are turned in, the law is put on hold until the vote.</span></div>
+      </div>
+    </div>
+    <div class="flip-card" tabindex="0" role="button" aria-label="Referable: tap to see the meaning">
+      <div class="flip-inner">
+        <div class="flip-front"><span class="ft">Referable</span><span class="fh">Tap to flip &#8635;</span></div>
+        <div class="flip-back"><span class="fd">Whether a decision can legally be sent to voters. Local governments have a set number of days after an application is filed to decide, and that decision can be appealed to court.</span></div>
+      </div>
+    </div>
+    <div class="flip-card" tabindex="0" role="button" aria-label="Legislative vs. administrative: tap to see the meaning">
+      <div class="flip-inner">
+        <div class="flip-front"><span class="ft">Legislative vs. administrative</span><span class="fh">Tap to flip &#8635;</span></div>
+        <div class="flip-back"><span class="fd">Utah courts allow a referendum only on a "legislative" act, one that sets new policy. An "administrative" act, applying existing policy to a specific case, generally can't be referred. That line is often the whole fight.</span></div>
+      </div>
+    </div>
+    <div class="flip-card" tabindex="0" role="button" aria-label="Signature threshold: tap to see the meaning">
+      <div class="flip-inner">
+        <div class="flip-front"><span class="ft">Signature threshold</span><span class="fh">Tap to flip &#8635;</span></div>
+        <div class="flip-back"><span class="fd">How many valid signatures are needed. Since H.B. 119 (2019), a land-use referendum in a first-class county needs 16% of active voters, compared with 7.5% to 7.75% for other local laws.</span></div>
+      </div>
+    </div>
+    <div class="flip-card" tabindex="0" role="button" aria-label="Sponsors: tap to see the meaning">
+      <div class="flip-inner">
+        <div class="flip-front"><span class="ft">Sponsors</span><span class="fh">Tap to flip &#8635;</span></div>
+        <div class="flip-back"><span class="fd">The residents who file the referendum application and are responsible for the petition and its signature packets.</span></div>
+      </div>
+    </div>
+    <div class="flip-card" tabindex="0" role="button" aria-label="Petition packet: tap to see the meaning">
+      <div class="flip-inner">
+        <div class="flip-front"><span class="ft">Petition packet</span><span class="fh">Tap to flip &#8635;</span></div>
+        <div class="flip-back"><span class="fd">The bound set of signature sheets a signature gatherer carries. Utah's Election Code sets strict rules on how packets are numbered and bound, and packets that miss them can be thrown out.</span></div>
+      </div>
+    </div>
+    <div class="flip-card" tabindex="0" role="button" aria-label="Moot: tap to see the meaning">
+      <div class="flip-inner">
+        <div class="flip-front"><span class="ft">Moot</span><span class="fh">Tap to flip &#8635;</span></div>
+        <div class="flip-back"><span class="fd">A case a court dismisses because something else already settled the question, so a ruling would no longer change anything.</span></div>
+      </div>
+    </div>
+    <div class="flip-card" tabindex="0" role="button" aria-label="Vote-margin protection: tap to see the meaning">
+      <div class="flip-inner">
+        <div class="flip-front"><span class="ft">Vote-margin protection</span><span class="fh">Tap to flip &#8635;</span></div>
+        <div class="flip-back"><span class="fd">Under Utah Code 20A-7-602.8, some local land-use laws can't be referred to voters if they pass by a two-thirds vote (transit-area land use) or unanimously (municipal land use). S.B. 199 (2023) extended this protection.</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="notes">
+  <div class="note">
+    <h4>What these have in common</h4>
+    <p>None of the four has reached a public vote so far. Two were stopped before or at the signature stage, one by a ruling that the decision couldn't be referred and one by packet-binding rules. The other two are still under way.</p>
+  </div>
+  <div class="note">
+    <h4>The rules behind them</h4>
+    <p><a href="https://webercountyhive-coder.github.io/referendum/utah-referendum-law-history.html" target="_blank" rel="noopener">The Rules Keep Changing</a> (Referendums) traces how Utah's referendum law has been rewritten since 2019, bill by bill, including the higher signature threshold for land-use referendums.</p>
+  </div>
+  <div class="note">
+    <h4>Related</h4>
+    <p><a href="https://webercountyhive-coder.github.io/referendum/" target="_blank" rel="noopener">The full referendum docket</a> has every case file. <a href="weber-county-tax-increases-2026.html">MAP 002</a> shows this year's property tax increases, including Roy's.</p>
+    <p>Know of a referendum that isn't here? Email webercountyhive@gmail.com.</p>
+  </div>
+</section>
+
+<footer>
+  Sources: The Weber County Hive referendum case files (each lists its own records); KSL.com and FOX 13 for Roy. Compiled by Utah Hive Politics, from the publisher of The Weber County Hive. Last updated Sep 30, 2026.<br>
+  Map tiles &copy; OpenStreetMap contributors. State, county, and city boundaries: U.S. Census Bureau.
+</footer>
+<div class="hb-foot"><img src="hive-bee.png" alt="" onerror="this.style.display='none'"><span class="hb-name">Utah Hive Politics</span><span class="hb-sub">from the publisher of The Weber County Hive</span><span class="hb-tag">Independent · Accountability · Journalism</span></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<script src="utah-geo.js"></script>
+<script>
+// ---------------------------------------------------------------
+// PLACES: one entry per referendum. To add one, copy an entry.
+//   st: "active" | "court" | "closed"
+//   cases: Hive case files; src: outside sources (optional)
+// ---------------------------------------------------------------
+const PLACES = [
+ {
+  "id": "eagle-mountain",
+  "name": "Eagle Mountain",
+  "county": "Utah County",
+  "city": "Eagle Mountain",
+  "lat": 40.314,
+  "lng": -112.006,
+  "st": "active",
+  "what": "Resolution R-62-2026, a 69.81% property tax increase",
+  "key": "69.81% rate increase; $2,132,876 at stake",
+  "dates": [
+   [
+    "Application filed",
+    "Aug. 24, 2026"
+   ],
+   [
+    "Found referable",
+    "Sept. 14, 2026, by the city attorney"
+   ]
+  ],
+  "summary": "The city attorney found the referendum legally referable on Sept. 14, 2026. Sponsors say the city hasn't provided the petition, signature sheets or an accurate ballot pamphlet it is required to provide, and that the draft pamphlet cites an August 2027 election date that Utah Code appears to disallow for a tax measure without a declared disaster and a unanimous council vote.",
+  "next": "Whether the city provides the petition materials, when signature gathering can begin, and which election date applies.",
+  "cases": [
+   [
+    "Eagle Mountain's Second Tax Referendum (Referendums)",
+    "https://webercountyhive-coder.github.io/referendum/eagle-mountain-tax-referendum-2.html"
+   ],
+   [
+    "Eagle Mountain's Balanced Budget: 16 Years of Finance History (Referendums)",
+    "https://webercountyhive-coder.github.io/referendum/eagle-mountain-finance-history.html"
+   ]
+  ],
+  "related": []
+ },
+ {
+  "id": "roy",
+  "name": "Roy",
+  "county": "Weber County",
+  "city": "Roy",
+  "lat": 41.161,
+  "lng": -112.026,
+  "st": "active",
+  "what": "Roy City's 34.25% property tax increase, approved 4-1 in August 2026",
+  "key": "About 1,800 signatures from Roy voters needed (KSL.com)",
+  "dates": [
+   [
+    "Increase approved",
+    "Reported Aug. 12, 2026"
+   ],
+   [
+    "Signature gathering",
+    "Under way in September 2026, per FOX 13"
+   ]
+  ],
+  "summary": "After the City Council approved a reduced 34.25% increase, opponents began gathering signatures for a referendum to put it on the ballot. KSL.com reported about 1,800 signatures from Roy voters are needed. FOX 13 reported signature gathering still under way in September 2026. Whether it qualifies, and for which election, wasn't confirmed in the records reviewed.",
+  "next": "Whether enough valid signatures were turned in, and if so, when the vote would be held.",
+  "cases": [
+   [
+    "Who's Raising Taxes This Year: Roy's pin (MAP 002)",
+    "https://weber-county-hive.github.io/utah-maps/weber-county-tax-increases-2026.html"
+   ],
+   [
+    "A New Line on the Bill: Roy and Riverdale's Fire Annexation (Transparency)",
+    "https://weber-county-hive.github.io/Transparency/weber-fire-district-annexation.html#roy"
+   ]
+  ],
+  "src": [
+   [
+    "KSL.com, Aug. 12, 2026: Roy leaders OK scaled-back 34.25% tax hike; foes plan challenge",
+    "https://www.ksl.com/article/51608949/roy-leaders-ok-scaled-back-3425-tax-hike-foes-plan-challenge-to-halt-it"
+   ],
+   [
+    "FOX 13: Roy residents gathering signatures for a referendum",
+    "https://www.fox13now.com/news/local-news/weber-county/roy-residents-gathering-signatures-for-a-referendum-on-34-percent-property-tax-increase"
+   ]
+  ],
+  "note": "The Hive's referendum docket doesn't have a Roy case file yet. The facts here come from news reporting."
+ },
+ {
+  "id": "box-elder",
+  "name": "Box Elder County (B.E.A.R.)",
+  "county": "Box Elder County",
+  "city": "Brigham City",
+  "lat": 41.5102,
+  "lng": -112.0155,
+  "st": "court",
+  "what": "County Resolutions 26-11 and 26-12, consenting to MIDA's Stratos data center project area",
+  "key": "0 signatures collected; the signature window never opened",
+  "dates": [
+   [
+    "Resolutions approved",
+    "May 4, 2026"
+   ],
+   [
+    "Applications filed",
+    "May 8 and May 11, 2026"
+   ],
+   [
+    "Rejected as not referable",
+    "May 28, 2026, by the county attorney"
+   ],
+   [
+    "Appealed",
+    "June 4, 2026, to 1st District Court"
+   ]
+  ],
+  "summary": "The Box Elder Accountability Referendum group (B.E.A.R.) applied to put the county's Stratos resolutions to a public vote. The county attorney rejected the applications, finding the resolutions \"administrative\" rather than \"legislative\" acts, so signature gathering never began. B.E.A.R.'s appeal is pending in 1st District Court as of September 2026; the county and project investor Kevin O'Leary have moved to dismiss.",
+  "next": "The 1st District Court's ruling on the motions to dismiss and on whether the resolutions can be referred.",
+  "cases": [
+   [
+    "Why Some Deals Never Reach a Vote: Box Elder (Referendums)",
+    "https://webercountyhive-coder.github.io/referendum/pid-mida-referendums-blocked.html#box-elder"
+   ]
+  ],
+  "related": [
+   [
+    "Stratos on MAP 004: Great Salt Lake Pressures",
+    "https://weber-county-hive.github.io/utah-maps/great-salt-lake-pressures.html"
+   ],
+   [
+    "Stratos on MAP 001: Where Utah's Tax Increment Goes",
+    "https://weber-county-hive.github.io/utah-maps/utah-tax-increment-map.html"
+   ]
+  ],
+  "note": "The pin marks Brigham City, the county seat. The Stratos project area itself is on the north side of the Great Salt Lake."
+ },
+ {
+  "id": "summit",
+  "name": "Summit County (Kimball Junction)",
+  "county": "Summit County",
+  "city": "Kimball Junction",
+  "lat": 40.7236,
+  "lng": -111.5452,
+  "st": "closed",
+  "what": "Ordinance No. 987, the Dakota Pacific rezone at Kimball Junction (implementing S.B. 84, 2023)",
+  "key": "About 3,214 valid signatures certified; 4,554 needed",
+  "dates": [
+   [
+    "Application filed",
+    "Jan. 27, 2025"
+   ],
+   [
+    "Signatures turned in",
+    "6,000+ across 77 packets, by March 3, 2025"
+   ],
+   [
+    "Declared insufficient",
+    "June 23, 2025"
+   ],
+   [
+    "Lawsuit dismissed as moot",
+    "August 2025"
+   ]
+  ],
+  "summary": "Organizers gathered more than 6,000 signatures, but the county clerk disqualified a large share of the packets for failing the Election Code's binding requirements, leaving about 3,214 valid signatures. Sponsors sued. The case was dismissed as moot after the Legislature passed S.B. 26, which approved the same project by separate statute.",
+  "next": "Closed. The project went forward under S.B. 26.",
+  "cases": [
+   [
+    "Why Some Deals Never Reach a Vote: Summit County (Referendums)",
+    "https://webercountyhive-coder.github.io/referendum/pid-mida-referendums-blocked.html#summit-county"
+   ]
+  ],
+  "related": []
+ }
+];
+const ST = {"active": ["Active", "#A5301E"], "court": ["In court", "#2F5A8F"], "closed": ["Closed", "#6b6457"]};
+const esc = s => String(s == null ? '' : s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const chip = p => `<span class="st ${p.st}" aria-hidden="true">${ST[p.st][0]}</span>`;
+const panel = document.getElementById('panel');
+let filter = 'all', active = null;
+
+const map = L.map('map', { scrollWheelZoom: false, zoomSnap: 0.25 });
+L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+  attribution: '&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a> contributors', maxZoom: 18
+}).addTo(map);
+addUtahOutlines(map, { alwaysLabel: ['Eagle Mountain', 'Roy', 'Brigham City', 'Park City'] });
+const markers = {};
+PLACES.forEach(p => {
+  const m = L.marker([p.lat, p.lng], { icon: L.divIcon({ className: 'pin-icon', html: chip(p), iconSize: null, iconAnchor: [37, 34] }), title: p.name, riseOnHover: true });
+  m.bindTooltip(p.name, { direction: 'top', offset: [0, -34] });
+  m.on('click', () => select(p.id));
+  markers[p.id] = m;
+});
+const shown = p => filter === 'all' || p.st === filter;
+function refresh(){
+  PLACES.forEach(p => { const m = markers[p.id]; shown(p) ? m.addTo(map) : m.remove(); const el = m.getElement(); if (el) el.classList.toggle('active', p.id === active); });
+}
+function renderToolbar(){
+  const opts = [['all','All referendums'],['active','Active'],['court','In court'],['closed','Closed']];
+  const tb = document.getElementById('toolbar');
+  tb.innerHTML = opts.map(([k, t]) => `<button class="vbtn" data-f="${k}" aria-pressed="${filter === k}">${t} <span class="n">${PLACES.filter(p => k === 'all' || p.st === k).length}</span></button>`).join('');
+  tb.querySelectorAll('.vbtn').forEach(b => b.onclick = () => { filter = b.dataset.f; active = null; renderToolbar(); refresh(); renderList(); });
+}
+function renderList(){
+  const order = ['active','court','closed'];
+  const list = PLACES.filter(shown).sort((a, b) => order.indexOf(a.st) - order.indexOf(b.st));
+  panel.innerHTML = `<div class="list-head">${list.length} referendums &middot; click one to open it</div>` +
+    list.map(p => `<button class="pin-item" data-id="${p.id}">${chip(p)}<span><b>${esc(p.name)}</b><span class="pl">${esc(p.county)} &middot; ${esc(p.what)}</span></span></button>`).join('') +
+    `<div class="law">Why so few reach a vote: <a href="https://webercountyhive-coder.github.io/referendum/utah-referendum-law-history.html" target="_blank" rel="noopener">how Utah's referendum law has changed since 2019 &rarr;</a></div>`;
+  panel.querySelectorAll('.pin-item').forEach(b => b.onclick = () => select(b.dataset.id, true));
+}
+function renderDetail(){
+  const p = PLACES.find(x => x.id === active);
+  panel.innerHTML = `
+    <div class="detail">
+      <div class="top"><button id="back">&larr; All referendums</button><span class="tagl">${esc(p.county)}</span></div>
+      <h2>${esc(p.name)}</h2>
+      <p class="place">${esc(p.city)}</p>
+      <span class="status-line ${p.st === 'active' ? 'prop' : 'final'}" style="${p.st === 'court' ? 'background:rgba(47,90,143,.12);color:#2F5A8F' : p.st === 'closed' ? 'background:rgba(107,100,87,.14);color:#4A443A' : ''}">${ST[p.st][0]}</span>
+      <div class="sec"><h3>What's being challenged</h3><p>${esc(p.what)}</p></div>
+      <div class="why"><b>${esc(p.key)}</b></div>
+      <div class="sec"><h3>Key dates</h3><dl class="kv">${p.dates.map(d => `<dt>${esc(d[0])}</dt><dd>${esc(d[1])}</dd>`).join('')}</dl></div>
+      <div class="sec"><h3>What the record shows</h3><p>${esc(p.summary)}</p></div>
+      <div class="sec"><h3>Still open</h3><p>${esc(p.next)}</p></div>
+      ${p.note ? `<div class="sec caution"><h3>Good to know</h3><p>${esc(p.note)}</p></div>` : ''}
+      ${p.src ? `<div class="sec sources"><h3>Documents</h3><ul>${p.src.map(s => `<li><a href="${s[1]}" target="_blank" rel="noopener">${esc(s[0])}</a></li>`).join('')}</ul></div>` : ''}
+      <div class="sec"><h3>Hive case files</h3></div>
+      ${p.cases.concat(p.related || []).map(c => `<a class="case-btn" href="${c[1]}" target="_blank" rel="noopener">${esc(c[0])} &rarr;</a>`).join('')}
+    </div>`;
+  document.getElementById('back').onclick = () => { active = null; refresh(); renderList(); };
+  panel.scrollTop = 0;
+}
+function select(id, fly){
+  active = id; const p = PLACES.find(x => x.id === id);
+  if (fly) map.flyTo([p.lat, p.lng], Math.max(map.getZoom(), 9), { duration: 0.6 });
+  refresh(); renderDetail();
+  if (window.innerWidth <= 900) panel.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+document.querySelectorAll('.flip-card').forEach(c => {
+  const flip = () => c.classList.toggle('flipped');
+  c.addEventListener('click', flip);
+  c.addEventListener('keydown', ev => { if (ev.key === 'Enter' || ev.key === ' ') { ev.preventDefault(); flip(); } });
+});
+renderToolbar(); refresh(); renderList();
+map.fitBounds(L.latLngBounds(PLACES.map(p => [p.lat, p.lng])).pad(0.35));
+</script>
+</body>
+</html>
