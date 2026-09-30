@@ -1,0 +1,566 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Trust Lands Sales — Utah Hive Politics</title>
+<meta name="description" content="MAP 007 from Utah Hive Politics: state trust land sold at auction, listed for auction, and optioned for development, with the price, acreage, and case file for each.">
+<link rel="icon" type="image/png" href="hive-bee.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600&family=Special+Elite&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;0,8..60,700;1,8..60,400&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+<style>
+  :root{
+    --navy:#14213D; --navy-deep:#0D1728;
+    --manila:#D9C9A3; --manila-dark:#C4B389;
+    --paper:#EDE7D8; --paper-light:#F5F1E6;
+    --ink:#1F1B16; --ink-soft:#4A443A;
+    --red:#A5301E; --green:#3F6B3B; --gold:#A9822F; --rule:#B7AC91;
+    --l-data:#A5301E; --l-pid:#A9822F; --l-cra:#3F6B3B; --l-mida:#2F5A8F; --l-other:#6E4A78;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;background:var(--navy);color:var(--paper);font-family:'Source Serif 4',Georgia,serif;-webkit-font-smoothing:antialiased;}
+  a{color:inherit;}
+
+  .hb-bar{background:#0d0b0a;border-bottom:1px solid #3a2f1c;padding:10px 20px;}
+  .hb-bar a{display:flex;align-items:center;gap:12px;max-width:1200px;margin:0 auto;text-decoration:none;}
+  .hb-bar img{width:52px;height:52px;border-radius:4px;display:block;flex:none;}
+  .hb-name{font-family:'Cinzel',Georgia,serif;color:#d4af37;font-size:16px;letter-spacing:.14em;text-transform:uppercase;line-height:1.2;display:block;}
+  .hb-sub{font-family:Georgia,serif;font-style:italic;color:#b8956a;font-size:12.5px;display:block;margin-top:2px;}
+
+  .masthead{max-width:1200px;margin:0 auto;padding:34px 20px 22px;}
+  .back{font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--manila);text-decoration:none;border-bottom:1px solid rgba(217,201,163,.4);}
+  .back:hover{color:var(--gold);border-color:var(--gold);}
+  .eyebrow{font-family:'Special Elite',monospace;font-size:12px;letter-spacing:.22em;text-transform:uppercase;color:var(--manila);margin:18px 0 8px;}
+  h1{font-size:clamp(30px,4.6vw,48px);line-height:1.08;margin:0 0 12px;font-weight:700;color:var(--paper-light);}
+  .intro{max-width:70ch;font-size:16.5px;line-height:1.6;color:rgba(237,231,216,.75);margin:0;}
+
+  .toolbar{max-width:1200px;margin:0 auto;padding:0 20px 14px;display:flex;flex-wrap:wrap;gap:8px;align-items:center;}
+  .chip{display:inline-flex;align-items:center;gap:7px;font-family:'IBM Plex Mono',monospace;font-size:12px;background:rgba(255,255,255,.05);border:1px solid rgba(217,201,163,.3);color:var(--paper-light);border-radius:20px;padding:6px 12px 6px 7px;cursor:pointer;}
+  .chip[aria-pressed="false"]{opacity:.45;}
+  .chip .dot{width:20px;height:20px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:10.5px;font-weight:600;color:#fff;border:1.5px solid #fff;}
+  .chip .n{color:var(--manila);}
+
+  .stage{max-width:1200px;margin:0 auto;padding:0 20px;display:grid;grid-template-columns:minmax(0,1fr) 400px;gap:18px;}
+  #map{height:640px;border-radius:2px;border:2px solid var(--gold);background:#d8d4c8;}
+  .panel{background:var(--paper);color:var(--ink);border-radius:2px;height:640px;overflow:auto;box-shadow:0 14px 30px -14px rgba(0,0,0,.55);}
+  @media (max-width:900px){
+    .stage{grid-template-columns:1fr;}
+    #map{height:430px;}
+    .panel{height:auto;max-height:none;}
+  }
+
+  .list-head{position:sticky;top:0;background:var(--manila-dark);padding:10px 18px;font-family:'IBM Plex Mono',monospace;font-size:11.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink);z-index:2;}
+  .pin-item{display:flex;gap:12px;align-items:flex-start;width:100%;text-align:left;background:none;border:none;border-bottom:1px dashed var(--rule);padding:13px 18px;cursor:pointer;font-family:inherit;color:inherit;}
+  .pin-item:hover{background:rgba(169,130,47,.1);}
+  .pin-item .dot{flex:none;margin-top:2px;}
+  .pin-item b{display:block;font-size:16px;line-height:1.3;}
+  .pin-item span.pl{display:block;font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--ink-soft);margin-top:3px;}
+
+  .dot{width:24px;height:24px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:600;color:#fff;border:2px solid #fff;box-shadow:0 1px 4px rgba(0,0,0,.4);}
+  .l-data{background:var(--l-data);} .l-pid{background:var(--l-pid);} .l-cra{background:var(--l-cra);} .l-mida{background:var(--l-mida);} .l-other{background:var(--l-other);}
+
+  .detail{padding:0 0 20px;}
+  .detail .top{background:var(--manila-dark);padding:10px 18px;display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;z-index:2;}
+  .detail .top button{font-family:'IBM Plex Mono',monospace;font-size:11.5px;background:none;border:none;cursor:pointer;color:var(--ink);padding:0;}
+  .detail .top .tagl{font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.06em;text-transform:uppercase;}
+  .detail h2{font-size:23px;line-height:1.2;margin:16px 18px 4px;}
+  .detail .place{font-family:'IBM Plex Mono',monospace;font-size:11.5px;color:var(--ink-soft);margin:0 18px 12px;text-transform:uppercase;letter-spacing:.04em;}
+  .detail .sum{margin:0 18px 14px;font-size:15.5px;line-height:1.55;color:var(--ink-soft);}
+  .sec{margin:0 18px 14px;}
+  .sec h3{font-family:'Special Elite',monospace;font-weight:400;font-size:12.5px;letter-spacing:.14em;text-transform:uppercase;margin:0 0 7px;color:var(--ink);border-bottom:1px solid var(--rule);padding-bottom:4px;}
+  .sec ul{margin:0;padding-left:18px;}
+  .sec li{font-size:14.5px;line-height:1.5;margin-bottom:7px;color:var(--ink);}
+  .src{display:block;font-family:'IBM Plex Mono',monospace;font-size:10.5px;color:var(--ink-soft);margin-top:2px;}
+  .sec.caution{background:rgba(165,48,30,.07);border-left:3px solid var(--red);padding:9px 12px;}
+  .sec.caution h3{color:var(--red);border:none;padding:0;}
+  .sec p{margin:0;font-size:14.5px;line-height:1.5;}
+  .case-btn{display:block;width:fit-content;margin:0 18px 8px;font-family:'IBM Plex Mono',monospace;font-size:12.5px;font-weight:600;color:var(--navy-deep);background:var(--gold);text-decoration:none;padding:10px 16px;border-radius:4px;}
+  .case-btn:hover{background:#C29A3D;}
+  .sources a{color:var(--red);}
+
+  .leaflet-container{font-family:'Source Serif 4',Georgia,serif;}
+  .pin-icon{background:none;border:none;}
+  .pin-icon .dot{width:26px;height:26px;font-size:11.5px;transition:transform .12s;}
+  .pin-icon.active .dot{transform:scale(1.35);box-shadow:0 0 0 4px rgba(169,130,47,.55),0 2px 6px rgba(0,0,0,.5);}
+  .county-label{background:none;border:none;}
+  .county-label span{display:block;transform:translate(-50%,-50%);font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:#14213D;opacity:.7;white-space:nowrap;text-shadow:0 0 3px #fff,0 0 3px #fff;pointer-events:none;}
+  .dot.prop{background:var(--paper-light) !important;border-style:dashed;border-width:2.5px;}
+  .dot.prop.l-data{color:var(--l-data);border-color:var(--l-data);} .dot.prop.l-pid{color:var(--l-pid);border-color:var(--l-pid);} .dot.prop.l-cra{color:var(--l-cra);border-color:var(--l-cra);} .dot.prop.l-mida{color:var(--l-mida);border-color:var(--l-mida);} .dot.prop.l-other{color:var(--l-other);border-color:var(--l-other);}
+  .status-key{max-width:1200px;margin:0 auto;padding:0 20px 14px;display:flex;flex-wrap:wrap;gap:18px;font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--manila);align-items:center;}
+  .status-key span{display:inline-flex;align-items:center;gap:7px;}
+  .status-line{margin:0 18px 12px;font-family:'IBM Plex Mono',monospace;font-size:11.5px;letter-spacing:.04em;text-transform:uppercase;display:inline-flex;align-items:center;gap:7px;padding:4px 10px;border-radius:3px;}
+  .status-line.final{background:rgba(63,107,59,.12);color:var(--green);}
+  .status-line.prop{background:rgba(165,48,30,.08);color:var(--red);border:1px dashed var(--red);}
+  .glossary{max-width:1200px;margin:28px auto 0;padding:0 20px;}
+  .glossary h2{font-family:'Special Elite',monospace;font-weight:400;font-size:15px;letter-spacing:.18em;text-transform:uppercase;color:var(--manila);margin:0 0 4px;}
+  .gl-sub{margin:0 0 14px;font-size:14px;color:rgba(237,231,216,.6);}
+  .flip-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:12px;}
+  .flip-card{perspective:900px;height:215px;cursor:pointer;outline:none;}
+  .flip-card:focus-visible .flip-inner{box-shadow:0 0 0 3px var(--gold);}
+  .flip-inner{position:relative;width:100%;height:100%;transition:transform .5s;transform-style:preserve-3d;border-radius:2px;}
+  .flip-card.flipped .flip-inner{transform:rotateY(180deg);}
+  .flip-front,.flip-back{position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;border-radius:2px;padding:14px 16px;display:flex;flex-direction:column;}
+  .flip-front{background:var(--paper);color:var(--ink);justify-content:space-between;border-top:4px solid var(--gold);}
+  .flip-front .ft{font-family:'Source Serif 4',Georgia,serif;font-weight:700;font-size:21px;line-height:1.2;}
+  .flip-front .fh{font-family:'IBM Plex Mono',monospace;font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-soft);}
+  .flip-back{background:var(--navy-deep);color:var(--paper-light);transform:rotateY(180deg);border:1px solid var(--gold);overflow:auto;gap:8px;}
+  .flip-back .fd{font-size:13px;line-height:1.5;}
+  .flip-link{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--gold);}
+  @media (prefers-reduced-motion:reduce){.flip-inner{transition:none;}}
+  .story-btn{display:inline-block;margin:8px 18px 0;font-family:'IBM Plex Mono',monospace;font-size:12.5px;font-weight:600;color:var(--paper-light);background:var(--navy);text-decoration:none;padding:10px 16px;border-radius:4px;}
+  .story-btn:hover{background:var(--navy-deep);}
+  .city-label{background:none;border:none;}
+  .city-label.key span{font-weight:600;font-size:11.5px;color:#14213D;}
+  .city-label span{display:block;transform:translate(-50%,-50%);font-family:'IBM Plex Mono',monospace;font-size:10.5px;color:#4a2f55;white-space:nowrap;text-shadow:0 0 3px #fff,0 0 3px #fff,0 0 3px #fff;pointer-events:none;}
+  .leaflet-tooltip{font-family:'IBM Plex Mono',monospace;font-size:11.5px;}
+
+  .notes{max-width:1200px;margin:26px auto 0;padding:0 20px;display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:18px;}
+  .note{border:1px solid rgba(217,201,163,.25);border-radius:2px;padding:16px 18px;font-size:14.5px;line-height:1.6;color:rgba(237,231,216,.78);}
+  .note h4{font-family:'Special Elite',monospace;font-weight:400;font-size:12.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--manila);margin:0 0 8px;}
+  .note p{margin:0 0 8px;}
+  .note strong{color:var(--paper-light);}
+
+  footer{max-width:1200px;margin:30px auto 0;padding:18px 20px 30px;border-top:1px solid rgba(217,201,163,.15);font-family:'IBM Plex Mono',monospace;font-size:11.5px;color:rgba(237,231,216,.45);line-height:1.6;}
+  .hb-foot{background:#0d0b0a;color:#b8956a;text-align:center;padding:26px 20px 30px;font-family:Georgia,serif;}
+  .hb-foot img{width:52px;height:52px;display:block;margin:0 auto 10px;}
+  .hb-foot .hb-name{font-size:14px;}
+  .hb-foot .hb-tag{font-size:10.5px;letter-spacing:.2em;text-transform:uppercase;color:#8a7650;margin-top:8px;display:block;}
+  @media(max-width:600px){.hb-bar img{width:38px;height:38px}.hb-name{font-size:13px}.masthead{padding-top:24px}}
+
+  .pct{display:inline-flex;align-items:center;justify-content:center;min-width:54px;height:28px;padding:0 8px;border-radius:14px;font-family:'IBM Plex Mono',monospace;font-size:12px;font-weight:600;color:#fff;border:2px solid #fff;box-shadow:0 1px 5px rgba(0,0,0,.45);white-space:nowrap;}
+  .pct.s1{background:#A9822F;} .pct.s2{background:#C0632B;} .pct.s3{background:#A5301E;}
+  .pct.pend{border-style:dashed;border-width:2.5px;background:var(--paper-light) !important;}
+  .pct.pend.s1{color:#8a6a24;border-color:#A9822F;} .pct.pend.s2{color:#C0632B;border-color:#C0632B;} .pct.pend.s3{color:#A5301E;border-color:#A5301E;}
+  .pin-icon.active .pct{transform:scale(1.2);box-shadow:0 0 0 4px rgba(169,130,47,.55);}
+  .pin-item .pct{flex:none;min-width:62px;}
+  .kv{display:grid;grid-template-columns:auto 1fr;gap:6px 14px;margin:0;font-size:14.5px;}
+  .kv dt{font-family:'IBM Plex Mono',monospace;font-size:11.5px;text-transform:uppercase;letter-spacing:.04em;color:var(--ink-soft);padding-top:2px;}
+  .kv dd{margin:0;}
+  .bill{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;margin:0 18px 14px;font-family:'IBM Plex Mono',monospace;}
+  .bill .from{font-size:18px;color:var(--ink-soft);text-decoration:line-through;}
+  .bill .to{font-size:26px;font-weight:600;color:var(--ink);}
+  .bill .cap{flex-basis:100%;font-size:11px;color:var(--ink-soft);}
+
+  .rate{display:inline-flex;align-items:center;justify-content:center;min-width:58px;height:26px;padding:0 8px;border-radius:13px;font-family:'IBM Plex Mono',monospace;font-size:12px;font-weight:600;border:2px solid #fff;box-shadow:0 1px 4px rgba(0,0,0,.35);}
+  .r1{background:#E6CF8E;color:#3d2f10;} .r2{background:#C0632B;color:#fff;} .r3{background:#A5301E;color:#fff;}
+  .split{display:grid;gap:8px;margin:0 18px 14px;}
+  .split .row{display:grid;grid-template-columns:92px 1fr;gap:10px;align-items:center;font-size:14px;}
+  .split .bar{height:14px;background:var(--gold);border-radius:2px;}
+  .split .amt{font-family:'IBM Plex Mono',monospace;font-weight:600;font-size:13px;}
+  .big{font-family:'IBM Plex Mono',monospace;font-size:30px;font-weight:600;margin:0 18px 2px;color:var(--ink);}
+  .big small{font-size:14px;color:var(--ink-soft);font-weight:400;}
+  .why{margin:0 18px 14px;background:rgba(169,130,47,.1);border-left:3px solid var(--gold);padding:10px 12px;font-size:14.5px;line-height:1.55;}
+  .why b{color:var(--ink);}
+  .stack{display:flex;height:22px;border-radius:2px;overflow:hidden;margin:6px 0 4px;font-family:'IBM Plex Mono',monospace;font-size:10.5px;color:#fff;}
+  .stack span{display:flex;align-items:center;justify-content:center;white-space:nowrap;overflow:hidden;}
+  .leaflet-interactive:focus{outline:none;}
+</style>
+<style>
+  .vbtn{display:inline-flex;align-items:center;gap:8px;font-family:'IBM Plex Mono',monospace;font-size:12px;background:rgba(255,255,255,.05);border:1px solid rgba(217,201,163,.3);color:var(--paper-light);border-radius:20px;padding:6px 13px;cursor:pointer;}
+  .vbtn[aria-pressed="true"]{background:var(--paper);color:var(--ink);border-color:var(--paper);}
+  .vbtn .n{color:var(--manila);} .vbtn[aria-pressed="true"] .n{color:var(--ink-soft);}
+  .vbtn:focus-visible,.pin-item:focus-visible,.case-btn:focus-visible{outline:3px solid var(--gold);outline-offset:2px;}
+  .st{display:inline-flex;align-items:center;justify-content:center;min-width:74px;height:26px;padding:0 9px;border-radius:13px;font-family:'IBM Plex Mono',monospace;font-size:11.5px;font-weight:600;color:#fff;border:2px solid #fff;box-shadow:0 1px 5px rgba(0,0,0,.45);white-space:nowrap;}
+  .st.sold{background:#A5301E;} .st.upcoming{background:#A9822F;} .st.option{background:#2F5A8F;} .st.zoning{background:#6E4A78;}
+  .pin-icon.active .st{transform:scale(1.18);box-shadow:0 0 0 4px rgba(169,130,47,.55);}
+  .pin-item .st{flex:none;}
+  .law{margin:14px 18px;padding:12px 14px;background:rgba(20,33,61,.07);border:1px solid var(--rule);font-size:14.5px;line-height:1.5;}
+  .law a{color:var(--red);font-weight:600;}
+</style>
+</head>
+<body>
+
+<div class="hb-bar"><a href="https://webercountyhive.substack.com/" target="_blank" rel="noopener"><img src="uhp-badge.png" alt="Utah Hive Politics logo" onerror="this.style.display='none'"><span><span class="hb-name">Utah Hive Politics</span><span class="hb-sub">from the publisher of The Weber County Hive</span></span></a></div>
+
+<header class="masthead">
+  <a class="back" href="index.html">&larr; All Utah Maps</a>
+  <p class="eyebrow">MAP 007 &middot; Statewide &middot; Trust lands</p>
+  <h1>Trust Lands Sales</h1>
+  <p class="intro">Utah's Trust Lands Administration sells and leases state trust land to earn money for public schools. This map shows parcels sold at auction, parcels listed for the next auction, and land optioned for development, with the price and acreage from the public record. It starts with the parcels the Hive has documented and grows as more are added.</p>
+</header>
+
+<div class="toolbar" id="toolbar" role="group" aria-label="Choose which parcels to show"></div>
+<div class="status-key" aria-label="Map key">
+  <span><span class="st sold" aria-hidden="true">Sold</span>Sold at a Trust Lands auction</span>
+  <span><span class="st upcoming" aria-hidden="true">Up for auction</span>Listed for the Nov. 12&ndash;18, 2026 auction</span>
+  <span><span class="st option" aria-hidden="true">Option / lease</span>Held for a developer; the trust keeps the land</span>
+  <span><span class="st zoning" aria-hidden="true">Zoning</span>How a county treats trust land</span>
+</div>
+
+<div class="stage">
+  <div id="map" role="region" aria-label="Map of Utah trust land sales"></div>
+  <aside class="panel" id="panel" aria-live="polite"></aside>
+</div>
+
+<section class="glossary" aria-labelledby="gl-h">
+  <h2 id="gl-h">Words on this map</h2>
+  <p class="gl-sub">Tap a card to flip it.</p>
+  <div class="flip-grid">
+    <div class="flip-card" tabindex="0" role="button" aria-label="Trust lands: tap to see the meaning">
+      <div class="flip-inner">
+        <div class="flip-front"><span class="ft">Trust lands</span><span class="fh">Tap to flip &#8635;</span></div>
+        <div class="flip-back"><span class="fd">Land the federal government gave Utah at statehood to earn money for public schools and other named beneficiaries. The Trust Lands Administration (once called SITLA) sells, leases and develops it, and the money goes into permanent funds.</span></div>
+      </div>
+    </div>
+    <div class="flip-card" tabindex="0" role="button" aria-label="Land sales auction: tap to see the meaning">
+      <div class="flip-inner">
+        <div class="flip-front"><span class="ft">Land sales auction</span><span class="fh">Tap to flip &#8635;</span></div>
+        <div class="flip-back"><span class="fd">How the Trust Lands Administration sells parcels to the public. It holds regular auctions and must seek full value for the schools and institutions it serves.</span></div>
+      </div>
+    </div>
+    <div class="flip-card" tabindex="0" role="button" aria-label="Minimum bid: tap to see the meaning">
+      <div class="flip-inner">
+        <div class="flip-front"><span class="ft">Minimum bid</span><span class="fh">Tap to flip &#8635;</span></div>
+        <div class="flip-back"><span class="fd">The lowest price the trust will accept for a parcel at auction. "TBD" means it hadn't been set yet.</span></div>
+      </div>
+    </div>
+    <div class="flip-card" tabindex="0" role="button" aria-label="Option agreement: tap to see the meaning">
+      <div class="flip-inner">
+        <div class="flip-front"><span class="ft">Option agreement</span><span class="fh">Tap to flip &#8635;</span></div>
+        <div class="flip-back"><span class="fd">A promise to make a deal later if conditions are met by a deadline. Nothing is leased or sold until the conditions are met.</span></div>
+      </div>
+    </div>
+    <div class="flip-card" tabindex="0" role="button" aria-label="Development lease: tap to see the meaning">
+      <div class="flip-inner">
+        <div class="flip-front"><span class="ft">Development lease</span><span class="fh">Tap to flip &#8635;</span></div>
+        <div class="flip-back"><span class="fd">A lease, not a sale. The developer builds on trust land for a set term, the trust keeps the land, and the trust is paid under the lease terms.</span></div>
+      </div>
+    </div>
+    <div class="flip-card" tabindex="0" role="button" aria-label="Parcel number: tap to see the meaning">
+      <div class="flip-inner">
+        <div class="flip-front"><span class="ft">Parcel number</span><span class="fh">Tap to flip &#8635;</span></div>
+        <div class="flip-back"><span class="fd">The trust's own ID for a parcel, such as C-26957. It is how a parcel is listed in auction results.</span></div>
+      </div>
+    </div>
+    <div class="flip-card" tabindex="0" role="button" aria-label="Zoning exemption: tap to see the meaning">
+      <div class="flip-inner">
+        <div class="flip-front"><span class="ft">Zoning exemption</span><span class="fh">Tap to flip &#8635;</span></div>
+        <div class="flip-back"><span class="fd">Utah law lets trust land sit outside county zoning while the state owns it. Some counties, like Garfield, zone it only after it's sold.</span></div>
+      </div>
+    </div>
+    <div class="flip-card" tabindex="0" role="button" aria-label="Permanent school fund: tap to see the meaning">
+      <div class="flip-inner">
+        <div class="flip-front"><span class="ft">Permanent school fund</span><span class="fh">Tap to flip &#8635;</span></div>
+        <div class="flip-back"><span class="fd">The fund trust land money flows into. It is invested, and the earnings go to public schools each year.</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="notes">
+  <div class="note">
+    <h4>What this map shows so far</h4>
+    <p>This first version shows the trust land deals already documented in Hive case files, plus sale rows read from the Trust Lands auction page. The full auction history lists many more parcels; they'll be added as the list is reviewed.</p>
+    <p>The auction page lists the parcel, county, acreage and price, but not the buyer.</p>
+  </div>
+  <div class="note">
+    <h4>Pin locations</h4>
+    <p>Most auction rows give a county, not a location. Those pins sit in the county or nearest town, and each one says so. They don't mark parcel boundaries.</p>
+  </div>
+  <div class="note">
+    <h4>Related</h4>
+    <p><a href="https://weber-county-hive.github.io/public-lands/" target="_blank" rel="noopener">Public-Lands</a> has the explainers and case files. <a href="ogden-valley-development.html">MAP 003</a> shows Powder Mountain and Ogden Valley. <a href="great-salt-lake-pressures.html">MAP 004</a> shows MIDA project areas.</p>
+  </div>
+</section>
+
+<footer>
+  Sources: Utah Trust Lands Administration, Sales &amp; Leases page (previous and current auctions, checked Sept. 30, 2026); Trust Lands board packet, Sept. 19, 2024 (DEVL 1297); Garfield County planning commission minutes, May 15, 2024; The Weber County Hive case files as linked. Compiled by Utah Hive Politics, from the publisher of The Weber County Hive. Last updated Sep 30, 2026.<br>
+  Map tiles &copy; OpenStreetMap contributors. State, county, and city boundaries: U.S. Census Bureau.
+</footer>
+<div class="hb-foot"><img src="hive-bee.png" alt="" onerror="this.style.display='none'"><span class="hb-name">Utah Hive Politics</span><span class="hb-sub">from the publisher of The Weber County Hive</span><span class="hb-tag">Independent · Accountability · Journalism</span></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<script src="utah-geo.js"></script>
+<script>
+// ---------------------------------------------------------------
+// PLACES: one entry per parcel. To add one, copy an entry.
+//   st: "sold" | "upcoming" | "option" | "zoning"
+//   cases: Hive case files; src: outside sources (optional)
+// ---------------------------------------------------------------
+const PLACES = [
+ {
+  "id": "wasatch-720",
+  "name": "720 Acres East of Heber (DEVL 1297)",
+  "county": "Wasatch County",
+  "city": "About 4 miles east of Heber City",
+  "lat": 40.507,
+  "lng": -111.33,
+  "st": "option",
+  "what": "A Mutual Option Agreement with Mountain Venture Studios (Philo Development) for 720.96 acres. It's a lease deal, not a sale: the trust keeps the land.",
+  "key": "$3.6 million appraised as zoned today (5 homes); about $16 million projected to the trust if rezoned for 100+ lots",
+  "dates": [
+   [
+    "Option signed",
+    "Feb. 28, 2023"
+   ],
+   [
+    "Deadline extended",
+    "Sept. 2024, to Jan. 1, 2027"
+   ],
+   [
+    "County declined",
+    "Aug. 2026, the development agreement the developer needed"
+   ]
+  ],
+  "summary": "If the developer gets the land rezoned for at least 100 homes and finds water for them, the trust will enter a development lease. The trust's own staff memo projects that would raise the land's value to the trust from about $3.6 million to about $16 million. Wasatch County declined the development agreement in August 2026.",
+  "next": "Whether the developer meets the Jan. 1, 2027 deadline or asks the trust board for another extension. No later board action was found in the Trust Lands agendas reviewed.",
+  "cases": [
+   [
+    "720 Acres of Trust Land East of Heber (Public-Lands)",
+    "https://weber-county-hive.github.io/public-lands/weber-hive-wasatch-trust-land-option.html"
+   ]
+  ],
+  "related": [
+   [
+    "The Land Counties Can't Zone (Transparency)",
+    "https://weber-county-hive.github.io/Transparency/sitla-county-zoning-exemption.html"
+   ]
+  ]
+ },
+ {
+  "id": "cinnamon-creek",
+  "name": "Cinnamon Creek (C-26957)",
+  "county": "Cache and Weber counties",
+  "city": "Near Powder Mountain",
+  "lat": 41.372,
+  "lng": -111.772,
+  "st": "sold",
+  "what": "8.00 acres of trust land sold at the November 2021 land sales auction",
+  "key": "$20,000,013 for 8 acres",
+  "dates": [
+   [
+    "Auction",
+    "Nov. 9-16, 2021"
+   ]
+  ],
+  "summary": "The Trust Lands auction results list Cinnamon Creek, 8.00 acres in Cache and Weber counties, sold for $20,000,013. The auction list doesn't name the buyer.",
+  "next": "Who bought it and what it's used for now. The buyer isn't shown on the auction page.",
+  "cases": [],
+  "related": [
+   [
+    "Powder Mountain on MAP 003: Ogden Valley Development",
+    "https://weber-county-hive.github.io/utah-maps/ogden-valley-development.html"
+   ]
+  ],
+  "src": [
+   [
+    "Trust Lands Administration, Sales & Leases page (Previous Auctions)",
+    "https://trustlands.utah.gov/work-with-us/sales-leases/"
+   ]
+  ],
+  "note": "The pin marks the general area near Powder Mountain, not the parcel's exact boundary."
+ },
+ {
+  "id": "co-op-creek",
+  "name": "Co-op Creek (C-27148)",
+  "county": "Kane County",
+  "city": "Kane County",
+  "lat": 37.12,
+  "lng": -111.45,
+  "st": "sold",
+  "what": "562.51 acres of trust land sold at the November 2023 land sales auction",
+  "key": "$2,510,000 for 562.51 acres",
+  "dates": [
+   [
+    "Auction",
+    "Nov. 8-14, 2023"
+   ]
+  ],
+  "summary": "The Trust Lands auction results list Co-op Creek, 562.51 acres in Kane County, sold for $2,510,000. The auction list doesn't name the buyer.",
+  "next": "Who bought it and what it's used for now.",
+  "cases": [],
+  "related": [],
+  "src": [
+   [
+    "Trust Lands Administration, Sales & Leases page (Previous Auctions)",
+    "https://trustlands.utah.gov/work-with-us/sales-leases/"
+   ]
+  ],
+  "note": "The pin marks Kane County, not the parcel's exact location."
+ },
+ {
+  "id": "anderson-hollow",
+  "name": "Anderson Hollow (C-27164)",
+  "county": "Duchesne County",
+  "city": "Duchesne County",
+  "lat": 40.29,
+  "lng": -110.43,
+  "st": "sold",
+  "what": "200.00 acres of trust land sold at the November 2023 land sales auction",
+  "key": "$605,000 for 200 acres",
+  "dates": [
+   [
+    "Auction",
+    "Nov. 8-14, 2023"
+   ]
+  ],
+  "summary": "The Trust Lands auction results list Anderson Hollow, 200.00 acres in Duchesne County, sold for $605,000. The auction list doesn't name the buyer.",
+  "next": "Who bought it and what it's used for now.",
+  "cases": [],
+  "related": [],
+  "src": [
+   [
+    "Trust Lands Administration, Sales & Leases page (Previous Auctions)",
+    "https://trustlands.utah.gov/work-with-us/sales-leases/"
+   ]
+  ],
+  "note": "The pin marks Duchesne County, not the parcel's exact location."
+ },
+ {
+  "id": "redmond-lake-view",
+  "name": "Redmond – Lake View (C-27353)",
+  "county": "Sevier County",
+  "city": "Near Redmond",
+  "lat": 39.005,
+  "lng": -111.864,
+  "st": "upcoming",
+  "what": "188.00 acres listed for the Nov. 12-18, 2026 land sales auction",
+  "key": "Minimum bid: to be determined",
+  "dates": [
+   [
+    "Auction",
+    "Nov. 12-18, 2026"
+   ]
+  ],
+  "summary": "Trust Lands lists Redmond – Lake View, 188.00 acres in Sevier County, for its November 2026 land sales auction. The minimum bid had not been set when the page was checked.",
+  "next": "The minimum bid, and who buys it.",
+  "cases": [],
+  "related": [],
+  "src": [
+   [
+    "Trust Lands Administration, Sales & Leases page (current auction)",
+    "https://trustlands.utah.gov/work-with-us/sales-leases/"
+   ]
+  ],
+  "note": "The pin marks the Redmond area, not the parcel's exact boundary."
+ },
+ {
+  "id": "silvan-estates",
+  "name": "Silvan Estates (C-27354)",
+  "county": "Kane County",
+  "city": "Kane County",
+  "lat": 37.14,
+  "lng": -112.72,
+  "st": "upcoming",
+  "what": "33.84 acres listed for the Nov. 12-18, 2026 land sales auction",
+  "key": "Minimum bid: to be determined",
+  "dates": [
+   [
+    "Auction",
+    "Nov. 12-18, 2026"
+   ]
+  ],
+  "summary": "Trust Lands lists Silvan Estates, 33.84 acres in Kane County, for its November 2026 land sales auction. The minimum bid had not been set when the page was checked.",
+  "next": "The minimum bid, and who buys it.",
+  "cases": [],
+  "related": [],
+  "src": [
+   [
+    "Trust Lands Administration, Sales & Leases page (current auction)",
+    "https://trustlands.utah.gov/work-with-us/sales-leases/"
+   ]
+  ],
+  "note": "The pin marks Kane County, not the parcel's exact location."
+ },
+ {
+  "id": "promise-rock",
+  "name": "Promise Rock",
+  "county": "Garfield County",
+  "city": "Near Cannonville",
+  "lat": 37.567,
+  "lng": -112.055,
+  "st": "zoning",
+  "what": "How Garfield County zones trust land: the county amended its own ordinance so trust land isn't zoned until it's sold",
+  "key": "County zoning on trust land \"discontinued\" until sold into private ownership",
+  "dates": [
+   [
+    "Planning commission",
+    "May 15, 2024"
+   ]
+  ],
+  "summary": "Garfield County planning commission minutes on the Promise Rock trust property show the county amending its zoning ordinance to state that zoning designations on trust-owned property are discontinued, and that trust parcels are zoned only once they're sold into private ownership.",
+  "next": "Not a sale. This pin shows how one county handles zoning on trust land, the same question behind the Wasatch County deal.",
+  "cases": [
+   [
+    "The Land Counties Can't Zone (Transparency)",
+    "https://weber-county-hive.github.io/Transparency/sitla-county-zoning-exemption.html"
+   ]
+  ],
+  "related": []
+ }
+];
+const ST = {"sold": ["Sold", "#A5301E"], "upcoming": ["Up for auction", "#A9822F"], "option": ["Option / lease", "#2F5A8F"], "zoning": ["Zoning", "#6E4A78"]};
+const esc = s => String(s == null ? '' : s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const chip = p => `<span class="st ${p.st}" aria-hidden="true">${ST[p.st][0]}</span>`;
+const panel = document.getElementById('panel');
+let filter = 'all', active = null;
+
+const map = L.map('map', { scrollWheelZoom: false, zoomSnap: 0.25 });
+L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+  attribution: '&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a> contributors', maxZoom: 18
+}).addTo(map);
+addUtahOutlines(map, { alwaysLabel: ['Heber', 'Redmond', 'Cannonville', 'Huntsville'] });
+const markers = {};
+PLACES.forEach(p => {
+  const m = L.marker([p.lat, p.lng], { icon: L.divIcon({ className: 'pin-icon', html: chip(p), iconSize: null, iconAnchor: [37, 34] }), title: p.name, riseOnHover: true });
+  m.bindTooltip(p.name, { direction: 'top', offset: [0, -34] });
+  m.on('click', () => select(p.id));
+  markers[p.id] = m;
+});
+const shown = p => filter === 'all' || p.st === filter;
+function refresh(){
+  PLACES.forEach(p => { const m = markers[p.id]; shown(p) ? m.addTo(map) : m.remove(); const el = m.getElement(); if (el) el.classList.toggle('active', p.id === active); });
+}
+function renderToolbar(){
+  const opts = [['all','All parcels'],['sold','Sold'],['upcoming','Up for auction'],['option','Option / lease'],['zoning','Zoning']];
+  const tb = document.getElementById('toolbar');
+  tb.innerHTML = opts.map(([k, t]) => `<button class="vbtn" data-f="${k}" aria-pressed="${filter === k}">${t} <span class="n">${PLACES.filter(p => k === 'all' || p.st === k).length}</span></button>`).join('');
+  tb.querySelectorAll('.vbtn').forEach(b => b.onclick = () => { filter = b.dataset.f; active = null; renderToolbar(); refresh(); renderList(); });
+}
+function renderList(){
+  const order = ['upcoming','sold','option','zoning'];
+  const list = PLACES.filter(shown).sort((a, b) => order.indexOf(a.st) - order.indexOf(b.st));
+  panel.innerHTML = `<div class="list-head">${list.length} parcels &middot; click one to open it</div>` +
+    list.map(p => `<button class="pin-item" data-id="${p.id}">${chip(p)}<span><b>${esc(p.name)}</b><span class="pl">${esc(p.county)} &middot; ${esc(p.what)}</span></span></button>`).join('') +
+    `<div class="law">New to trust lands? <a href="https://weber-county-hive.github.io/public-lands/weber-hive-public-land-changes-hands.html" target="_blank" rel="noopener">How public land changes hands in Utah &rarr;</a></div>`;
+  panel.querySelectorAll('.pin-item').forEach(b => b.onclick = () => select(b.dataset.id, true));
+}
+function renderDetail(){
+  const p = PLACES.find(x => x.id === active);
+  panel.innerHTML = `
+    <div class="detail">
+      <div class="top"><button id="back">&larr; All parcels</button><span class="tagl">${esc(p.county)}</span></div>
+      <h2>${esc(p.name)}</h2>
+      <p class="place">${esc(p.city)}</p>
+      <span class="status-line ${p.st === 'upcoming' ? 'prop' : 'final'}" style="${p.st === 'option' ? 'background:rgba(47,90,143,.12);color:#2F5A8F' : p.st === 'zoning' ? 'background:rgba(110,74,120,.12);color:#6E4A78' : p.st === 'sold' ? 'background:rgba(165,48,30,.1);color:#A5301E' : ''}">${ST[p.st][0]}</span>
+      <div class="sec"><h3>What it is</h3><p>${esc(p.what)}</p></div>
+      <div class="why"><b>${esc(p.key)}</b></div>
+      <div class="sec"><h3>Key dates</h3><dl class="kv">${p.dates.map(d => `<dt>${esc(d[0])}</dt><dd>${esc(d[1])}</dd>`).join('')}</dl></div>
+      <div class="sec"><h3>What the record shows</h3><p>${esc(p.summary)}</p></div>
+      <div class="sec"><h3>Still open</h3><p>${esc(p.next)}</p></div>
+      ${p.note ? `<div class="sec caution"><h3>Good to know</h3><p>${esc(p.note)}</p></div>` : ''}
+      ${p.src ? `<div class="sec sources"><h3>Documents</h3><ul>${p.src.map(s => `<li><a href="${s[1]}" target="_blank" rel="noopener">${esc(s[0])}</a></li>`).join('')}</ul></div>` : ''}
+      <div class="sec"><h3>Hive case files</h3></div>
+      ${(p.cases.length || (p.related||[]).length) ? '' : '<p class="empty" style="margin:0 18px 14px;font-size:14px;color:var(--ink-soft)">No Hive case file on this parcel yet.</p>'}${p.cases.concat(p.related || []).map(c => `<a class="case-btn" href="${c[1]}" target="_blank" rel="noopener">${esc(c[0])} &rarr;</a>`).join('')}
+    </div>`;
+  document.getElementById('back').onclick = () => { active = null; refresh(); renderList(); };
+  panel.scrollTop = 0;
+}
+function select(id, fly){
+  active = id; const p = PLACES.find(x => x.id === id);
+  if (fly) map.flyTo([p.lat, p.lng], Math.max(map.getZoom(), 8.5), { duration: 0.6 });
+  refresh(); renderDetail();
+  if (window.innerWidth <= 900) panel.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+document.querySelectorAll('.flip-card').forEach(c => {
+  const flip = () => c.classList.toggle('flipped');
+  c.addEventListener('click', flip);
+  c.addEventListener('keydown', ev => { if (ev.key === 'Enter' || ev.key === ' ') { ev.preventDefault(); flip(); } });
+});
+renderToolbar(); refresh(); renderList();
+map.fitBounds(L.geoJSON(UTAH_GEO.state).getBounds().pad(0.02));
+</script>
+</body>
+</html>
