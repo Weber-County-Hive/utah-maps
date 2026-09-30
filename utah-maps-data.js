@@ -42,7 +42,7 @@ const MAPS = [
     relatedRepos: ["PIDS-Utah", "Transparency"],
     pins: 8,
     link: "weber-county-tax-increases-2026.html",
-    lastUpdated: "Sep 26, 2026"
+    lastUpdated: "Sep 30, 2026"
   },
   {
     mapId: "MAP 003",
@@ -103,10 +103,10 @@ const MAPS = [
     title: "Weber County's New Sales Tax",
     scope: "Weber County",
     status: "live",
-    summary: "The 0.20% \"5th 5th\" sales tax that starts Oct. 1, 2026: each city's rate before and after, why some cities pay more, and where the $13.1 million a year goes.",
+    summary: "The 0.20% \"5th 5th\" sales tax that starts Oct. 1, 2026: each city's rate before and after, why some cities pay more, and where the $13.1 million a year goes. West Haven's panel also shows its new 6% energy tax, starting the same day.",
     layers: ["Cities", "Rates", "Transportation money"],
     relatedRepos: ["Transparency", "Bill-Tracker"],
     link: "weber-county-sales-tax-2026.html",
-    lastUpdated: "Sep 26, 2026"
+    lastUpdated: "Sep 30, 2026"
   }
 ];
