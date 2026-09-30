@@ -71,12 +71,14 @@ const MAPS = [
   {
     mapId: "MAP 005",
     title: "2026 Races We've Covered",
-    scope: "Northern Utah",
-    status: "planned",
-    summary: "A county-by-county starting point for the 2026 general election, linking to each race's candidate case file.",
-    layers: ["Legislature", "County", "Local"],
+    scope: "Statewide",
+    status: "live",
+    summary: "Every 2026 race with a Hive candidate case file, drawn on the Legislature's House and Senate district lines and on county lines. Click a district or county to see who is running and open the case file.",
+    layers: ["Utah House", "Utah Senate", "County"],
     relatedRepos: ["candidates2026"],
-    lastUpdated: "Sep 25, 2026"
+    pins: 33,
+    link: "utah-2026-races.html",
+    lastUpdated: "Sep 30, 2026"
   },
   {
     mapId: "MAP 006",
