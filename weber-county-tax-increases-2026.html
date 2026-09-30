@@ -133,6 +133,7 @@
   .pct.s1{background:#A9822F;} .pct.s2{background:#C0632B;} .pct.s3{background:#A5301E;}
   .pct.pend{border-style:dashed;border-width:2.5px;background:var(--paper-light) !important;}
   .pct.pend.s1{color:#8a6a24;border-color:#A9822F;} .pct.pend.s2{color:#C0632B;border-color:#C0632B;} .pct.pend.s3{color:#A5301E;border-color:#A5301E;}
+  .pct.en{background:#2F5A8F;}
   .pin-icon.active .pct{transform:scale(1.2);box-shadow:0 0 0 4px rgba(169,130,47,.55);}
   .pin-item .pct{flex:none;min-width:62px;}
   .kv{display:grid;grid-template-columns:auto 1fr;gap:6px 14px;margin:0;font-size:14.5px;}
@@ -152,7 +153,7 @@
   <a class="back" href="index.html">&larr; All Utah Maps</a>
   <p class="eyebrow">MAP 002 &middot; Weber County &middot; 2026</p>
   <h1>Who's Raising Taxes This Year</h1>
-  <p class="intro">Every Weber County taxing entity that proposed a property tax increase in 2026 and went through Truth in Taxation. Each pin shows the proposed percentage, the extra revenue, what the entity's own example home would pay, the hearing, and what happened next where the record shows it. The percentages apply to that entity's slice of your bill, not your whole bill.</p>
+  <p class="intro">Every Weber County taxing entity that proposed a property tax increase in 2026 and went through Truth in Taxation. Each pin shows the proposed percentage, the extra revenue, what the entity's own example home would pay, the hearing, and what happened next where the record shows it. The percentages apply to that entity's slice of your bill, not your whole bill. The blue pin is West Haven, which has no city property tax and is starting a 6% tax on power and gas bills instead.</p>
 </header>
 
 <div class="toolbar" id="toolbar" role="group" aria-label="Choose which entities to show"></div>
@@ -162,6 +163,7 @@
   <span><span class="pct s3" aria-hidden="true">Over 50%</span></span>
   <span><span class="pct s3" aria-hidden="true">34%</span>Solid: adopted</span>
   <span><span class="pct pend s3" aria-hidden="true">47%</span>Dashed: proposed, challenged, or final vote not confirmed</span>
+  <span><span class="pct en" aria-hidden="true">6% energy</span>Blue: new tax on power and gas bills, not a property tax (West Haven)</span>
 </div>
 
 <div class="stage">
@@ -228,7 +230,7 @@
   <div class="note">
     <h4>Where these numbers come from</h4>
     <p>Dashed purple lines are city and town limits; the gold line is Weber County. Ogden Valley City incorporated after the Census boundaries were drawn, so its pin marks a general location without a city line.</p>
-    <p>The percentages, revenue, example bills, and hearings come from Weber County's 2026 Notice of Proposed Tax Increases and from each entity's own published notice. Outcomes come from reporting where noted.</p>
+    <p>The percentages, revenue, example bills, and hearings come from Weber County's 2026 Notice of Proposed Tax Increases and from each entity's own published notice. Outcomes come from reporting where noted. West Haven's energy tax comes from the city's hearing notice and June 17, 2026 council minutes.</p>
   </div>
   <div class="note">
     <h4>What a dashed pin means</h4>
@@ -238,13 +240,13 @@
     <h4>Related</h4>
     <p><a href="utah-tax-increment-map.html">MAP 001: Where Utah's Tax Increment Goes</a> shows the districts and project areas where part of the property tax growth is set aside instead of reaching these same taxing entities.</p>
     <p><a href="weber-county-sales-tax-2026.html">MAP 008: Weber County's New Sales Tax</a> shows the 0.20% countywide sales tax starting Oct. 1, 2026.</p>
-    <p><strong>Not on this map: West Haven.</strong> It charges no city property tax, so it has no Truth in Taxation increase. Instead, it will collect a new 6% tax on electricity and natural gas starting Oct. 1, 2026. <a href="https://weber-county-hive.github.io/Transparency/west-haven-energy-tax.html" target="_blank" rel="noopener">West Haven's 6% Energy Tax</a> (Transparency).</p>
+    <p><strong>West Haven</strong> (blue pin) charges no city property tax, so it had no Truth in Taxation increase. It will collect a new 6% tax on electricity and natural gas starting Oct. 1, 2026. <a href="https://weber-county-hive.github.io/Transparency/west-haven-energy-tax.html" target="_blank" rel="noopener">West Haven's 6% Energy Tax</a> (Transparency).</p>
     <p><a href="https://weber-county-hive.github.io/Transparency/weber-county-tax-increases-since-2019.html" target="_blank" rel="noopener">Every Weber County Property Tax Increase Since 2019</a> (Transparency) has the longer history.</p>
   </div>
 </section>
 
 <footer>
-  Sources: Weber County Clerk/Auditor 2026 Notice of Proposed Tax Increases; entity notices; Deseret News, KSL.com, and FOX 13 as cited on each pin. Compiled by Utah Hive Politics, from the publisher of The Weber County Hive. Last updated Sep 30, 2026.<br>
+  Sources: Weber County Clerk/Auditor 2026 Notice of Proposed Tax Increases; entity notices; West Haven City Council minutes, June 17, 2026; Deseret News, KSL.com, and FOX 13 as cited on each pin. Compiled by Utah Hive Politics, from the publisher of The Weber County Hive. Last updated Sep 30, 2026.<br>
   Map tiles &copy; OpenStreetMap contributors. State, county, and city boundaries: U.S. Census Bureau.
 </footer>
 <div class="hb-foot"><img src="hive-bee.png" alt="" onerror="this.style.display='none'"><span class="hb-name">Utah Hive Politics</span><span class="hb-sub">from the publisher of The Weber County Hive</span><span class="hb-tag">Independent · Accountability · Journalism</span></div>
@@ -286,6 +288,10 @@ const ENTITIES = [
    {
     "label": "The Boundary That Left Them Out (PIDS-Utah)",
     "url": "https://weber-county-hive.github.io/PIDS-Utah/ogden-valley-boundary-exclusion.html"
+   },
+   {
+    "label": "Every Weber County Property Tax Increase Since 2019 (Transparency)",
+    "url": "https://weber-county-hive.github.io/Transparency/weber-county-tax-increases-since-2019.html#list"
    }
   ]
  },
@@ -318,7 +324,16 @@ const ENTITIES = [
   "adopted": "34.25%",
   "outcome": "The council approved a reduced 34.25% increase, 4-1 (reported Aug. 12, 2026). On a $439,000 home, Roy's portion goes from $388.25 to $521.23, or $132.98 a year.",
   "note": "Opponents are gathering signatures for a referendum. About 1,800 signatures from Roy voters are needed to put the increase on the ballot (KSL).",
-  "cases": []
+  "cases": [
+   {
+    "label": "A New Line on the Bill: Roy and Riverdale's Fire District Annexation (Transparency)",
+    "url": "https://weber-county-hive.github.io/Transparency/weber-fire-district-annexation.html#roy"
+   },
+   {
+    "label": "Every Weber County Property Tax Increase Since 2019 (Transparency)",
+    "url": "https://weber-county-hive.github.io/Transparency/weber-county-tax-increases-since-2019.html#list"
+   }
+  ]
  },
  {
   "id": "hooper",
@@ -340,7 +355,12 @@ const ENTITIES = [
   "status": "pend",
   "outcome": "",
   "note": "",
-  "cases": []
+  "cases": [
+   {
+    "label": "Every Weber County Property Tax Increase Since 2019 (Transparency)",
+    "url": "https://weber-county-hive.github.io/Transparency/weber-county-tax-increases-since-2019.html#list"
+   }
+  ]
  },
  {
   "id": "south-ogden",
@@ -366,7 +386,12 @@ const ENTITIES = [
   "status": "pend",
   "outcome": "",
   "note": "",
-  "cases": []
+  "cases": [
+   {
+    "label": "Every Weber County Property Tax Increase Since 2019 (Transparency)",
+    "url": "https://weber-county-hive.github.io/Transparency/weber-county-tax-increases-since-2019.html#list"
+   }
+  ]
  },
  {
   "id": "north-view-fire",
@@ -392,7 +417,12 @@ const ENTITIES = [
   "status": "pend",
   "outcome": "",
   "note": "A fire district serves several cities. The pin marks the hearing location, not the district boundary.",
-  "cases": []
+  "cases": [
+   {
+    "label": "Every Weber County Property Tax Increase Since 2019 (Transparency)",
+    "url": "https://weber-county-hive.github.io/Transparency/weber-county-tax-increases-since-2019.html#list"
+   }
+  ]
  },
  {
   "id": "weber-basin",
@@ -414,7 +444,12 @@ const ENTITIES = [
   "status": "pend",
   "outcome": "",
   "note": "The district covers several counties. The figures here are the Weber County portion from the county's notice. The pin marks the hearing location in Layton, just outside Weber County.",
-  "cases": []
+  "cases": [
+   {
+    "label": "Every Weber County Property Tax Increase Since 2019 (Transparency)",
+    "url": "https://weber-county-hive.github.io/Transparency/weber-county-tax-increases-since-2019.html#list"
+   }
+  ]
  },
  {
   "id": "washington-terrace",
@@ -436,7 +471,12 @@ const ENTITIES = [
   "status": "pend",
   "outcome": "",
   "note": "",
-  "cases": []
+  "cases": [
+   {
+    "label": "Every Weber County Property Tax Increase Since 2019 (Transparency)",
+    "url": "https://weber-county-hive.github.io/Transparency/weber-county-tax-increases-since-2019.html#list"
+   }
+  ]
  },
  {
   "id": "harrisville",
@@ -458,15 +498,62 @@ const ENTITIES = [
   "status": "pend",
   "outcome": "",
   "note": "",
-  "cases": []
+  "cases": [
+   {
+    "label": "Every Weber County Property Tax Increase Since 2019 (Transparency)",
+    "url": "https://weber-county-hive.github.io/Transparency/weber-county-tax-increases-since-2019.html#list"
+   }
+  ]
+ },
+ {
+  "id": "west-haven",
+  "name": "West Haven City",
+  "kind": "City",
+  "tax": "energy",
+  "lat": 41.205,
+  "lng": -112.088,
+  "pnum": 6,
+  "rev": "about $1.2 million a year (about $900,000 in the first nine months)",
+  "before": "No city tax on power or gas",
+  "after": "6% energy tax",
+  "hearing": "June 17, 2026, 6 p.m., 4150 South 3900 West",
+  "src": [
+   {
+    "t": "West Haven Notice of Public Hearing, posted May 28, 2026 (Utah Public Notice Website)",
+    "u": "https://www.utah.gov/pmn/sitemap/notice/1084429.html"
+   },
+   {
+    "t": "West Haven City Council minutes, June 17, 2026",
+    "u": "https://www.utah.gov/pmn/files/1458397.pdf"
+   },
+   {
+    "t": "KSL.com, July 7, 2026",
+    "u": "https://www.ksl.com/article/51595085/west-haven-which-doesnt-tax-property-opts-instead-for-new-energy-tax-to-boost-revenue"
+   }
+  ],
+  "status": "adopted",
+  "adopted": "6%",
+  "outcome": "The council adopted Resolution 20-2026, 3-2, on June 17, 2026 (Dixon, Swapp and Saunders yes; Call and Morse no, after Call suggested 4%). The tax starts Oct. 1, 2026. KSL.com reported about $11 a month for the average household.",
+  "note": "This is not a property tax. West Haven charges no city property tax, so it did not go through Truth in Taxation. The 6% tax is on electricity and natural gas bills and is paid by renters and owners alike. It was enacted in 1998 (Ordinance 14-1998) and never collected until now.",
+  "cases": [
+   {
+    "label": "No Property Tax, a New Line on the Power Bill: West Haven's 6% Energy Tax (Transparency)",
+    "url": "https://weber-county-hive.github.io/Transparency/west-haven-energy-tax.html"
+   },
+   {
+    "label": "Every Weber County Property Tax Increase Since 2019 (Transparency)",
+    "url": "https://weber-county-hive.github.io/Transparency/weber-county-tax-increases-since-2019.html#list"
+   }
+  ]
  }
 ];
 
 const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const sizeClass = n => n > 50 ? 's3' : n >= 10 ? 's2' : 's1';
 const fmtPct = n => (n >= 100 ? Math.round(n) : n.toFixed(n < 10 ? 2 : 1)) + '%';
-const label = e => e.adopted ? e.adopted : fmtPct(e.pnum);
-const chip = e => `<span class="pct ${sizeClass(e.adopted ? parseFloat(e.adopted) : e.pnum)}${e.status === 'pend' ? ' pend' : ''}" aria-hidden="true">${label(e)}</span>`;
+const isEn = e => e.tax === 'energy';
+const label = e => isEn(e) ? '6% energy' : e.adopted ? e.adopted : fmtPct(e.pnum);
+const chip = e => isEn(e) ? `<span class="pct en" aria-hidden="true">${label(e)}</span>` : `<span class="pct ${sizeClass(e.adopted ? parseFloat(e.adopted) : e.pnum)}${e.status === 'pend' ? ' pend' : ''}" aria-hidden="true">${label(e)}</span>`;
 const panel = document.getElementById('panel');
 let filter = 'all', active = null;
 
@@ -475,11 +562,11 @@ L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
   attribution: '&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a> contributors', maxZoom: 18
 }).addTo(map);
 const weber = UTAH_GEO.counties.features.filter(f => f.properties.n === 'Weber');
-addUtahOutlines(map, { highlightCounty: 'Weber', alwaysLabel: ['Roy','Hooper','Harrisville','South Ogden','Washington Terrace','Ogden','North Ogden','Huntsville','Layton'] });
+addUtahOutlines(map, { highlightCounty: 'Weber', alwaysLabel: ['West Haven','Roy','Hooper','Harrisville','South Ogden','Washington Terrace','Ogden','North Ogden','Huntsville','Layton'] });
 
 const markers = {};
 ENTITIES.forEach(e => {
-  const m = L.marker([e.lat, e.lng], { icon: L.divIcon({ className: 'pin-icon', html: chip(e), iconSize: null, iconAnchor: [30, 36] }), title: e.name, riseOnHover: true });
+  const m = L.marker([e.lat, e.lng], { icon: L.divIcon({ className: 'pin-icon', html: chip(e), iconSize: null, iconAnchor: [30, 36] }), title: e.name, riseOnHover: true, zIndexOffset: isEn(e) ? 1000 : 0 });
   m.bindTooltip(e.name, { direction: 'top', offset: [0, -36] });
   m.on('click', () => select(e.id));
   markers[e.id] = m;
@@ -507,7 +594,7 @@ function renderToolbar(){
 function renderList(){
   const list = ENTITIES.filter(shown).sort((a, b) => b.pnum - a.pnum);
   panel.innerHTML = `<div class="list-head">${list.length} entities &middot; largest proposed increase first</div>` +
-    list.map(e => `<button class="pin-item" data-id="${e.id}">${chip(e)}<span><b>${esc(e.name)}</b><span class="pl">${esc(e.kind)} &middot; ${e.adopted ? 'proposed ' + fmtPct(e.pnum) + ', adopted ' + e.adopted : e.status === 'adopted' ? 'adopted' : 'proposed ' + fmtPct(e.pnum)}</span></span></button>`).join('');
+    list.map(e => `<button class="pin-item" data-id="${e.id}">${chip(e)}<span><b>${esc(e.name)}</b><span class="pl">${esc(e.kind)} &middot; ${isEn(e) ? 'new energy tax, adopted' : e.adopted ? 'proposed ' + fmtPct(e.pnum) + ', adopted ' + e.adopted : e.status === 'adopted' ? 'adopted' : 'proposed ' + fmtPct(e.pnum)}</span></span></button>`).join('');
   panel.querySelectorAll('.pin-item').forEach(b => b.onclick = () => select(b.dataset.id, true));
 }
 
@@ -517,12 +604,12 @@ function renderDetail(){
     <div class="detail">
       <div class="top"><button id="back">&larr; All entities</button><span class="tagl">${esc(e.kind)}</span></div>
       <h2>${esc(e.name)}</h2>
-      <p class="place">Proposed increase: ${fmtPct(e.pnum)}${e.adopted ? ' &middot; Adopted: ' + e.adopted : ''}</p>
+      <p class="place">${isEn(e) ? 'New tax on electricity and natural gas: 6%' : `Proposed increase: ${fmtPct(e.pnum)}${e.adopted ? ' &middot; Adopted: ' + e.adopted : ''}`}</p>
       ${e.status === 'pend' ? `<span class="status-line prop">${e.outcome ? 'Approved by council, under legal challenge' : 'Final vote not confirmed in the records reviewed'}</span>` : `<span class="status-line final">Adopted</span>`}
-      <div class="bill"><span class="from">${e.before}</span><span class="to">${e.after}</span><span class="cap">${e.adopted ? `The notice's example residential bill for this entity if the full ${fmtPct(e.pnum)} had been adopted. The adopted amount is under What happened.` : `This entity's portion of the notice's example residential bill, per year, if the full proposed increase is adopted`}</span></div>
-      <div class="sec"><h3>From the notice</h3><dl class="kv">
-        <dt>Increase</dt><dd>${fmtPct(e.pnum)} above last year's property tax budgeted revenue</dd>
-        <dt>Extra revenue</dt><dd>${e.rev} a year</dd>
+      <div class="bill"><span class="from">${e.before}</span><span class="to">${e.after}</span><span class="cap">${isEn(e) ? 'Starting Oct. 1, 2026, on every power and gas bill in the city. West Haven still has no city property tax.' : e.adopted ? `The notice's example residential bill for this entity if the full ${fmtPct(e.pnum)} had been adopted. The adopted amount is under What happened.` : `This entity's portion of the notice's example residential bill, per year, if the full proposed increase is adopted`}</span></div>
+      <div class="sec"><h3>${isEn(e) ? 'From the city record' : 'From the notice'}</h3><dl class="kv">
+        <dt>${isEn(e) ? 'Tax' : 'Increase'}</dt><dd>${isEn(e) ? "6% of the value of electricity and natural gas delivered, the most Utah Code 10-1-304 allows" : fmtPct(e.pnum) + " above last year's property tax budgeted revenue"}</dd>
+        <dt>${isEn(e) ? 'Revenue' : 'Extra revenue'}</dt><dd>${e.rev}${isEn(e) ? '' : ' a year'}</dd>
         <dt>Hearing</dt><dd>${esc(e.hearing)}</dd>
       </dl></div>
       ${e.outcome ? `<div class="sec"><h3>What happened</h3><p>${esc(e.outcome)}</p></div>` : ''}
