@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>2026 Races We've Covered — Utah Hive Politics</title>
+<meta name="description" content="MAP 005 from Utah Hive Politics: every 2026 race with a Hive candidate case file, on Utah's House and Senate district lines and county lines, each linked to its case file.">
+<link rel="icon" type="image/png" href="hive-bee.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600&family=Special+Elite&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;0,8..60,700;1,8..60,400&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+<style>
+  :root{
+    --navy:#14213D; --navy-deep:#0D1728;
+    --manila:#D9C9A3; --manila-dark:#C4B389;
+    --paper:#EDE7D8; --paper-light:#F5F1E6;
+    --ink:#1F1B16; --ink-soft:#4A443A;
+    --red:#A5301E; --green:#3F6B3B; --gold:#A9822F; --rule:#B7AC91;
+    --l-data:#A5301E; --l-pid:#A9822F; --l-cra:#3F6B3B; --l-mida:#2F5A8F; --l-other:#6E4A78;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;background:var(--navy);color:var(--paper);font-family:'Source Serif 4',Georgia,serif;-webkit-font-smoothing:antialiased;}
+  a{color:inherit;}
+
+  .hb-bar{background:#0d0b0a;border-bottom:1px solid #3a2f1c;padding:10px 20px;}
+  .hb-bar a{display:flex;align-items:center;gap:12px;max-width:1200px;margin:0 auto;text-decoration:none;}
+  .hb-bar img{width:52px;height:52px;border-radius:4px;display:block;flex:none;}
+  .hb-name{font-family:'Cinzel',Georgia,serif;color:#d4af37;font-size:16px;letter-spacing:.14em;text-transform:uppercase;line-height:1.2;display:block;}
+  .hb-sub{font-family:Georgia,serif;font-style:italic;color:#b8956a;font-size:12.5px;display:block;margin-top:2px;}
+
+  .masthead{max-width:1200px;margin:0 auto;padding:34px 20px 22px;}
+  .back{font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--manila);text-decoration:none;border-bottom:1px solid rgba(217,201,163,.4);}
+  .back:hover{color:var(--gold);border-color:var(--gold);}
+  .eyebrow{font-family:'Special Elite',monospace;font-size:12px;letter-spacing:.22em;text-transform:uppercase;color:var(--manila);margin:18px 0 8px;}
+  h1{font-size:clamp(30px,4.6vw,48px);line-height:1.08;margin:0 0 12px;font-weight:700;color:var(--paper-light);}
+  .intro{max-width:70ch;font-size:16.5px;line-height:1.6;color:rgba(237,231,216,.75);margin:0;}
+
+  .toolbar{max-width:1200px;margin:0 auto;padding:0 20px 14px;display:flex;flex-wrap:wrap;gap:8px;align-items:center;}
+  .chip{display:inline-flex;align-items:center;gap:7px;font-family:'IBM Plex Mono',monospace;font-size:12px;background:rgba(255,255,255,.05);border:1px solid rgba(217,201,163,.3);color:var(--paper-light);border-radius:20px;padding:6px 12px 6px 7px;cursor:pointer;}
+  .chip[aria-pressed="false"]{opacity:.45;}
+  .chip .dot{width:20px;height:20px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:10.5px;font-weight:600;color:#fff;border:1.5px solid #fff;}
+  .chip .n{color:var(--manila);}
+
+  .stage{max-width:1200px;margin:0 auto;padding:0 20px;display:grid;grid-template-columns:minmax(0,1fr) 400px;gap:18px;}
+  #map{height:640px;border-radius:2px;border:2px solid var(--gold);background:#d8d4c8;}
+  .panel{background:var(--paper);color:var(--ink);border-radius:2px;height:640px;overflow:auto;box-shadow:0 14px 30px -14px rgba(0,0,0,.55);}
+  @media (max-width:900px){
+    .stage{grid-template-columns:1fr;}
+    #map{height:430px;}
+    .panel{height:auto;max-height:none;}
+  }
+
+  .list-head{position:sticky;top:0;background:var(--manila-dark);padding:10px 18px;font-family:'IBM Plex Mono',monospace;font-size:11.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink);z-index:2;}
+  .pin-item{display:flex;gap:12px;align-items:flex-start;width:100%;text-align:left;background:none;border:none;border-bottom:1px dashed var(--rule);padding:13px 18px;cursor:pointer;font-family:inherit;color:inherit;}
+  .pin-item:hover{background:rgba(169,130,47,.1);}
+  .pin-item .dot{flex:none;margin-top:2px;}
+  .pin-item b{display:block;font-size:16px;line-height:1.3;}
+  .pin-item span.pl{display:block;font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--ink-soft);margin-top:3px;}
+
+  .dot{width:24px;height:24px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:600;color:#fff;border:2px solid #fff;box-shadow:0 1px 4px rgba(0,0,0,.4);}
+  .l-data{background:var(--l-data);} .l-pid{background:var(--l-pid);} .l-cra{background:var(--l-cra);} .l-mida{background:var(--l-mida);} .l-other{background:var(--l-other);}
+
+  .detail{padding:0 0 20px;}
+  .detail .top{background:var(--manila-dark);padding:10px 18px;display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;z-index:2;}
+  .detail .top button{font-family:'IBM Plex Mono',monospace;font-size:11.5px;background:none;border:none;cursor:pointer;color:var(--ink);padding:0;}
+  .detail .top .tagl{font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.06em;text-transform:uppercase;}
+  .detail h2{font-size:23px;line-height:1.2;margin:16px 18px 4px;}
+  .detail .place{font-family:'IBM Plex Mono',monospace;font-size:11.5px;color:var(--ink-soft);margin:0 18px 12px;text-transform:uppercase;letter-spacing:.04em;}
+  .detail .sum{margin:0 18px 14px;font-size:15.5px;line-height:1.55;color:var(--ink-soft);}
+  .sec{margin:0 18px 14px;}
+  .sec h3{font-family:'Special Elite',monospace;font-weight:400;font-size:12.5px;letter-spacing:.14em;text-transform:uppercase;margin:0 0 7px;color:var(--ink);border-bottom:1px solid var(--rule);padding-bottom:4px;}
+  .sec ul{margin:0;padding-left:18px;}
+  .sec li{font-size:14.5px;line-height:1.5;margin-bottom:7px;color:var(--ink);}
+  .src{display:block;font-family:'IBM Plex Mono',monospace;font-size:10.5px;color:var(--ink-soft);margin-top:2px;}
+  .sec.caution{background:rgba(165,48,30,.07);border-left:3px solid var(--red);padding:9px 12px;}
+  .sec.caution h3{color:var(--red);border:none;padding:0;}
+  .sec p{margin:0;font-size:14.5px;line-height:1.5;}
+  .case-btn{display:block;width:fit-content;margin:0 18px 8px;font-family:'IBM Plex Mono',monospace;font-size:12.5px;font-weight:600;color:var(--navy-deep);background:var(--gold);text-decoration:none;padding:10px 16px;border-radius:4px;}
+  .case-btn:hover{background:#C29A3D;}
+  .sources a{color:var(--red);}
+
+  .leaflet-container{font-family:'Source Serif 4',Georgia,serif;}
+  .pin-icon{background:none;border:none;}
+  .pin-icon .dot{width:26px;height:26px;font-size:11.5px;transition:transform .12s;}
+  .pin-icon.active .dot{transform:scale(1.35);box-shadow:0 0 0 4px rgba(169,130,47,.55),0 2px 6px rgba(0,0,0,.5);}
+  .county-label{background:none;border:none;}
+  .county-label span{display:block;transform:translate(-50%,-50%);font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:#14213D;opacity:.7;white-space:nowrap;text-shadow:0 0 3px #fff,0 0 3px #fff;pointer-events:none;}
+  .dot.prop{background:var(--paper-light) !important;border-style:dashed;border-width:2.5px;}
+  .dot.prop.l-data{color:var(--l-data);border-color:var(--l-data);} .dot.prop.l-pid{color:var(--l-pid);border-color:var(--l-pid);} .dot.prop.l-cra{color:var(--l-cra);border-color:var(--l-cra);} .dot.prop.l-mida{color:var(--l-mida);border-color:var(--l-mida);} .dot.prop.l-other{color:var(--l-other);border-color:var(--l-other);}
+  .status-key{max-width:1200px;margin:0 auto;padding:0 20px 14px;display:flex;flex-wrap:wrap;gap:18px;font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--manila);align-items:center;}
+  .status-key span{display:inline-flex;align-items:center;gap:7px;}
+  .status-line{margin:0 18px 12px;font-family:'IBM Plex Mono',monospace;font-size:11.5px;letter-spacing:.04em;text-transform:uppercase;display:inline-flex;align-items:center;gap:7px;padding:4px 10px;border-radius:3px;}
+  .status-line.final{background:rgba(63,107,59,.12);color:var(--green);}
+  .status-line.prop{background:rgba(165,48,30,.08);color:var(--red);border:1px dashed var(--red);}
+  .glossary{max-width:1200px;margin:28px auto 0;padding:0 20px;}
+  .glossary h2{font-family:'Special Elite',monospace;font-weight:400;font-size:15px;letter-spacing:.18em;text-transform:uppercase;color:var(--manila);margin:0 0 4px;}
+  .gl-sub{margin:0 0 14px;font-size:14px;color:rgba(237,231,216,.6);}
+  .flip-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:12px;}
+  .flip-card{perspective:900px;height:215px;cursor:pointer;outline:none;}
+  .flip-card:focus-visible .flip-inner{box-shadow:0 0 0 3px var(--gold);}
+  .flip-inner{position:relative;width:100%;height:100%;transition:transform .5s;transform-style:preserve-3d;border-radius:2px;}
+  .flip-card.flipped .flip-inner{transform:rotateY(180deg);}
+  .flip-front,.flip-back{position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;border-radius:2px;padding:14px 16px;display:flex;flex-direction:column;}
+  .flip-front{background:var(--paper);color:var(--ink);justify-content:space-between;border-top:4px solid var(--gold);}
+  .flip-front .ft{font-family:'Source Serif 4',Georgia,serif;font-weight:700;font-size:21px;line-height:1.2;}
+  .flip-front .fh{font-family:'IBM Plex Mono',monospace;font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-soft);}
+  .flip-back{background:var(--navy-deep);color:var(--paper-light);transform:rotateY(180deg);border:1px solid var(--gold);overflow:auto;gap:8px;}
+  .flip-back .fd{font-size:13px;line-height:1.5;}
+  .flip-link{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--gold);}
+  @media (prefers-reduced-motion:reduce){.flip-inner{transition:none;}}
+  .story-btn{display:inline-block;margin:8px 18px 0;font-family:'IBM Plex Mono',monospace;font-size:12.5px;font-weight:600;color:var(--paper-light);background:var(--navy);text-decoration:none;padding:10px 16px;border-radius:4px;}
+  .story-btn:hover{background:var(--navy-deep);}
+  .city-label{background:none;border:none;}
+  .city-label.key span{font-weight:600;font-size:11.5px;color:#14213D;}
+  .city-label span{display:block;transform:translate(-50%,-50%);font-family:'IBM Plex Mono',monospace;font-size:10.5px;color:#4a2f55;white-space:nowrap;text-shadow:0 0 3px #fff,0 0 3px #fff,0 0 3px #fff;pointer-events:none;}
+  .leaflet-tooltip{font-family:'IBM Plex Mono',monospace;font-size:11.5px;}
+
+  .notes{max-width:1200px;margin:26px auto 0;padding:0 20px;display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:18px;}
+  .note{border:1px solid rgba(217,201,163,.25);border-radius:2px;padding:16px 18px;font-size:14.5px;line-height:1.6;color:rgba(237,231,216,.78);}
+  .note h4{font-family:'Special Elite',monospace;font-weight:400;font-size:12.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--manila);margin:0 0 8px;}
+  .note p{margin:0 0 8px;}
+  .note strong{color:var(--paper-light);}
+
+  footer{max-width:1200px;margin:30px auto 0;padding:18px 20px 30px;border-top:1px solid rgba(217,201,163,.15);font-family:'IBM Plex Mono',monospace;font-size:11.5px;color:rgba(237,231,216,.45);line-height:1.6;}
+  .hb-foot{background:#0d0b0a;color:#b8956a;text-align:center;padding:26px 20px 30px;font-family:Georgia,serif;}
+  .hb-foot img{width:52px;height:52px;display:block;margin:0 auto 10px;}
+  .hb-foot .hb-name{font-size:14px;}
+  .hb-foot .hb-tag{font-size:10.5px;letter-spacing:.2em;text-transform:uppercase;color:#8a7650;margin-top:8px;display:block;}
+  @media(max-width:600px){.hb-bar img{width:38px;height:38px}.hb-name{font-size:13px}.masthead{padding-top:24px}}
+
+  .pct{display:inline-flex;align-items:center;justify-content:center;min-width:54px;height:28px;padding:0 8px;border-radius:14px;font-family:'IBM Plex Mono',monospace;font-size:12px;font-weight:600;color:#fff;border:2px solid #fff;box-shadow:0 1px 5px rgba(0,0,0,.45);white-space:nowrap;}
+  .pct.s1{background:#A9822F;} .pct.s2{background:#C0632B;} .pct.s3{background:#A5301E;}
+  .pct.pend{border-style:dashed;border-width:2.5px;background:var(--paper-light) !important;}
+  .pct.pend.s1{color:#8a6a24;border-color:#A9822F;} .pct.pend.s2{color:#C0632B;border-color:#C0632B;} .pct.pend.s3{color:#A5301E;border-color:#A5301E;}
+  .pin-icon.active .pct{transform:scale(1.2);box-shadow:0 0 0 4px rgba(169,130,47,.55);}
+  .pin-item .pct{flex:none;min-width:62px;}
+  .kv{display:grid;grid-template-columns:auto 1fr;gap:6px 14px;margin:0;font-size:14.5px;}
+  .kv dt{font-family:'IBM Plex Mono',monospace;font-size:11.5px;text-transform:uppercase;letter-spacing:.04em;color:var(--ink-soft);padding-top:2px;}
+  .kv dd{margin:0;}
+  .bill{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;margin:0 18px 14px;font-family:'IBM Plex Mono',monospace;}
+  .bill .from{font-size:18px;color:var(--ink-soft);text-decoration:line-through;}
+  .bill .to{font-size:26px;font-weight:600;color:var(--ink);}
+  .bill .cap{flex-basis:100%;font-size:11px;color:var(--ink-soft);}
+
+  .rate{display:inline-flex;align-items:center;justify-content:center;min-width:58px;height:26px;padding:0 8px;border-radius:13px;font-family:'IBM Plex Mono',monospace;font-size:12px;font-weight:600;border:2px solid #fff;box-shadow:0 1px 4px rgba(0,0,0,.35);}
+  .r1{background:#E6CF8E;color:#3d2f10;} .r2{background:#C0632B;color:#fff;} .r3{background:#A5301E;color:#fff;}
+  .split{display:grid;gap:8px;margin:0 18px 14px;}
+  .split .row{display:grid;grid-template-columns:92px 1fr;gap:10px;align-items:center;font-size:14px;}
+  .split .bar{height:14px;background:var(--gold);border-radius:2px;}
+  .split .amt{font-family:'IBM Plex Mono',monospace;font-weight:600;font-size:13px;}
+  .big{font-family:'IBM Plex Mono',monospace;font-size:30px;font-weight:600;margin:0 18px 2px;color:var(--ink);}
+  .big small{font-size:14px;color:var(--ink-soft);font-weight:400;}
+  .why{margin:0 18px 14px;background:rgba(169,130,47,.1);border-left:3px solid var(--gold);padding:10px 12px;font-size:14.5px;line-height:1.55;}
+  .why b{color:var(--ink);}
+  .stack{display:flex;height:22px;border-radius:2px;overflow:hidden;margin:6px 0 4px;font-family:'IBM Plex Mono',monospace;font-size:10.5px;color:#fff;}
+  .stack span{display:flex;align-items:center;justify-content:center;white-space:nowrap;overflow:hidden;}
+  .leaflet-interactive:focus{outline:none;}
+</style>
+<style>
+  .vbtn{display:inline-flex;align-items:center;gap:8px;font-family:'IBM Plex Mono',monospace;font-size:12px;background:rgba(255,255,255,.05);border:1px solid rgba(217,201,163,.3);color:var(--paper-light);border-radius:20px;padding:6px 13px;cursor:pointer;}
+  .vbtn[aria-pressed="true"]{background:var(--paper);color:var(--ink);border-color:var(--paper);}
+  .vbtn .n{color:var(--manila);} .vbtn[aria-pressed="true"] .n{color:var(--ink-soft);}
+  .vbtn:focus-visible,.pin-item:focus-visible,.case-btn:focus-visible{outline:3px solid var(--gold);outline-offset:2px;}
+  .sw{display:inline-block;width:18px;height:14px;border-radius:2px;border:2px solid;}
+  .sw.h{background:rgba(169,130,47,.55);border-color:#7a5c1e;} .sw.s{background:rgba(47,90,143,.45);border-color:#1f3f66;} .sw.c{background:rgba(63,107,59,.4);border-color:#2c4d29;} .sw.u{background:transparent;border-color:#6b6457;border-style:dashed;}
+  .tagd{display:inline-flex;align-items:center;justify-content:center;min-width:44px;height:24px;padding:0 7px;border-radius:3px;font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:600;color:#fff;flex:none;}
+  .tagd.h{background:#8a6a24;} .tagd.s{background:#2F5A8F;} .tagd.c{background:#3F6B3B;} .tagd.f{background:#6E4A78;} .tagd.o{background:#4A443A;}
+  .dlabel{background:none;border:none;}
+  .dlabel span{display:block;transform:translate(-50%,-50%);font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:600;color:#fff;background:rgba(13,23,40,.82);padding:1px 5px;border-radius:3px;white-space:nowrap;pointer-events:none;}
+  .grp{padding:9px 18px 5px;font-family:'Special Elite',monospace;font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-soft);background:rgba(196,179,137,.35);}
+  .who{margin:0 18px 12px;font-size:17px;font-weight:600;}
+  .tags{display:flex;flex-wrap:wrap;gap:6px;margin:0 18px 14px;}
+  .tags span{font-family:'IBM Plex Mono',monospace;font-size:10.5px;background:rgba(20,33,61,.08);border:1px solid var(--rule);padding:2px 7px;border-radius:10px;}
+  .empty{margin:0 18px 14px;font-size:14.5px;line-height:1.55;color:var(--ink-soft);}
+  .load-err{padding:18px;font-size:15px;line-height:1.5;}
+</style>
+</head>
+<body>
+
+<div class="hb-bar"><a href="https://webercountyhive.substack.com/" target="_blank" rel="noopener"><img src="uhp-badge.png" alt="Utah Hive Politics logo" onerror="this.style.display='none'"><span><span class="hb-name">Utah Hive Politics</span><span class="hb-sub">from the publisher of The Weber County Hive</span></span></a></div>
+
+<header class="masthead">
+  <a class="back" href="index.html">&larr; All Utah Maps</a>
+  <p class="eyebrow">MAP 005 &middot; Utah &middot; Nov. 3, 2026 election</p>
+  <h1>2026 Races We've Covered</h1>
+  <p class="intro">Every 2026 race with a candidate case file from The Weber County Hive, drawn on the Legislature's district lines and on county lines. Click a shaded district or county to see who is running and open the case file. Each case file is built from the candidates' own campaign finance reports and disclosure forms. Election Day is Tuesday, Nov. 3, 2026.</p>
+</header>
+
+<div class="toolbar" id="toolbar" role="group" aria-label="Choose which races to show"></div>
+<div class="status-key" aria-label="Map key">
+  <span><span class="sw h" aria-hidden="true"></span>Utah House district we've covered</span>
+  <span><span class="sw s" aria-hidden="true"></span>Utah Senate district we've covered</span>
+  <span><span class="sw c" aria-hidden="true"></span>County race we've covered</span>
+  <span><span class="sw u" aria-hidden="true"></span>Not covered yet (House and Senate views)</span>
+</div>
+
+<div class="stage">
+  <div id="map" role="region" aria-label="Map of Utah races with Hive case files"></div>
+  <aside class="panel" id="panel" aria-live="polite"><div class="load-err">Loading races&hellip;</div></aside>
+</div>
+
+<section class="glossary" aria-labelledby="gl-h">
+  <h2 id="gl-h">Words on this map</h2>
+  <p class="gl-sub">Tap a card to flip it.</p>
+  <div class="flip-grid">
+    <div class="flip-card" tabindex="0" role="button" aria-label="Utah House district: tap to see the meaning">
+      <div class="flip-inner">
+        <div class="flip-front"><span class="ft">Utah House district</span><span class="fh">Tap to flip &#8635;</span></div>
+        <div class="flip-back"><span class="fd">One of 75 areas that each elect one member of the Utah House of Representatives for a two-year term. The lines on this map were drawn after the 2020 Census and are used from 2022 to 2032.</span></div>
+      </div>
+    </div>
+    <div class="flip-card" tabindex="0" role="button" aria-label="Utah Senate district: tap to see the meaning">
+      <div class="flip-inner">
+        <div class="flip-front"><span class="ft">Utah Senate district</span><span class="fh">Tap to flip &#8635;</span></div>
+        <div class="flip-back"><span class="fd">One of 29 areas that each elect one state senator for a four-year term. About half the Senate seats are on the ballot in any election year.</span></div>
+      </div>
+    </div>
+    <div class="flip-card" tabindex="0" role="button" aria-label="Open seat: tap to see the meaning">
+      <div class="flip-inner">
+        <div class="flip-front"><span class="ft">Open seat</span><span class="fh">Tap to flip &#8635;</span></div>
+        <div class="flip-back"><span class="fd">A race with no incumbent running, because the current officeholder retired, ran for something else, or lost a primary.</span></div>
+      </div>
+    </div>
+    <div class="flip-card" tabindex="0" role="button" aria-label="Incumbent: tap to see the meaning">
+      <div class="flip-inner">
+        <div class="flip-front"><span class="ft">Incumbent</span><span class="fh">Tap to flip &#8635;</span></div>
+        <div class="flip-back"><span class="fd">The person who holds the office now and is running to keep it.</span></div>
+      </div>
+    </div>
+    <div class="flip-card" tabindex="0" role="button" aria-label="Campaign finance report: tap to see the meaning">
+      <div class="flip-inner">
+        <div class="flip-front"><span class="ft">Campaign finance report</span><span class="fh">Tap to flip &#8635;</span></div>
+        <div class="flip-back"><span class="fd">The report each candidate files listing money raised and spent. State candidates file on Utah's disclosures website; each Hive case file names the reports it used.</span></div>
+      </div>
+    </div>
+    <div class="flip-card" tabindex="0" role="button" aria-label="Disclosure form: tap to see the meaning">
+      <div class="flip-inner">
+        <div class="flip-front"><span class="ft">Disclosure form</span><span class="fh">Tap to flip &#8635;</span></div>
+        <div class="flip-back"><span class="fd">A form candidates and officeholders file listing their jobs, businesses, and other interests that could conflict with public duties. What it must list depends on the office.</span></div>
+      </div>
+    </div>
+    <div class="flip-card" tabindex="0" role="button" aria-label="PAC: tap to see the meaning">
+      <div class="flip-inner">
+        <div class="flip-front"><span class="ft">PAC</span><span class="fh">Tap to flip &#8635;</span></div>
+        <div class="flip-back"><span class="fd">A political action committee: a group that collects money and gives it to candidates or spends it on elections. Many case files show how much of a campaign's money came from PACs versus individuals.</span></div>
+      </div>
+    </div>
+    <div class="flip-card" tabindex="0" role="button" aria-label="Write-in candidate: tap to see the meaning">
+      <div class="flip-inner">
+        <div class="flip-front"><span class="ft">Write-in candidate</span><span class="fh">Tap to flip &#8635;</span></div>
+        <div class="flip-back"><span class="fd">A candidate whose name is not printed on the ballot. Voters write the name in, and it counts only if the candidate filed as a write-in by the deadline.</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="notes">
+  <div class="note">
+    <h4>How this map works</h4>
+    <p>The races come straight from the candidates2026 docket, so a new case file shows up here automatically once it is added there.</p>
+    <p>A race that crosses county lines, such as Senate District 20, is drawn on its own district lines. County commission and council races are drawn on county lines. Congressional and statewide races are listed in the panel instead of drawn, because Utah's congressional lines were redrawn under a 2026 court order.</p>
+  </div>
+  <div class="note">
+    <h4>What "covered" means</h4>
+    <p>A shaded area means the Hive has published a case file for that race. An outlined area with no shading means we haven't yet. It says nothing about the candidates in that race.</p>
+    <p>Grades in the case files use the Hive's standing rubric: a C means the record meets what Utah law requires; a B or A means it goes beyond.</p>
+  </div>
+  <div class="note">
+    <h4>Related</h4>
+    <p><a href="https://weber-county-hive.github.io/candidates2026/" target="_blank" rel="noopener">The full 2026 candidates docket</a> (candidates2026) has every case file, statement and resource in one searchable list.</p>
+    <p><a href="weber-county-tax-increases-2026.html">MAP 002</a> shows who raised property taxes this year, and <a href="utah-tax-increment-map.html">MAP 001</a> shows where tax increment goes.</p>
+  </div>
+</section>
+
+<footer>
+  Sources: The Weber County Hive candidates2026 case files (each lists its own records); Utah Legislature House and Senate district boundaries, 2022&ndash;2032, from the Utah Geospatial Resource Center (UGRC). Compiled by Utah Hive Politics, from the publisher of The Weber County Hive. Last updated Sep 30, 2026.<br>
+  Map tiles &copy; OpenStreetMap contributors. State and county boundaries: U.S. Census Bureau. District boundaries: UGRC.
+</footer>
+<div class="hb-foot"><img src="hive-bee.png" alt="" onerror="this.style.display='none'"><span class="hb-name">Utah Hive Politics</span><span class="hb-sub">from the publisher of The Weber County Hive</span><span class="hb-tag">Independent · Accountability · Journalism</span></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<script src="utah-geo.js"></script>
+<script src="utah-districts.js"></script>
+<script src="https://weber-county-hive.github.io/candidates2026/candidates-data.js"></script>
+<script>
+// ---------------------------------------------------------------
+// Races are read from the candidates2026 docket (candidates-data.js).
+// Where each one goes on the map is worked out from its "race" name:
+//   "House District 9 ..."            -> Utah House district 9
+//   "Senate District 5 ..."           -> Utah Senate district 5
+//   "Wasatch County Council ..."      -> Wasatch County
+//   "US House District 4 ..."         -> listed, not drawn
+// EXTRA adds links that aren't in the docket (voter guides, etc.).
+// ---------------------------------------------------------------
+const BASE = 'https://weber-county-hive.github.io/candidates2026/';
+const EXTRA = {
+  'county:Wasatch': [{ label: 'Wasatch County 2026 Voter Guide', url: BASE + 'wasatch-2026-voter-guide.html' }]
+};
+const COLORS = { h: '#A9822F', s: '#2F5A8F', c: '#3F6B3B' };
+const esc = s => String(s == null ? '' : s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const url = h => /^https?:/.test(h) ? h : BASE + h;
+const panel = document.getElementById('panel');
+const MONTHS = ['Jan.','Feb.','March','April','May','June','July','Aug.','Sept.','Oct.','Nov.','Dec.'];
+const fmtDate = d => { const m = /^(\d{4})-(\d{2})-(\d{2})/.exec(d || ''); return m ? MONTHS[+m[2]-1] + ' ' + (+m[3]) + ', ' + m[1] : d; };
+
+function placeOf(r){
+  const race = r.race || '';
+  let m;
+  if ((m = race.match(/^US House District (\d+)/i))) return { type: 'f', key: 'fed:' + m[1], label: 'U.S. House District ' + m[1] };
+  if ((m = race.match(/^(?:Utah )?House District (\d+)/i))) return { type: 'h', key: 'h:' + m[1], d: +m[1], label: 'House District ' + m[1] };
+  if ((m = race.match(/^Senate District (\d+)/i))) return { type: 's', key: 's:' + m[1], d: +m[1], label: 'Senate District ' + m[1] };
+  if ((m = race.match(/^([A-Za-z .]+?) County (Commission|Council)/))) return { type: 'c', key: 'county:' + m[1].trim(), county: m[1].trim(), label: m[1].trim() + ' County' };
+  return { type: 'o', key: 'other:' + race, label: race.split(' — ')[0] };
+}
+
+// Build races: one entry per race name, with every case file and statement for it.
+const RACES = {};
+let loaded = typeof CANDIDATES !== 'undefined' && Array.isArray(CANDIDATES);
+if (loaded) {
+  CANDIDATES.filter(c => c.level !== 'Resource').forEach(c => {
+    const p = placeOf(c);
+    const rk = p.key + '|' + (c.race || '');
+    const r = RACES[rk] || (RACES[rk] = { ...p, race: c.race, names: '', tags: new Set(), links: [], updated: '' });
+    const isStatement = c.level === 'Statement';
+    if (!isStatement && !r.names) r.names = c.names;
+    if (!isStatement) (c.tags || []).forEach(t => r.tags.add(t));
+    r.links.push({ label: (isStatement ? 'Statement: ' + c.names : (c.caseNumber ? c.caseNumber + ': ' : '') + (c.verdict || c.names)), url: url(c.href), statement: isStatement });
+    const d = c.dateUpdated || c.datePosted || '';
+    if (d > r.updated) r.updated = d;
+  });
+}
+const ALL = Object.values(RACES).map(r => {
+  r.links.sort((a, b) => a.statement - b.statement);
+  if (!r.names) r.names = r.links[0] ? r.links[0].label.replace(/^Statement: /, '') : '';
+  return r;
+});
+const byArea = {};
+ALL.forEach(r => (byArea[r.key] = byArea[r.key] || []).push(r));
+
+// ---------------- Map ----------------
+const map = L.map('map', { scrollWheelZoom: false, zoomSnap: 0.25 });
+L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+  attribution: '&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a> contributors', maxZoom: 18
+}).addTo(map);
+addUtahOutlines(map, { cityLabelZoom: 11 });
+map.on('zoomend', () => draw());
+map.createPane('areas'); map.getPane('areas').style.zIndex = 420;
+map.createPane('dlabels'); map.getPane('dlabels').style.zIndex = 460; map.getPane('dlabels').style.pointerEvents = 'none';
+
+let view = 'all', active = null;
+const layers = {};   // key -> leaflet layer
+const labels = {};
+function covered(key){ return !!byArea[key] || !!EXTRA[key]; }
+
+function styleFor(type, key){
+  const on = covered(key), sel = key === active;
+  if (!on) return { pane: 'areas', color: '#6b6457', weight: 1, dashArray: '4 4', opacity: .6, fillColor: '#fff', fillOpacity: .02 };
+  return { pane: 'areas', color: sel ? '#0D1728' : COLORS[type], weight: sel ? 4 : 2, opacity: .95, fillColor: COLORS[type], fillOpacity: sel ? .6 : (type === 'c' ? .28 : .42) };
+}
+function addArea(type, key, feature, labelText){
+  const lay = L.geoJSON(feature, { style: () => styleFor(type, key) });
+  lay.on('click', () => select(key));
+  lay.bindTooltip(labelText + (covered(key) ? '' : ' · not covered yet'), { sticky: true });
+  layers[key] = { lay, type };
+  if (covered(key)) {
+    const c = lay.getBounds().getCenter();
+    labels[key] = L.marker(c, { pane: 'dlabels', interactive: false, keyboard: false, icon: L.divIcon({ className: 'dlabel', html: '<span>' + esc(type === 'c' ? labelText : (type === 'h' ? 'HD ' : 'SD ') + feature.properties.d) + '</span>', iconSize: null }) });
+  }
+}
+UTAH_DISTRICTS.house.features.forEach(f => addArea('h', 'h:' + f.properties.d, f, 'House District ' + f.properties.d));
+UTAH_DISTRICTS.senate.features.forEach(f => addArea('s', 's:' + f.properties.d, f, 'Senate District ' + f.properties.d));
+UTAH_GEO.counties.features.forEach(f => { const k = 'county:' + f.properties.n; if (covered(k)) addArea('c', k, f, f.properties.n + ' County'); });
+
+const inView = type => view === 'all' ? ['h','s','c'].includes(type) : view === type;
+function draw(){
+  Object.entries(layers).forEach(([k, o]) => {
+    const show = view === 'all' ? covered(k) && inView(o.type) : o.type === view && (covered(k) || view !== 'c');
+    show ? o.lay.addTo(map) : o.lay.remove();
+    o.lay.setStyle(styleFor(o.type, k));
+    const lab = labels[k] && show && (view !== 'all' || o.type === 'c' || map.getZoom() >= 9.5);
+    if (labels[k]) lab ? labels[k].addTo(map) : labels[k].remove();
+  });
+  // keep the selected shape on top
+  if (active && layers[active] && map.hasLayer(layers[active].lay)) layers[active].lay.bringToFront();
+}
+
+// ---------------- Panel ----------------
+const TYPE_NAME = { h: 'Utah House', s: 'Utah Senate', c: 'County races', f: 'U.S. House', o: 'Statewide and other' };
+const tagd = r => `<span class="tagd ${r.type}" aria-hidden="true">${r.type === 'h' ? 'HD ' + r.d : r.type === 's' ? 'SD ' + r.d : r.type === 'c' ? 'CO' : r.type === 'f' ? 'US' : 'ST'}</span>`;
+function renderToolbar(){
+  const n = t => ALL.filter(r => t === 'all' ? true : r.type === t).length;
+  const opts = [['all','All races', n('all')], ['h','Utah House', n('h')], ['s','Utah Senate', n('s')], ['c','County', n('c')]];
+  const tb = document.getElementById('toolbar');
+  tb.innerHTML = opts.map(([k, t, c]) => `<button class="vbtn" data-v="${k}" aria-pressed="${view === k}">${t} <span class="n">${c}</span></button>`).join('');
+  tb.querySelectorAll('.vbtn').forEach(b => b.onclick = () => { view = b.dataset.v; active = null; renderToolbar(); draw(); renderList(); fit(); });
+}
+function renderList(){
+  const order = view === 'all' ? ['h','s','c','f','o'] : [view];
+  const sorter = (a, b) => (a.d || 0) - (b.d || 0) || String(a.label).localeCompare(b.label);
+  const shown = ALL.filter(r => order.includes(r.type));
+  panel.innerHTML = `<div class="list-head">${shown.length} races &middot; click one to open it</div>` + order.map(t => {
+    const rs = ALL.filter(r => r.type === t).sort(sorter);
+    if (!rs.length) return '';
+    return `<div class="grp">${TYPE_NAME[t]}</div>` + rs.map(r => `<button class="pin-item" data-k="${esc(r.key)}">${tagd(r)}<span><b>${esc(r.names)}</b><span class="pl">${esc(r.race)}</span></span></button>`).join('');
+  }).join('');
+  panel.querySelectorAll('.pin-item').forEach(b => b.onclick = () => select(b.dataset.k, true));
+}
+function renderDetail(key){
+  const rs = byArea[key] || [];
+  const lay = layers[key];
+  const title = rs[0] ? rs[0].label : (lay ? (lay.type === 'h' ? 'House District ' : 'Senate District ') + key.split(':')[1] : key.split(':')[1]);
+  const extra = EXTRA[key] || [];
+  panel.innerHTML = `
+    <div class="detail">
+      <div class="top"><button id="back">&larr; All races</button><span class="tagl">${rs[0] ? TYPE_NAME[rs[0].type] : (lay ? TYPE_NAME[lay.type] : '')}</span></div>
+      <h2>${esc(title)}</h2>
+      ${rs.length ? rs.map(r => `
+        <p class="place">${esc(r.race)}</p>
+        <p class="who">${esc(r.names)}</p>
+        ${r.tags.size ? `<div class="tags">${[...r.tags].slice(0, 8).map(t => `<span>${esc(t)}</span>`).join('')}</div>` : ''}
+        ${r.links.map(l => `<a class="case-btn" href="${l.url}" target="_blank" rel="noopener">${esc(l.label)} &rarr;</a>`).join('')}
+        ${r.updated ? `<p class="empty" style="margin-top:6px;font-size:12.5px;font-family:'IBM Plex Mono',monospace">Case file updated ${esc(fmtDate(r.updated))}</p>` : ''}
+      `).join('<hr style="border:none;border-top:1px dashed var(--rule);margin:6px 18px 14px">') : `<p class="empty">The Hive hasn't published a case file for this district's 2026 race yet. Races are added as their records are reviewed.</p>`}
+      ${extra.length ? `<div class="sec"><h3>Also for this area</h3></div>` + extra.map(l => `<a class="case-btn" href="${l.url}" target="_blank" rel="noopener">${esc(l.label)} &rarr;</a>`).join('') : ''}
+      <div class="sec" style="margin-top:14px"><h3>Before you vote</h3><p>Election Day is Tuesday, Nov. 3, 2026. Check your registration, your ballot and your districts at <a href="https://vote.utah.gov" target="_blank" rel="noopener" style="color:var(--red)">vote.utah.gov</a>.</p></div>
+    </div>`;
+  document.getElementById('back').onclick = () => { active = null; draw(); renderList(); };
+  panel.scrollTop = 0;
+}
+function select(key, fly){
+  active = key;
+  const lay = layers[key];
+  if (lay && !map.hasLayer(lay.lay)) { view = lay.type; renderToolbar(); }
+  draw(); renderDetail(key);
+  if (fly && lay) map.flyToBounds(lay.lay.getBounds(), { maxZoom: 11, duration: 0.6, padding: [20, 20] });
+  if (window.innerWidth <= 900) panel.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+function fit(){
+  const b = L.latLngBounds([]);
+  Object.entries(layers).forEach(([k, o]) => { if (covered(k) && inView(o.type)) b.extend(o.lay.getBounds()); });
+  if (b.isValid()) map.fitBounds(b.pad(0.03)); else map.fitBounds(L.geoJSON(UTAH_GEO.state).getBounds());
+}
+
+document.querySelectorAll('.flip-card').forEach(c => {
+  const flip = () => c.classList.toggle('flipped');
+  c.addEventListener('click', flip);
+  c.addEventListener('keydown', ev => { if (ev.key === 'Enter' || ev.key === ' ') { ev.preventDefault(); flip(); } });
+});
+
+if (!loaded) {
+  panel.innerHTML = '<div class="load-err">The race list could not be loaded right now. You can still browse every case file on the <a href="' + BASE + '" style="color:var(--red)">2026 candidates docket</a>.</div>';
+  map.fitBounds(L.geoJSON(UTAH_GEO.state).getBounds());
+} else {
+  renderToolbar(); draw(); renderList(); fit();
+}
+</script>
+</body>
+</html>
