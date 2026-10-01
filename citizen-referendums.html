@@ -163,7 +163,7 @@
   .vbtn .n{color:var(--manila);} .vbtn[aria-pressed="true"] .n{color:var(--ink-soft);}
   .vbtn:focus-visible,.pin-item:focus-visible,.case-btn:focus-visible{outline:3px solid var(--gold);outline-offset:2px;}
   .st{display:inline-flex;align-items:center;justify-content:center;min-width:74px;height:26px;padding:0 9px;border-radius:13px;font-family:'IBM Plex Mono',monospace;font-size:11.5px;font-weight:600;color:#fff;border:2px solid #fff;box-shadow:0 1px 5px rgba(0,0,0,.45);white-space:nowrap;}
-  .st.active{background:#A5301E;} .st.court{background:#2F5A8F;} .st.closed{background:#6b6457;}
+  .st.ballot{background:#3F6B3B;} .st.active{background:#A5301E;} .st.court{background:#2F5A8F;} .st.closed{background:#6b6457;}
   .pin-icon.active .st{transform:scale(1.18);box-shadow:0 0 0 4px rgba(169,130,47,.55);}
   .pin-item .st{flex:none;}
   .law{margin:14px 18px;padding:12px 14px;background:rgba(20,33,61,.07);border:1px solid var(--rule);font-size:14.5px;line-height:1.5;}
@@ -183,6 +183,7 @@
 
 <div class="toolbar" id="toolbar" role="group" aria-label="Choose which referendums to show"></div>
 <div class="status-key" aria-label="Map key">
+  <span><span class="st ballot" aria-hidden="true">On Nov. 3 ballot</span>Voters decide on Nov. 3, 2026</span>
   <span><span class="st active" aria-hidden="true">Active</span>Filed, and signatures or materials still pending</span>
   <span><span class="st court" aria-hidden="true">In court</span>Blocked, and the fight is now in court</span>
   <span><span class="st closed" aria-hidden="true">Closed</span>Over, with no public vote</span>
@@ -251,7 +252,7 @@
 <section class="notes">
   <div class="note">
     <h4>What these have in common</h4>
-    <p>None of the four has reached a public vote so far. Two were stopped before or at the signature stage, one by a ruling that the decision couldn't be referred and one by packet-binding rules. The other two are still under way.</p>
+    <p>Uintah County's Prop 9 is on the Nov. 3, 2026 ballot. Roy's petition is gathering signatures now and is already printed on that ballot as Prop 10. Eagle Mountain's is under way but is not on the Nov. 3 ballot. Box Elder's was stopped by a ruling that the decision couldn't be referred, and Summit County's by packet-binding rules.</p>
   </div>
   <div class="note">
     <h4>The rules behind them</h4>
@@ -260,12 +261,12 @@
   <div class="note">
     <h4>Related</h4>
     <p><a href="https://webercountyhive-coder.github.io/referendum/" target="_blank" rel="noopener">The full referendum docket</a> has every case file. <a href="weber-county-tax-increases-2026.html">MAP 002</a> shows this year's property tax increases, including Roy's.</p>
-    <p>Know of a referendum that isn't here? Email webercountyhive@gmail.com.</p>
+    <p>Know of a referendum that isn't here, or have an update on one that is (a petition filing, signature count, clerk's notice or court ruling)? Email <a href="mailto:webercountyhive@gmail.com">webercountyhive@gmail.com</a>. A link to the document helps.</p>
   </div>
 </section>
 
 <footer>
-  Sources: The Weber County Hive referendum case files (each lists its own records); KSL.com and FOX 13 for Roy. Compiled by Utah Hive Politics, from the publisher of The Weber County Hive. Last updated Sep 30, 2026.<br>
+  Sources: The Weber County Hive referendum case files (each lists its own records), county election certifications and sample ballots, Roy City Council minutes, and Uintah County's voter pamphlet; KSL.com and FOX 13 for Roy. Compiled by Utah Hive Politics, from the publisher of The Weber County Hive. Last updated Oct. 1, 2026.<br>
   Map tiles &copy; OpenStreetMap contributors. State, county, and city boundaries: U.S. Census Bureau.
 </footer>
 <div class="hb-foot"><img src="hive-bee.png" alt="" onerror="this.style.display='none'"><span class="hb-name">Utah Hive Politics</span><span class="hb-sub">from the publisher of The Weber County Hive</span><span class="hb-tag">Independent · Accountability · Journalism</span></div>
@@ -297,9 +298,13 @@ const PLACES = [
    [
     "Found referable",
     "Sept. 14, 2026, by the city attorney"
+   ],
+   [
+    "Nov. 3, 2026 ballot",
+    "Not listed on Utah County's certification (read Oct. 1, 2026)"
    ]
   ],
-  "summary": "The city attorney found the referendum legally referable on Sept. 14, 2026. Sponsors say the city hasn't provided the petition, signature sheets or an accurate ballot pamphlet it is required to provide, and that the draft pamphlet cites an August 2027 election date that Utah Code appears to disallow for a tax measure without a declared disaster and a unanimous council vote.",
+  "summary": "The city attorney found the referendum legally referable on Sept. 14, 2026. Sponsors say the city hasn't provided the petition, signature sheets or an accurate ballot pamphlet it is required to provide, and that the draft pamphlet cites an August 2027 election date that Utah Code appears to disallow for a tax measure without a declared disaster and a unanimous council vote. Utah County's certified Nov. 3, 2026 ballot lists one local question, Salem Prop #8; no Eagle Mountain referendum is listed.",
   "next": "Whether the city provides the petition materials, when signature gathering can begin, and which election date applies.",
   "cases": [
    [
@@ -321,21 +326,37 @@ const PLACES = [
   "lat": 41.161,
   "lng": -112.026,
   "st": "active",
-  "what": "Roy City's 34.25% property tax increase, approved 4-1 in August 2026",
-  "key": "About 1,800 signatures from Roy voters needed (KSL.com)",
+  "what": "Roy City's 34.25% property tax increase (Resolution 26-24), adopted 4-1 on Aug. 11, 2026",
+  "key": "Gathering signatures now; already printed on the Nov. 3 ballot as Prop #10 ($1,749,050)",
   "dates": [
    [
-    "Increase approved",
-    "Reported Aug. 12, 2026"
+    "Increase adopted",
+    "Aug. 11, 2026, 4-1"
+   ],
+   [
+    "Ballot certified",
+    "Sept. 3, 2026, Weber County Clerk/Auditor, listing Prop #10"
    ],
    [
     "Signature gathering",
-    "Under way in September 2026, per FOX 13"
+    "Under way as of Oct. 1, 2026"
+   ],
+   [
+    "Signatures due",
+    "Oct. 8, 2026 (FOX 13)"
+   ],
+   [
+    "Election",
+    "Nov. 3, 2026"
    ]
   ],
-  "summary": "After the City Council approved a reduced 34.25% increase, opponents began gathering signatures for a referendum to put it on the ballot. KSL.com reported about 1,800 signatures from Roy voters are needed. FOX 13 reported signature gathering still under way in September 2026. Whether it qualifies, and for which election, wasn't confirmed in the records reviewed.",
-  "next": "Whether enough valid signatures were turned in, and if so, when the vote would be held.",
+  "summary": "The council adopted a 34.25% increase, down from 54.94% first proposed, mainly to fund employee raises. Weber County's certified sample ballot lists Ballot Proposition #10, Roy City Referendum. A yes vote keeps the $1,749,050 increase; a no vote returns Roy to its most recent certified rate. A 2025 referendum on Roy's prior increase was declared insufficient (576 valid of 1,743 needed).",
+  "next": "Whether the petition gets enough valid signatures by the deadline. Gathering is under way as of Oct. 1, 2026.",
   "cases": [
+   [
+    "Roy Prop 10: The Tax Referendum (Referendums)",
+    "https://webercountyhive-coder.github.io/referendum/roy-prop-10-tax-referendum.html"
+   ],
    [
     "Who's Raising Taxes This Year: Roy's pin (MAP 002)",
     "https://weber-county-hive.github.io/utah-maps/weber-county-tax-increases-2026.html"
@@ -347,6 +368,14 @@ const PLACES = [
   ],
   "src": [
    [
+    "Weber County sample ballot, Prop #10 (Sept. 3, 2026)",
+    "https://www.utah.gov/pmn/files/1483635.pdf"
+   ],
+   [
+    "Roy City Council minutes, Aug. 11, 2026",
+    "https://www.utah.gov/pmn/files/1490337.pdf"
+   ],
+   [
     "KSL.com, Aug. 12, 2026: Roy leaders OK scaled-back 34.25% tax hike; foes plan challenge",
     "https://www.ksl.com/article/51608949/roy-leaders-ok-scaled-back-3425-tax-hike-foes-plan-challenge-to-halt-it"
    ],
@@ -355,7 +384,73 @@ const PLACES = [
     "https://www.fox13now.com/news/local-news/weber-county/roy-residents-gathering-signatures-for-a-referendum-on-34-percent-property-tax-increase"
    ]
   ],
-  "note": "The Hive's referendum docket doesn't have a Roy case file yet. The facts here come from news reporting."
+  "note": "The minutes list Mayor Ann Jackson and Councilmember Alexis Jackson separately; the mayor did not vote on the increase."
+ },
+ {
+  "id": "uintah-prop-9",
+  "name": "Uintah County",
+  "county": "Uintah County",
+  "city": "Countywide (Vernal is the county seat)",
+  "lat": 40.455,
+  "lng": -109.528,
+  "st": "ballot",
+  "what": "A citizen petition to replace the three-member county commission with a five-member district council and an appointed county manager",
+  "key": "Proposition #9: qualified with 2,103 signatures against 2,101 required",
+  "dates": [
+   [
+    "Plan filed",
+    "April 20, 2026"
+   ],
+   [
+    "Petition certified",
+    "July 22, 2026, by Clerk-Auditor Michael W. Wilkins"
+   ],
+   [
+    "Public hearings",
+    "Aug. 6, 8, 13 and 17, 2026"
+   ],
+   [
+    "Voter pamphlet certified",
+    "Sept. 21, 2026"
+   ],
+   [
+    "Election",
+    "Nov. 3, 2026"
+   ],
+   [
+    "If approved",
+    "Council elected 2028; takes effect Jan. 1, 2029"
+   ]
+  ],
+  "summary": "Five residents filed an optional plan to change the form of county government. The petition met its threshold in 3 of 4 participation areas. The county estimates the change would cost $560,000 a year, counting only manager and assistant-manager pay and benefits. State law bars the plan from setting council pay or full- or part-time status.",
+  "next": "The Nov. 3 vote. If it passes, how the five district lines are drawn.",
+  "note": "This is a citizen petition to change the form of county government rather than a referendum on a single council decision. It is tracked here because residents, not officials, put it on the ballot.",
+  "src": [
+   [
+    "Uintah County voter information pamphlet, Prop #9",
+    "https://cms1files.revize.com/uintahcountyut/Departments/a_-_e_departments/commissioners/Petition/2026%20Voter%20Information%20Pamphlet%20Change%20of%20Government.pdf"
+   ],
+   [
+    "Proposed Optional Plan",
+    "https://cms1files.revize.com/uintahcountyut/Departments/a_-_e_departments/commissioners/Petition/Proposed%20Optional%20Plan%20to%20chg%20County%20Gov.pdf"
+   ],
+   [
+    "Uintah County sample ballot",
+    "https://www.utah.gov/pmn/files/1484353.pdf"
+   ]
+  ],
+  "cases": [
+   [
+    "Uintah County Prop 9: Commission or Council-Manager? (Referendums)",
+    "https://webercountyhive-coder.github.io/referendum/uintah-prop-9-form-of-government.html"
+   ]
+  ],
+  "related": [
+   [
+    "SD-20: Winterton vs. McRae (candidates2026)",
+    "https://weber-county-hive.github.io/candidates2026/sd20-winterton-mcrae.html"
+   ]
+  ]
  },
  {
   "id": "box-elder",
@@ -444,7 +539,7 @@ const PLACES = [
   "related": []
  }
 ];
-const ST = {"active": ["Active", "#A5301E"], "court": ["In court", "#2F5A8F"], "closed": ["Closed", "#6b6457"]};
+const ST = {"ballot": ["On Nov. 3 ballot", "#3F6B3B"], "active": ["Active", "#A5301E"], "court": ["In court", "#2F5A8F"], "closed": ["Closed", "#6b6457"]};
 const esc = s => String(s == null ? '' : s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const chip = p => `<span class="st ${p.st}" aria-hidden="true">${ST[p.st][0]}</span>`;
 const panel = document.getElementById('panel');
@@ -454,7 +549,7 @@ const map = L.map('map', { scrollWheelZoom: false, zoomSnap: 0.25 });
 L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
   attribution: '&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a> contributors', maxZoom: 18
 }).addTo(map);
-addUtahOutlines(map, { alwaysLabel: ['Eagle Mountain', 'Roy', 'Brigham City', 'Park City'] });
+addUtahOutlines(map, { alwaysLabel: ['Eagle Mountain', 'Roy', 'Brigham City', 'Park City', 'Vernal'] });
 const markers = {};
 PLACES.forEach(p => {
   const m = L.marker([p.lat, p.lng], { icon: L.divIcon({ className: 'pin-icon', html: chip(p), iconSize: null, iconAnchor: [37, 34] }), title: p.name, riseOnHover: true });
@@ -467,13 +562,13 @@ function refresh(){
   PLACES.forEach(p => { const m = markers[p.id]; shown(p) ? m.addTo(map) : m.remove(); const el = m.getElement(); if (el) el.classList.toggle('active', p.id === active); });
 }
 function renderToolbar(){
-  const opts = [['all','All referendums'],['active','Active'],['court','In court'],['closed','Closed']];
+  const opts = [['all','All referendums'],['ballot','On Nov. 3 ballot'],['active','Active'],['court','In court'],['closed','Closed']];
   const tb = document.getElementById('toolbar');
   tb.innerHTML = opts.map(([k, t]) => `<button class="vbtn" data-f="${k}" aria-pressed="${filter === k}">${t} <span class="n">${PLACES.filter(p => k === 'all' || p.st === k).length}</span></button>`).join('');
   tb.querySelectorAll('.vbtn').forEach(b => b.onclick = () => { filter = b.dataset.f; active = null; renderToolbar(); refresh(); renderList(); });
 }
 function renderList(){
-  const order = ['active','court','closed'];
+  const order = ['ballot','active','court','closed'];
   const list = PLACES.filter(shown).sort((a, b) => order.indexOf(a.st) - order.indexOf(b.st));
   panel.innerHTML = `<div class="list-head">${list.length} referendums &middot; click one to open it</div>` +
     list.map(p => `<button class="pin-item" data-id="${p.id}">${chip(p)}<span><b>${esc(p.name)}</b><span class="pl">${esc(p.county)} &middot; ${esc(p.what)}</span></span></button>`).join('') +

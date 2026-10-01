@@ -42,7 +42,7 @@ const MAPS = [
     relatedRepos: ["PIDS-Utah", "Transparency"],
     pins: 9,
     link: "weber-county-tax-increases-2026.html",
-    lastUpdated: "Sep 30, 2026"
+    lastUpdated: "Oct 1, 2026"
   },
   {
     mapId: "MAP 003",
@@ -85,12 +85,12 @@ const MAPS = [
     title: "Citizen Referendums",
     scope: "Statewide",
     status: "live",
-    summary: "Where Utah residents have tried to put a city or county decision to a public vote, and where each effort stands: Eagle Mountain, Roy, Box Elder County's Stratos referendum, and Summit County's Kimball Junction referendum.",
-    layers: ["Active", "In court", "Closed"],
-    relatedRepos: ["referendum"],
-    pins: 4,
+    summary: "Where Utah residents have tried to put a city or county decision to a public vote, and where each effort stands. Uintah County's Prop 9 is on the Nov. 3, 2026 ballot; Roy's is gathering signatures and already printed on that ballot as Prop 10; Eagle Mountain's is under way; Box Elder County's Stratos referendum is in court; Summit County's Kimball Junction referendum is closed.",
+    layers: ["On Nov. 3 ballot", "Active", "In court", "Closed"],
+    relatedRepos: ["referendum", "candidates2026"],
+    pins: 5,
     link: "citizen-referendums.html",
-    lastUpdated: "Sep 30, 2026"
+    lastUpdated: "Oct 1, 2026"
   },
   {
     mapId: "MAP 007",
