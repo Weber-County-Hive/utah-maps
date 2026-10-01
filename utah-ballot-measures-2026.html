@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>What's on Utah's Nov. 3 Ballot — Utah Hive Politics</title>
+<meta name="description" content="MAP 009 from Utah Hive Politics: every local ballot measure confirmed for Utah's Nov. 3, 2026 general election, plus statewide Amendments A and B, with exact ballot wording, cost estimates and sources.">
+<link rel="icon" type="image/png" href="hive-bee.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600&family=Special+Elite&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;0,8..60,700;1,8..60,400&family=IBM+Plex+Mono:wght@400;500;600&family=Source+Sans+3:wght@400;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+<style>
+  :root{
+    --navy:#14213D; --navy-deep:#0D1728;
+    --manila:#D9C9A3; --manila-dark:#C4B389;
+    --paper:#EDE7D8; --paper-light:#F5F1E6;
+    --ink:#1F1B16; --ink-soft:#4A443A;
+    --red:#A5301E; --green:#3F6B3B; --gold:#A9822F; --rule:#B7AC91;
+    --l-data:#A5301E; --l-pid:#A9822F; --l-cra:#3F6B3B; --l-mida:#2F5A8F; --l-other:#6E4A78;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;background:var(--navy);color:var(--paper);font-family:'Source Serif 4',Georgia,serif;-webkit-font-smoothing:antialiased;}
+  a{color:inherit;}
+
+  .hb-bar{background:#0d0b0a;border-bottom:1px solid #3a2f1c;padding:10px 20px;}
+  .hb-bar a{display:flex;align-items:center;gap:12px;max-width:1200px;margin:0 auto;text-decoration:none;}
+  .hb-bar img{width:52px;height:52px;border-radius:4px;display:block;flex:none;}
+  .hb-name{font-family:'Cinzel',Georgia,serif;color:#d4af37;font-size:16px;letter-spacing:.14em;text-transform:uppercase;line-height:1.2;display:block;}
+  .hb-sub{font-family:Georgia,serif;font-style:italic;color:#b8956a;font-size:12.5px;display:block;margin-top:2px;}
+
+  .masthead{max-width:1200px;margin:0 auto;padding:34px 20px 22px;}
+  .back{font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--manila);text-decoration:none;border-bottom:1px solid rgba(217,201,163,.4);}
+  .back:hover{color:var(--gold);border-color:var(--gold);}
+  .eyebrow{font-family:'Special Elite',monospace;font-size:12px;letter-spacing:.22em;text-transform:uppercase;color:var(--manila);margin:18px 0 8px;}
+  h1{font-size:clamp(30px,4.6vw,48px);line-height:1.08;margin:0 0 12px;font-weight:700;color:var(--paper-light);}
+  .intro{max-width:70ch;font-size:16.5px;line-height:1.6;color:rgba(237,231,216,.75);margin:0;}
+
+  .toolbar{max-width:1200px;margin:0 auto;padding:0 20px 14px;display:flex;flex-wrap:wrap;gap:8px;align-items:center;}
+  .chip{display:inline-flex;align-items:center;gap:7px;font-family:'IBM Plex Mono',monospace;font-size:12px;background:rgba(255,255,255,.05);border:1px solid rgba(217,201,163,.3);color:var(--paper-light);border-radius:20px;padding:6px 12px 6px 7px;cursor:pointer;}
+  .chip[aria-pressed="false"]{opacity:.45;}
+  .chip .dot{width:20px;height:20px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:10.5px;font-weight:600;color:#fff;border:1.5px solid #fff;}
+  .chip .n{color:var(--manila);}
+
+  .stage{max-width:1200px;margin:0 auto;padding:0 20px;display:grid;grid-template-columns:minmax(0,1fr) 400px;gap:18px;}
+  #map{height:640px;border-radius:2px;border:2px solid var(--gold);background:#d8d4c8;}
+  .panel{background:var(--paper);color:var(--ink);border-radius:2px;height:640px;overflow:auto;box-shadow:0 14px 30px -14px rgba(0,0,0,.55);}
+  @media (max-width:900px){
+    .stage{grid-template-columns:1fr;}
+    #map{height:430px;}
+    .panel{height:auto;max-height:none;}
+  }
+
+  .list-head{position:sticky;top:0;background:var(--manila-dark);padding:10px 18px;font-family:'IBM Plex Mono',monospace;font-size:11.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink);z-index:2;}
+  .pin-item{display:flex;gap:12px;align-items:flex-start;width:100%;text-align:left;background:none;border:none;border-bottom:1px dashed var(--rule);padding:13px 18px;cursor:pointer;font-family:inherit;color:inherit;}
+  .pin-item:hover{background:rgba(169,130,47,.1);}
+  .pin-item .dot{flex:none;margin-top:2px;}
+  .pin-item b{display:block;font-size:16px;line-height:1.3;}
+  .pin-item span.pl{display:block;font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--ink-soft);margin-top:3px;}
+
+  .dot{width:24px;height:24px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:600;color:#fff;border:2px solid #fff;box-shadow:0 1px 4px rgba(0,0,0,.4);}
+  .l-data{background:var(--l-data);} .l-pid{background:var(--l-pid);} .l-cra{background:var(--l-cra);} .l-mida{background:var(--l-mida);} .l-other{background:var(--l-other);}
+
+  .detail{padding:0 0 20px;}
+  .detail .top{background:var(--manila-dark);padding:10px 18px;display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;z-index:2;}
+  .detail .top button{font-family:'IBM Plex Mono',monospace;font-size:11.5px;background:none;border:none;cursor:pointer;color:var(--ink);padding:0;}
+  .detail .top .tagl{font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.06em;text-transform:uppercase;}
+  .detail h2{font-size:23px;line-height:1.2;margin:16px 18px 4px;}
+  .detail .place{font-family:'IBM Plex Mono',monospace;font-size:11.5px;color:var(--ink-soft);margin:0 18px 12px;text-transform:uppercase;letter-spacing:.04em;}
+  .detail .sum{margin:0 18px 14px;font-size:15.5px;line-height:1.55;color:var(--ink-soft);}
+  .sec{margin:0 18px 14px;}
+  .sec h3{font-family:'Special Elite',monospace;font-weight:400;font-size:12.5px;letter-spacing:.14em;text-transform:uppercase;margin:0 0 7px;color:var(--ink);border-bottom:1px solid var(--rule);padding-bottom:4px;}
+  .sec ul{margin:0;padding-left:18px;}
+  .sec li{font-size:14.5px;line-height:1.5;margin-bottom:7px;color:var(--ink);}
+  .src{display:block;font-family:'IBM Plex Mono',monospace;font-size:10.5px;color:var(--ink-soft);margin-top:2px;}
+  .sec.caution{background:rgba(165,48,30,.07);border-left:3px solid var(--red);padding:9px 12px;}
+  .sec.caution h3{color:var(--red);border:none;padding:0;}
+  .sec p{margin:0;font-size:14.5px;line-height:1.5;}
+  .case-btn{display:block;width:fit-content;margin:0 18px 8px;font-family:'IBM Plex Mono',monospace;font-size:12.5px;font-weight:600;color:var(--navy-deep);background:var(--gold);text-decoration:none;padding:10px 16px;border-radius:4px;}
+  .case-btn:hover{background:#C29A3D;}
+  .sources a{color:var(--red);}
+
+  .leaflet-container{font-family:'Source Serif 4',Georgia,serif;}
+  .pin-icon{background:none;border:none;}
+  .pin-icon .dot{width:26px;height:26px;font-size:11.5px;transition:transform .12s;}
+  .pin-icon.active .dot{transform:scale(1.35);box-shadow:0 0 0 4px rgba(169,130,47,.55),0 2px 6px rgba(0,0,0,.5);}
+  .county-label{background:none;border:none;}
+  .county-label span{display:block;transform:translate(-50%,-50%);font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:#14213D;opacity:.7;white-space:nowrap;text-shadow:0 0 3px #fff,0 0 3px #fff;pointer-events:none;}
+  .dot.prop{background:var(--paper-light) !important;border-style:dashed;border-width:2.5px;}
+  .dot.prop.l-data{color:var(--l-data);border-color:var(--l-data);} .dot.prop.l-pid{color:var(--l-pid);border-color:var(--l-pid);} .dot.prop.l-cra{color:var(--l-cra);border-color:var(--l-cra);} .dot.prop.l-mida{color:var(--l-mida);border-color:var(--l-mida);} .dot.prop.l-other{color:var(--l-other);border-color:var(--l-other);}
+  .status-key{max-width:1200px;margin:0 auto;padding:0 20px 14px;display:flex;flex-wrap:wrap;gap:18px;font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--manila);align-items:center;}
+  .status-key span{display:inline-flex;align-items:center;gap:7px;}
+  .status-line{margin:0 18px 12px;font-family:'IBM Plex Mono',monospace;font-size:11.5px;letter-spacing:.04em;text-transform:uppercase;display:inline-flex;align-items:center;gap:7px;padding:4px 10px;border-radius:3px;}
+  .status-line.final{background:rgba(63,107,59,.12);color:var(--green);}
+  .status-line.prop{background:rgba(165,48,30,.08);color:var(--red);border:1px dashed var(--red);}
+  .glossary{max-width:1200px;margin:28px auto 0;padding:0 20px;}
+  .glossary h2{font-family:'Special Elite',monospace;font-weight:400;font-size:15px;letter-spacing:.18em;text-transform:uppercase;color:var(--manila);margin:0 0 4px;}
+  .gl-sub{margin:0 0 14px;font-size:14px;color:rgba(237,231,216,.6);}
+  .flip-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:12px;}
+  .flip-card{perspective:900px;height:215px;cursor:pointer;outline:none;}
+  .flip-card:focus-visible .flip-inner{box-shadow:0 0 0 3px var(--gold);}
+  .flip-inner{position:relative;width:100%;height:100%;transition:transform .5s;transform-style:preserve-3d;border-radius:2px;}
+  .flip-card.flipped .flip-inner{transform:rotateY(180deg);}
+  .flip-front,.flip-back{position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;border-radius:2px;padding:14px 16px;display:flex;flex-direction:column;}
+  .flip-front{background:var(--paper);color:var(--ink);justify-content:space-between;border-top:4px solid var(--gold);}
+  .flip-front .ft{font-family:'Source Serif 4',Georgia,serif;font-weight:700;font-size:21px;line-height:1.2;}
+  .flip-front .fh{font-family:'IBM Plex Mono',monospace;font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-soft);}
+  .flip-back{background:var(--navy-deep);color:var(--paper-light);transform:rotateY(180deg);border:1px solid var(--gold);overflow:auto;gap:8px;}
+  .flip-back .fd{font-size:13px;line-height:1.5;}
+  .flip-link{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--gold);}
+  @media (prefers-reduced-motion:reduce){.flip-inner{transition:none;}}
+  .story-btn{display:inline-block;margin:8px 18px 0;font-family:'IBM Plex Mono',monospace;font-size:12.5px;font-weight:600;color:var(--paper-light);background:var(--navy);text-decoration:none;padding:10px 16px;border-radius:4px;}
+  .story-btn:hover{background:var(--navy-deep);}
+  .city-label{background:none;border:none;}
+  .city-label.key span{font-weight:600;font-size:11.5px;color:#14213D;}
+  .city-label span{display:block;transform:translate(-50%,-50%);font-family:'IBM Plex Mono',monospace;font-size:10.5px;color:#4a2f55;white-space:nowrap;text-shadow:0 0 3px #fff,0 0 3px #fff,0 0 3px #fff;pointer-events:none;}
+  .leaflet-tooltip{font-family:'IBM Plex Mono',monospace;font-size:11.5px;}
+
+  .notes{max-width:1200px;margin:26px auto 0;padding:0 20px;display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:18px;}
+  .note{border:1px solid rgba(217,201,163,.25);border-radius:2px;padding:16px 18px;font-size:14.5px;line-height:1.6;color:rgba(237,231,216,.78);}
+  .note h4{font-family:'Special Elite',monospace;font-weight:400;font-size:12.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--manila);margin:0 0 8px;}
+  .note p{margin:0 0 8px;}
+  .note strong{color:var(--paper-light);}
+
+  footer{max-width:1200px;margin:30px auto 0;padding:18px 20px 30px;border-top:1px solid rgba(217,201,163,.15);font-family:'IBM Plex Mono',monospace;font-size:11.5px;color:rgba(237,231,216,.45);line-height:1.6;}
+  .hb-foot{background:#0d0b0a;color:#b8956a;text-align:center;padding:26px 20px 30px;font-family:Georgia,serif;}
+  .hb-foot img{width:52px;height:52px;display:block;margin:0 auto 10px;}
+  .hb-foot .hb-name{font-size:14px;}
+  .hb-foot .hb-tag{font-size:10.5px;letter-spacing:.2em;text-transform:uppercase;color:#8a7650;margin-top:8px;display:block;}
+  @media(max-width:600px){.hb-bar img{width:38px;height:38px}.hb-name{font-size:13px}.masthead{padding-top:24px}}
+
+  .pct{display:inline-flex;align-items:center;justify-content:center;min-width:54px;height:28px;padding:0 8px;border-radius:14px;font-family:'IBM Plex Mono',monospace;font-size:12px;font-weight:600;color:#fff;border:2px solid #fff;box-shadow:0 1px 5px rgba(0,0,0,.45);white-space:nowrap;}
+  .pct.s1{background:#A9822F;} .pct.s2{background:#C0632B;} .pct.s3{background:#A5301E;}
+  .pct.pend{border-style:dashed;border-width:2.5px;background:var(--paper-light) !important;}
+  .pct.pend.s1{color:#8a6a24;border-color:#A9822F;} .pct.pend.s2{color:#C0632B;border-color:#C0632B;} .pct.pend.s3{color:#A5301E;border-color:#A5301E;}
+  .pin-icon.active .pct{transform:scale(1.2);box-shadow:0 0 0 4px rgba(169,130,47,.55);}
+  .pin-item .pct{flex:none;min-width:62px;}
+  .kv{display:grid;grid-template-columns:auto 1fr;gap:6px 14px;margin:0;font-size:14.5px;}
+  .kv dt{font-family:'IBM Plex Mono',monospace;font-size:11.5px;text-transform:uppercase;letter-spacing:.04em;color:var(--ink-soft);padding-top:2px;}
+  .kv dd{margin:0;}
+  .bill{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;margin:0 18px 14px;font-family:'IBM Plex Mono',monospace;}
+  .bill .from{font-size:18px;color:var(--ink-soft);text-decoration:line-through;}
+  .bill .to{font-size:26px;font-weight:600;color:var(--ink);}
+  .bill .cap{flex-basis:100%;font-size:11px;color:var(--ink-soft);}
+
+  .rate{display:inline-flex;align-items:center;justify-content:center;min-width:58px;height:26px;padding:0 8px;border-radius:13px;font-family:'IBM Plex Mono',monospace;font-size:12px;font-weight:600;border:2px solid #fff;box-shadow:0 1px 4px rgba(0,0,0,.35);}
+  .r1{background:#E6CF8E;color:#3d2f10;} .r2{background:#C0632B;color:#fff;} .r3{background:#A5301E;color:#fff;}
+  .split{display:grid;gap:8px;margin:0 18px 14px;}
+  .split .row{display:grid;grid-template-columns:92px 1fr;gap:10px;align-items:center;font-size:14px;}
+  .split .bar{height:14px;background:var(--gold);border-radius:2px;}
+  .split .amt{font-family:'IBM Plex Mono',monospace;font-weight:600;font-size:13px;}
+  .big{font-family:'IBM Plex Mono',monospace;font-size:30px;font-weight:600;margin:0 18px 2px;color:var(--ink);}
+  .big small{font-size:14px;color:var(--ink-soft);font-weight:400;}
+  .why{margin:0 18px 14px;background:rgba(169,130,47,.1);border-left:3px solid var(--gold);padding:10px 12px;font-size:14.5px;line-height:1.55;}
+  .why b{color:var(--ink);}
+  .stack{display:flex;height:22px;border-radius:2px;overflow:hidden;margin:6px 0 4px;font-family:'IBM Plex Mono',monospace;font-size:10.5px;color:#fff;}
+  .stack span{display:flex;align-items:center;justify-content:center;white-space:nowrap;overflow:hidden;}
+  .leaflet-interactive:focus{outline:none;}
+</style>
+<style>
+  .amend{background:var(--paper-light);color:var(--ink);border-top:6px solid var(--red);border-bottom:6px solid var(--red);margin:6px 0 0;}
+  .amend-inner{max-width:1200px;margin:0 auto;padding:26px 20px 28px;}
+  .amend-eyebrow{font-family:'Special Elite',monospace;font-size:13px;letter-spacing:.2em;text-transform:uppercase;color:var(--red);margin:0 0 6px;}
+  .amend h2{font-size:clamp(26px,3.8vw,40px);line-height:1.12;margin:0 0 10px;}
+  .amend-lede{font-size:19px;line-height:1.55;max-width:70ch;margin:0 0 16px;}
+  .bq{background:#fff;border:2px solid var(--navy);padding:16px 18px;font-size:20px;line-height:1.5;margin:0 0 22px;}
+  .bq-label{display:block;font-family:'IBM Plex Mono',monospace;font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-soft);margin-bottom:6px;}
+  .amend h3{font-size:22px;margin:0 0 10px;}
+  .vbars{margin:0 0 22px;}
+  .vrow{display:grid;grid-template-columns:minmax(150px,300px) 1fr 150px;gap:12px;align-items:center;margin-bottom:12px;}
+  .vl{font-size:17px;font-weight:600;}
+  .vt{position:relative;height:34px;background:#e4ddcc;border:1px solid var(--rule);}
+  .vf{position:absolute;left:0;top:0;bottom:0;}
+  .vf.leg{background:#2F5A8F;} .vf.now{background:#3F6B3B;} .vf.b{background:var(--red);}
+  .vmark{position:absolute;left:50%;top:-5px;bottom:-5px;width:3px;background:var(--ink);}
+  .vv{font-family:'IBM Plex Mono',monospace;font-size:16px;font-weight:600;}
+  .vcap{font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--ink-soft);margin:4px 0 0;}
+  .ab-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:14px;margin:0 0 18px;}
+  .ab-card{background:#fff;border:1px solid var(--rule);border-top:4px solid var(--navy);padding:14px 16px;font-size:16.5px;line-height:1.55;}
+  .ab-card h4,.ab-sides h4{font-family:'Special Elite',monospace;font-weight:400;font-size:14px;letter-spacing:.12em;text-transform:uppercase;margin:0 0 8px;}
+  .ab-card p{margin:0 0 8px;} .ab-card ul{margin:0 0 8px;padding-left:20px;}
+  .ab-sides{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:14px;margin:0 0 14px;}
+  .ab-sides>div{border:1px solid var(--rule);padding:14px 16px;font-size:16.5px;line-height:1.55;background:#fbf9f3;}
+  .ab-sides p{margin:0;}
+  .ab-more{font-size:16px;margin:0;} .ab-more a{color:var(--red);font-weight:600;}
+  .amend-a{background:var(--paper);color:var(--ink);}
+  .amend-a .amend-inner{padding:18px 20px;}
+  .amend-a h3{font-size:19px;margin:0 0 6px;} .amend-a p{margin:0;font-size:16px;line-height:1.55;}
+  @media(max-width:700px){ .vrow{grid-template-columns:1fr;gap:4px;} .vv{font-size:14px;} .bq{font-size:18px;} }
+  .typ{display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;border-radius:50%;border:2px solid #fff;box-shadow:0 1px 5px rgba(0,0,0,.45);color:#fff;font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:600;}
+  .typ.unres{border-style:dashed;border-color:#1F1B16;}
+  .pin-icon.active .typ{transform:scale(1.35);box-shadow:0 0 0 4px rgba(169,130,47,.55);}
+  .ckey{display:inline-block;width:18px;height:14px;border:2px solid #14213D;vertical-align:middle;}
+  .q{margin:0 18px 14px;background:#fff;border:1px solid var(--rule);padding:12px 14px;font-size:16px;line-height:1.55;}
+  .how{max-width:1200px;margin:28px auto 0;padding:0 20px;}
+  .how h2{font-family:'Special Elite',monospace;font-weight:400;font-size:15px;letter-spacing:.18em;text-transform:uppercase;color:var(--manila);margin:0 0 10px;}
+  .mermaid-wrap{background:var(--paper-light);border:1px solid var(--rule);padding:16px;overflow-x:auto;}
+  .mermaid-wrap svg{max-width:100%!important;height:auto;display:block;margin:0 auto;}
+  pre.mermaid, .mermaid-wrap .nodeLabel, .mermaid-wrap .edgeLabel, .mermaid-wrap foreignObject div { font-family: 'Source Sans 3', Arial, sans-serif !important; }
+  .qwa{max-width:1200px;margin:28px auto 0;padding:0 20px;}
+  .qwa h2{font-family:'Special Elite',monospace;font-weight:400;font-size:15px;letter-spacing:.18em;text-transform:uppercase;color:var(--manila);margin:0 0 10px;}
+  .qwa ul{list-style:none;padding:0;margin:0;display:grid;gap:10px;}
+  .qwa li{background:var(--paper);color:var(--ink);padding:12px 16px;font-size:16px;line-height:1.5;border-left:4px solid var(--gold);}
+  .updates{max-width:1200px;margin:24px auto 0;padding:0 20px;}
+  .updates div{background:rgba(63,107,59,.18);border:1px solid #3F6B3B;padding:14px 18px;font-size:16px;line-height:1.55;color:var(--paper-light);}
+  .updates a{color:#e8c37a;font-weight:600;}
+  details.srcs{max-width:1200px;margin:24px auto 0;padding:0 20px;color:rgba(237,231,216,.85);}
+  details.srcs summary{cursor:pointer;font-family:'IBM Plex Mono',monospace;font-size:13px;color:var(--manila);}
+  details.srcs li{font-size:14px;line-height:1.5;margin-bottom:6px;} details.srcs a{color:#e8c37a;}
+  .vrow .vl{color:var(--ink);}
+  .vbtn{display:inline-flex;align-items:center;gap:8px;font-family:'IBM Plex Mono',monospace;font-size:12.5px;background:rgba(255,255,255,.05);border:1px solid rgba(217,201,163,.3);color:var(--paper-light);border-radius:20px;padding:6px 13px;cursor:pointer;}
+  .vbtn[aria-pressed="true"]{background:var(--paper);color:var(--ink);border-color:var(--paper);}
+  .vbtn .n{color:var(--manila);} .vbtn[aria-pressed="true"] .n{color:var(--ink-soft);}
+  .vbtn:focus-visible,.pin-item:focus-visible,.case-btn:focus-visible{outline:3px solid var(--gold);outline-offset:2px;}
+  .pin-item .typ{flex:none;}
+</style>
+</head>
+<body>
+
+<div class="hb-bar"><a href="https://webercountyhive.substack.com/" target="_blank" rel="noopener"><img src="uhp-badge.png" alt="Utah Hive Politics logo" onerror="this.style.display='none'"><span><span class="hb-name">Utah Hive Politics</span><span class="hb-sub">from the publisher of The Weber County Hive</span></span></a></div>
+
+<header class="masthead">
+  <a class="back" href="index.html">&larr; All Utah Maps</a>
+  <p class="eyebrow">MAP 009 &middot; Statewide &middot; Nov. 3, 2026 Ballot</p>
+  <h1>What's on Utah's Nov. 3 Ballot</h1>
+  <p class="intro">Every local ballot question the Hive has confirmed from official county ballots and certifications, plus the two constitutional amendments every Utah voter will see. Click a county or a pin for the exact ballot wording, the cost estimate where the ballot prints one, who put it there, and the source.</p>
+</header>
+
+<section class="amend" id="amendment-b" aria-labelledby="ab-h">
+  <div class="amend-inner">
+    <p class="amend-eyebrow">On every Utah ballot &middot; Statewide</p>
+    <h2 id="ab-h">Amendment B: Would Raise the Bar for Citizen-Passed Tax Laws to 60%</h2>
+    <p class="amend-lede">This is the only measure on the 2026 ballot that changes how Utah citizens can make their own laws. The Legislature put it on the ballot itself.</p>
+    <div class="bq"><span class="bq-label">Official ballot wording</span>&ldquo;Shall the Utah Constitution be amended to require that citizen-proposed laws that increase taxes compared to existing law be approved by at least 60% of voters, instead of a simple majority?&rdquo;</div>
+
+    <h3>Who can pass a tax increase, and with what vote</h3>
+    <div class="vbars" role="img" aria-label="The Legislature needs a simple majority; citizens by statewide initiative need a simple majority today and would need 60% if Amendment B passes.">
+      <div class="vrow"><span class="vl">The Legislature</span><span class="vt"><span class="vf leg" style="width:50%"></span><span class="vmark"></span></span><span class="vv">Simple majority</span></div>
+      <div class="vrow"><span class="vl">Citizens, by statewide initiative &mdash; today</span><span class="vt"><span class="vf now" style="width:50%"></span><span class="vmark"></span></span><span class="vv">Simple majority</span></div>
+      <div class="vrow"><span class="vl">Citizens, by statewide initiative &mdash; if B passes</span><span class="vt"><span class="vf b" style="width:60%"></span><span class="vmark"></span></span><span class="vv">60% of voters</span></div>
+      <p class="vcap">Dark line = 50%. Bars show the share of the vote needed to pass.</p>
+    </div>
+
+    <div class="ab-grid">
+      <div class="ab-card">
+        <h4>What it covers</h4>
+        <p>Statewide citizen initiatives that would:</p>
+        <ul><li>create a new tax,</li><li>apply an existing tax to more items or transactions,</li><li>raise an existing tax rate, or</li><li>lower a property-tax rate by less than current law would.</li></ul>
+        <p>It applies to votes held after Nov. 1, 2026, and takes effect Nov. 23, 2026 if approved.</p>
+      </div>
+      <div class="ab-card">
+        <h4>What it does not cover</h4>
+        <p>County, city and town initiatives, and referendums like Roy's Prop 10. The amendment leaves the local section of the Constitution at a simple majority.</p>
+        <p>Laws the Legislature itself passes. Those still need only a majority of lawmakers.</p>
+      </div>
+      <div class="ab-card">
+        <h4>What it would have meant in 2018</h4>
+        <p>Utah's three 2018 citizen initiatives each passed with roughly 50% to 54% of the vote. None reached 60%. The medical marijuana and Medicaid expansion initiatives both included tax increases.</p>
+      </div>
+      <div class="ab-card">
+        <h4>How it got on the ballot</h4>
+        <p>S.J.R. 2 (2025), &ldquo;Statewide Initiatives.&rdquo; Primary sponsor: Sen. Lincoln Fillmore. House sponsor: Rep. Jason B. Kyle. Passed the Senate 21&ndash;8 and the House 55&ndash;17&ndash;3. A constitutional amendment needs two-thirds of each house to reach the ballot, then a simple majority of voters.</p>
+      </div>
+    </div>
+
+    <div class="ab-sides">
+      <div><h4>The case for it</h4><p>Sen. Fillmore argued it should take more than 50.1% of voters to raise taxes on the other 49.9%, and that lawmakers answer to voters through elections. The Utah Taxpayers Association supports it.</p></div>
+      <div><h4>The case against it</h4><p>Opponents who testified called it a direct threat to Utahns who use the initiative process, said the process is already one of the hardest in the country, and pointed out that lawmakers do not hold their own tax votes to 60%.</p></div>
+    </div>
+    <p class="ab-more">This page takes no position on how to vote. The bigger picture: <a href="https://webercountyhive-coder.github.io/referendum/utah-referendum-law-history.html#amendment-b" target="_blank" rel="noopener">The Rules Keep Changing</a> traces every bill since 2019 that changed how citizens can put laws and local decisions to a vote.</p>
+  </div>
+</section>
+
+<section class="amend-a">
+  <div class="amend-inner">
+    <h3>Also on every ballot: Amendment A</h3>
+    <p>&ldquo;Shall the Utah Constitution be amended to change how proposed constitutional amendments are published, requiring publication for 60 days immediately before the general election in a manner established by state law instead of in newspapers?&rdquo; If approved, state law would have the Lt. Governor post the full text online for 60 days before each general election. H.J.R. 10 (2025) passed the House 70&ndash;0&ndash;5 and the Senate 29&ndash;0. It would take effect Jan. 1, 2027.</p>
+  </div>
+</section>
+
+<div class="toolbar" id="toolbar" role="group" aria-label="Choose which kinds of measures to show" style="margin-top:22px;"></div>
+<div class="status-key" aria-label="County shading key">
+  <span><span class="ckey" style="background:#E6CF8E"></span>Has local measures</span>
+  <span><span class="ckey" style="background:#cfcabf"></span>No local measure found (read as text; still to confirm from the page)</span>
+  <span><span class="ckey" style="background:transparent;border-style:dotted"></span>Not read yet</span>
+  <span><span class="typ unres" style="background:#6b6457">?</span>Status still open</span>
+</div>
+
+<div class="stage">
+  <div id="map" role="region" aria-label="Map of Utah ballot measures by county"></div>
+  <aside class="panel" id="panel" aria-live="polite"></aside>
+</div>
+
+<section class="how" aria-labelledby="how-h">
+  <h2 id="how-h">How a question gets on your ballot</h2>
+  <div class="mermaid-wrap">
+<pre class="mermaid">
+flowchart TD
+  A["Officials decide<br/>(council, commission,<br/>district board)"] --> C["Notice and<br/>public hearing"]
+  B["Residents gather<br/>petition signatures"] --> D{"Enough valid<br/>signatures?"}
+  D -- "Yes" --> E["County clerk<br/>certifies the ballot"]
+  D -- "No" --> F["Not on<br/>the ballot"]
+  C --> E
+  L["Legislature passes<br/>an amendment by<br/>two-thirds"] --> E
+  E --> V["You vote<br/>Nov. 3, 2026"]
+</pre>
+  </div>
+</section>
+
+<section class="glossary" aria-labelledby="gl-h">
+  <h2 id="gl-h">Words on this map</h2>
+  <p class="gl-sub">Tap a card to flip it.</p>
+  <div class="flip-grid">
+    <div class="flip-card" tabindex="0" role="button" aria-label="General obligation bond: tap to see the meaning">
+      <div class="flip-inner">
+        <div class="flip-front"><span class="ft">General obligation bond</span><span class="fh">Tap to flip &#8635;</span></div>
+        <div class="flip-back"><span class="fd">Money a city, county or district borrows and repays with property taxes over many years. Voters must approve it first.</span></div>
+      </div>
+    </div>
+    <div class="flip-card" tabindex="0" role="button" aria-label="RAP tax: tap to see the meaning">
+      <div class="flip-inner">
+        <div class="flip-front"><span class="ft">RAP tax</span><span class="fh">Tap to flip &#8635;</span></div>
+        <div class="flip-back"><span class="fd">A small local sales tax for Recreation, Arts and Parks. 0.1% is one cent on every $10 you spend.</span></div>
+      </div>
+    </div>
+    <div class="flip-card" tabindex="0" role="button" aria-label="Advisory question: tap to see the meaning">
+      <div class="flip-inner">
+        <div class="flip-front"><span class="ft">Advisory question</span><span class="fh">Tap to flip &#8635;</span></div>
+        <div class="flip-back"><span class="fd">A non-binding question. The result tells officials what voters think, but doesn't adopt anything by itself.</span></div>
+      </div>
+    </div>
+    <div class="flip-card" tabindex="0" role="button" aria-label="Incorporation: tap to see the meaning">
+      <div class="flip-inner">
+        <div class="flip-front"><span class="ft">Incorporation</span><span class="fh">Tap to flip &#8635;</span></div>
+        <div class="flip-back"><span class="fd">Making an area into its own town or city, with its own council and services.</span></div>
+      </div>
+    </div>
+    <div class="flip-card" tabindex="0" role="button" aria-label="Initiative vs. referendum: tap to see the meaning">
+      <div class="flip-inner">
+        <div class="flip-front"><span class="ft">Initiative vs. referendum</span><span class="fh">Tap to flip &#8635;</span></div>
+        <div class="flip-back"><span class="fd">An initiative lets citizens write a new law. A referendum lets citizens reverse a law officials already passed.</span></div>
+      </div>
+    </div>
+    <div class="flip-card" tabindex="0" role="button" aria-label="Council-manager: tap to see the meaning">
+      <div class="flip-inner">
+        <div class="flip-front"><span class="ft">Council-manager</span><span class="fh">Tap to flip &#8635;</span></div>
+        <div class="flip-back"><span class="fd">An elected council makes laws; a hired manager runs day-to-day operations.</span></div>
+      </div>
+    </div>
+    <div class="flip-card" tabindex="0" role="button" aria-label="Constitutional amendment: tap to see the meaning">
+      <div class="flip-inner">
+        <div class="flip-front"><span class="ft">Constitutional amendment</span><span class="fh">Tap to flip &#8635;</span></div>
+        <div class="flip-back"><span class="fd">A change to the Utah Constitution. The Legislature proposes it with a two-thirds vote; voters decide.</span></div>
+      </div>
+    </div>
+    <div class="flip-card" tabindex="0" role="button" aria-label="Simple majority: tap to see the meaning">
+      <div class="flip-inner">
+        <div class="flip-front"><span class="ft">Simple majority</span><span class="fh">Tap to flip &#8635;</span></div>
+        <div class="flip-back"><span class="fd">More than half of the votes cast, even by one vote.</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="qwa" aria-labelledby="qwa-h">
+  <h2 id="qwa-h">Questions worth asking, and who to ask</h2>
+  <ul>
+    <li><b>Your county clerk's elections office:</b> for your own sample ballot, which shows only the measures where you live.</li>
+    <li><b>Your city recorder or district office:</b> for the voter information pamphlet on a bond or tax, including the arguments for and against and the full cost estimate.</li>
+    <li><b>The Lt. Governor's elections office (vote.utah.gov):</b> for the statewide voter information pamphlet with the arguments for and against Amendments A and B.</li>
+    <li><b>Your state senator and representative:</b> how they voted on S.J.R. 2 (Amendment B) in 2025, and why.</li>
+    <li><b>Washington County Clerk:</b> whether Washington City's Prop 5 is still on the ballot.</li>
+  </ul>
+</section>
+
+<section class="notes">
+  <div class="note">
+    <h4>What "confirmed" means here</h4>
+    <p>Every measure on this map was checked against an official county ballot, certification or city notice, and each one says how it was read. Counties shaded gray showed no local measure in a text reading of their official documents; the Hive will confirm those from the actual pages before calling them "none." Counties left blank haven't been read yet.</p>
+  </div>
+  <div class="note">
+    <h4>Related maps</h4>
+    <p><a href="citizen-referendums.html">MAP 006: Citizen Referendums</a> tracks every effort by residents to put a local decision to a vote, including the ones that never reach a ballot. Roy and Uintah County appear on both maps.</p>
+  </div>
+</section>
+
+<div class="updates"><div><strong>Have an update? Send it to us.</strong> Know about a ballot question we missed, a withdrawn measure, or a referendum in your area? Email <a href="mailto:webercountyhive@gmail.com">webercountyhive@gmail.com</a>. A link to the county ballot, city notice or petition helps.</div></div>
+
+<details class="srcs" id="sources">
+  <summary>Sources (click to expand)</summary>
+  <ol>
+      <li>Lt. Governor, 2026 General Election Certification (Aug. 28, 2026): Amendments A and B wording; no statewide propositions qualified <a href="https://www.utah.gov/pmn/files/1482453.pdf" target="_blank" rel="noopener">Link</a></li>
+      <li>2026 Proposed Constitutional Amendments: H.J.R. 10 and S.J.R. 2 full text and votes (le.utah.gov) <a href="https://le.utah.gov/constitutionalAmendment/2026/constitutionalamendments.pdf" target="_blank" rel="noopener">Link</a></li>
+      <li>S.J.R. 2 (2025), Statewide Initiatives, bill page <a href="https://le.utah.gov/~2025/bills/static/SJR002.html" target="_blank" rel="noopener">Link</a></li>
+      <li>Utah News Dispatch / KPCW: Utah lawmakers move to set higher bar for ballot initiatives (news; Fillmore and opponents quoted) <a href="https://www.kpcw.org/state-regional/2025-03-11/utah-lawmakers-move-to-set-higher-bar-for-ballot-initiatives-but-voters-will-have-a-say-in-2026" target="_blank" rel="noopener">Link</a></li>
+      <li>KUER: Utah lawmakers again debating a higher bar on initiatives that raise taxes (news; Utah Taxpayers Association support) <a href="https://www.kuer.org/politics-government/2025-01-29/utah-lawmakers-are-again-debating-a-higher-bar-on-ballot-initiatives-that-raise-taxes" target="_blank" rel="noopener">Link</a></li>
+      <li>Standard-Examiner: Utah lawmaker wants to ask voters to set higher bar (news; 2018 initiatives under 60%) <a href="https://www.standard.net/news/2025/jan/30/utah-lawmaker-wants-to-ask-voters-to-set-higher-bar-for-ballot-initiatives-that-raise-taxes" target="_blank" rel="noopener">Link</a></li>
+      <li>Deseret News, Nov. 2018: 2018 initiative vote shares (election-week count) <a href="https://www.deseret.com/2018/11/9/20658358/as-medical-marijuana-medicaid-declared-winners-in-utah-proposition-4-still-too-close-to-call/" target="_blank" rel="noopener">Link</a></li>
+      <li>Lt. Governor, Initiatives and Referenda page <a href="https://vote.utah.gov/initiatives-and-referenda" target="_blank" rel="noopener">Link</a></li>
+      <li>Weber County &middot; Weber County sample ballot (Sept. 3, 2026) <a href="https://www.utah.gov/pmn/files/1483635.pdf" target="_blank" rel="noopener">Link</a></li>
+      <li>Davis County &middot; Davis County certification (Aug. 31, 2026) <a href="https://www.daviscountyutah.gov/Sitefinity/WebsiteTemplates/ClerkAuditor/2026%20General%20Notice.pdf" target="_blank" rel="noopener">Link</a></li>
+      <li>Salt Lake County &middot; Salt Lake County certification (Aug. 25, 2026) <a href="https://www.saltlakecounty.gov/globalassets/1-site-files/clerk/elections/notices--petitions/2026/election-certification-notice_finalv.pdf" target="_blank" rel="noopener">Link</a></li>
+      <li>Salt Lake County &middot; Salt Lake County ballot measures page <a href="https://www.saltlakecounty.gov/clerk/elections/2026-general-election/ballot-measures/" target="_blank" rel="noopener">Link</a></li>
+      <li>Salt Lake County &middot; Sandy City hearing notice (Aug. 11, 2026) <a href="https://www.utah.gov/pmn/files/1484383.pdf" target="_blank" rel="noopener">Link</a></li>
+      <li>Utah County &middot; Utah County certification <a href="https://www.utahcounty.gov/cms/uploads/Utah_County_2026_General_Election_Candidate_Certification_4e705c1719.pdf" target="_blank" rel="noopener">Link</a></li>
+      <li>Summit County &middot; Summit County certification (Sept. 2, 2026) <a href="https://www.utah.gov/pmn/files/1483415.pdf" target="_blank" rel="noopener">Link</a></li>
+      <li>Summit County &middot; Bond hearing notice (Aug. 19, 2026) <a href="https://www.utah.gov/pmn/files/1483851.pdf" target="_blank" rel="noopener">Link</a></li>
+      <li>Summit County &middot; Lt. Governor initiatives and referenda page <a href="https://vote.utah.gov/initiatives-and-referenda" target="_blank" rel="noopener">Link</a></li>
+      <li>Summit County &middot; The Park Record, April 14, 2026 (news) <a href="https://www.parkrecord.com/2026/04/14/consulting-firm-to-conduct-building-assessment-seismic-study-of-north-summit-high-school/" target="_blank" rel="noopener">Link</a></li>
+      <li>Box Elder County &middot; Box Elder County publication ballot <a href="https://www.utah.gov/pmn/files/1494871.pdf" target="_blank" rel="noopener">Link</a></li>
+      <li>Box Elder County &middot; Perry voter pamphlet <a href="https://media.rainpos.com/1297/Notice_of_Ballot_Proposition_Voter_Information_Pamphlet_Final.pdf" target="_blank" rel="noopener">Link</a></li>
+      <li>Cache County &middot; Cache County election notice <a href="https://www.cachecounty.gov/elections/elections-home/election-notice.html" target="_blank" rel="noopener">Link</a></li>
+      <li>Sanpete County &middot; Sanpete County certification (Sept. 2, 2026) <a href="https://www.sanpetecountyutah.gov/DocumentCenter/View/840" target="_blank" rel="noopener">Link</a></li>
+      <li>Uintah County &middot; Uintah County sample ballot <a href="https://www.utah.gov/pmn/files/1484353.pdf" target="_blank" rel="noopener">Link</a></li>
+      <li>Uintah County &middot; Voter information pamphlet <a href="https://cms1files.revize.com/uintahcountyut/Departments/a_-_e_departments/commissioners/Petition/2026%20Voter%20Information%20Pamphlet%20Change%20of%20Government.pdf" target="_blank" rel="noopener">Link</a></li>
+      <li>Washington County &middot; Washington County revised sample ballot <a href="https://www.washco.utah.gov/wp-content/uploads/2026/09/26-General-SAMPLE-rvsd.pdf" target="_blank" rel="noopener">Link</a></li>
+      <li>Washington County &middot; Original county document <a href="https://www.utah.gov/pmn/files/1484587.pdf" target="_blank" rel="noopener">Link</a></li>
+      <li>Iron County &middot; Iron County certification (Sept. 3, 2026) <a href="https://www.utah.gov/pmn/files/1484019.pdf" target="_blank" rel="noopener">Link</a></li>
+      <li>San Juan County &middot; San Juan County Commission packet, Aug. 4, 2026 (Resolution No. 26) <a href="https://www.utah.gov/pmn/files/1467977.pdf" target="_blank" rel="noopener">Link</a></li>
+      <li>San Juan County &middot; Bluff Town Council agenda, Sept. 15, 2026 <a href="https://www.utah.gov/pmn/sitemap/notice/1108409.html" target="_blank" rel="noopener">Link</a></li>
+      <li>San Juan County &middot; Blanding City notice of election (Sept. 30, 2026) <a href="https://www.utah.gov/pmn/sitemap/notice/1111879.html" target="_blank" rel="noopener">Link</a></li>
+      <li>Grand County 2026 general election document (no local measure found; read as page text) <a href="https://www.utah.gov/pmn/files/1481665.pdf" target="_blank" rel="noopener">Link</a></li>
+      <li>Wasatch County 2026 general election document (no local measure found; read as page text) <a href="https://www.wasatchcounty.gov/DocumentCenter/View/1578/2026-Clerk-Certification-of-General-Election" target="_blank" rel="noopener">Link</a></li>
+      <li>Rich County 2026 general election document (no local measure found; read as page text) <a href="https://www.richcounty.gov/wp-content/uploads/2026-General-Election-Certification-with-Candidates-and-LGO-Attachment.pdf" target="_blank" rel="noopener">Link</a></li>
+      <li>Millard County 2026 general election document (no local measure found; read as page text) <a href="https://www.utah.gov/pmn/files/1481673.pdf" target="_blank" rel="noopener">Link</a></li>
+      <li>Emery County 2026 general election document (no local measure found; read as page text) <a href="https://emery.utah.gov/wp-content/uploads/2026/08/CandidateCertification.pdf" target="_blank" rel="noopener">Link</a></li>
+      <li>Beaver County 2026 general election document (no local measure found; read as page text) <a href="https://www.utah.gov/pmn/files/1482333.pdf" target="_blank" rel="noopener">Link</a></li>
+      <li>Juab County 2026 general election document (no local measure found; read as page text) <a href="https://juabcounty.gov/wp-content/uploads/2026/09/Juab_County_2026_General_Sample_Ballots-corrected.pdf" target="_blank" rel="noopener">Link</a></li>
+      <li>Garfield County 2026 general election document (no local measure found; read as page text) <a href="https://www.garfield.utah.gov/files/assets/garfieldcout/v/1/documents/auditor-clerk/26gutgar_publication_2_watermark.pdf" target="_blank" rel="noopener">Link</a></li>
+      <li>Wayne County 2026 general election document (no local measure found; read as page text) <a href="https://waynecountyutah.gov/uploads/sample-ballots-general-election-ballots.pdf" target="_blank" rel="noopener">Link</a></li>
+      <li>Kane County 2026 general election document (no local measure found; read as page text) <a href="https://www.utah.gov/pmn/sitemap/notice/1105593.html" target="_blank" rel="noopener">Link</a></li>
+      <li>Sevier County 2026 general election document (no local measure found; read as page text) <a href="https://www.utah.gov/pmn/files/1479571.pdf" target="_blank" rel="noopener">Link</a></li>
+  </ol>
+</details>
+
+<footer>
+  Sources: official county general-election certifications and sample ballots, city election notices, the Lt. Governor's 2026 certification, and the Legislature's amendment texts; news reports only where labeled. Compiled by Utah Hive Politics, from the publisher of The Weber County Hive. Last updated Oct. 1, 2026.
+</footer>
+<div class="hb-foot"><img src="hive-bee.png" alt="" onerror="this.style.display='none'"><span class="hb-name">Utah Hive Politics</span><span class="hb-sub">from the publisher of The Weber County Hive</span><span class="hb-tag">Independent · Accountability · Journalism</span></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<script src="utah-geo.js"></script>
+<script>
+const D = {"T": {"bond": ["Bond", "#2F5A8F"], "tax": ["Tax", "#A9822F"], "town": ["New town", "#6E4A78"], "gov": ["Change of government", "#3F6B3B"], "ref": ["Citizen referendum", "#A5301E"], "adv": ["Advisory", "#6b6457"]}, "M": [{"id": "roy", "name": "Roy Prop 10", "county": "Weber", "where": "Roy", "lat": 41.161, "lng": -112.026, "type": "ref", "st": "sig", "q": "Shall the City of Roy be authorized to levy a tax rate in the amount sufficient to generate an increased property tax revenue of $1,749,050 for fiscal year 2027 as budgeted, adopted, and approved by the City of Roy?", "cost": "$1,749,050 more per year in Roy property tax (a 34.25% increase)", "who": "Roy residents, by referendum petition, against the City Council's Aug. 11, 2026 increase", "note": "Signature gathering is under way as of Oct. 1, 2026 (news reports: due Oct. 8). The measure is already printed on the certified ballot.", "read": "Weber County sample ballot, read as page text", "src": [["Weber County sample ballot (Sept. 3, 2026)", "https://www.utah.gov/pmn/files/1483635.pdf"]], "cases": [["Roy Prop 10 case file (Referendums)", "https://webercountyhive-coder.github.io/referendum/roy-prop-10-tax-referendum.html"], ["MAP 006: Citizen Referendums", "citizen-referendums.html"], ["MAP 002: Who's Raising Taxes This Year", "weber-county-tax-increases-2026.html"]]}, {"id": "kaysville", "name": "Kaysville fire station bond", "county": "Davis", "where": "Kaysville", "lat": 41.035, "lng": -111.938, "type": "bond", "st": "ballot", "q": "Shall the City Council (the “Council”) of Kaysville City, Utah (the “City”), be authorized to issue General Obligation Bonds in an amount not to exceed Sixteen Million Five Hundred Thousand Dollars ($16,500,000) (the “Bonds”) for the purpose of financing all or a portion of the costs of constructing and equipping a fire station and all related improvements; said Bonds to be due and payable in not to exceed twenty (20) years from the date of issuance of the Bonds?", "cost": "Estimated $115.37 a year on a $711,000 home for the bond, plus an estimated $191.32 a year to operate the station ($306.70 combined)", "who": "Kaysville City Council", "read": "Davis County certification, read as page text", "src": [["Davis County certification (Aug. 31, 2026)", "https://www.daviscountyutah.gov/Sitefinity/WebsiteTemplates/ClerkAuditor/2026%20General%20Notice.pdf"]], "note": "", "cases": []}, {"id": "slco", "name": "Salt Lake County parks and trails bond", "county": "Salt Lake", "where": "Countywide", "lat": 40.667, "lng": -111.924, "type": "bond", "st": "ballot", "q": "Opening of the question as printed: “Shall Salt Lake County, Utah, be authorized to issue general obligation bonds in an amount not to exceed $128,000,000 and to mature in no more than eleven (11) years” — for open space, natural habitat, parks, community trails and recreational facilities. The full question is in the county certification.", "cost": "Estimated $16.39 a year on a $658,000 home. The county states the net property-tax increase is $0 because older bonds are being paid off. Estimated operating costs: $4,710,200 a year.", "who": "Salt Lake County Council", "read": "Salt Lake County certification, read as page text (helper report)", "src": [["Salt Lake County certification (Aug. 25, 2026)", "https://www.saltlakecounty.gov/globalassets/1-site-files/clerk/elections/notices--petitions/2026/election-certification-notice_finalv.pdf"], ["Salt Lake County ballot measures page", "https://www.saltlakecounty.gov/clerk/elections/2026-general-election/ballot-measures/"]], "note": "", "cases": []}, {"id": "sandy", "name": "Sandy Crescent View bond", "county": "Salt Lake", "where": "Sandy", "lat": 40.572, "lng": -111.86, "type": "bond", "st": "ballot", "q": "General obligation bonds “not to exceed Thirty Million Dollars ($30,000,000)” for acquiring, developing and improving the former Crescent View Middle School property, for up to 21 years. The full question is in the county certification.", "cost": "Estimated $59.98 a year on a $739,100 home", "who": "Sandy City Council", "read": "Salt Lake County certification, read as page text (helper report)", "src": [["Salt Lake County certification (Aug. 25, 2026)", "https://www.saltlakecounty.gov/globalassets/1-site-files/clerk/elections/notices--petitions/2026/election-certification-notice_finalv.pdf"], ["Sandy City hearing notice (Aug. 11, 2026)", "https://www.utah.gov/pmn/files/1484383.pdf"]], "note": "", "cases": []}, {"id": "salem", "name": "Salem Prop 8 RAP tax", "county": "Utah", "where": "Salem", "lat": 40.053, "lng": -111.673, "type": "tax", "st": "ballot", "q": "Shall Salem, Utah (the “City”) be authorized to impose a sales and use tax of one-tenth of one percent (0.1%) to provide revenues for purposes related to Recreational (Including Parks), and Cultural Facilities and Organizations (commonly known as the “RAP TAX”) within the City for a period of ten (10) years?", "cost": "0.1% sales tax: one cent for every $10 spent on taxable purchases in Salem", "who": "Salem City Council", "read": "Utah County certification, page 1, read as a rendered page image", "src": [["Utah County certification", "https://www.utahcounty.gov/cms/uploads/Utah_County_2026_General_Election_Candidate_Certification_4e705c1719.pdf"]], "note": "", "cases": []}, {"id": "westhills", "name": "West Hills incorporation", "county": "Summit", "where": "West Hills area (pin marks the county, not the exact area)", "countyPin": true, "type": "town", "st": "ballot", "q": "Shall the area described as West Hills be incorporated as the town of West Hills?", "cost": "Not stated on the ballot", "who": "County ballot question on an incorporation petition", "read": "Summit County certification, read as page text", "src": [["Summit County certification (Sept. 2, 2026)", "https://www.utah.gov/pmn/files/1483415.pdf"]], "note": "", "cases": []}, {"id": "snyderville", "name": "Snyderville Basin recreation bond", "county": "Summit", "where": "Snyderville Basin Special Recreation District", "lat": 40.69, "lng": -111.535, "type": "bond", "st": "ballot", "q": "General obligation bonds “not to exceed Seventy-One Million Dollars ($71,000,000)” for recreational facilities, site improvements, and trail and open space improvements, due in no more than 20 years. The full question is in the county certification.", "cost": "Estimated $120.94 a year on a $1,000,000 home", "who": "Snyderville Basin Special Recreation District board", "read": "Summit County certification, read as page text", "src": [["Summit County certification (Sept. 2, 2026)", "https://www.utah.gov/pmn/files/1483415.pdf"], ["Bond hearing notice (Aug. 19, 2026)", "https://www.utah.gov/pmn/files/1483851.pdf"]], "note": "", "cases": []}, {"id": "northsummit", "name": "North Summit School District bond referendum", "county": "Summit", "where": "North Summit School District", "lat": 40.918, "lng": -111.399, "type": "ref", "st": "unres", "q": "Not printed on Summit County's certified ballot.", "cost": "The original bond was $125 million (adopted Dec. 3, 2025)", "who": "Residents, by referendum petition", "note": "The Lt. Governor's page lists this referendum as qualified for November 2026, but Summit County's certified ballot does not include it. A news report says the school board dropped the bond. Still to confirm: the board's own minutes.", "read": "County certification and Lt. Governor page, read as page text", "src": [["Lt. Governor initiatives and referenda page", "https://vote.utah.gov/initiatives-and-referenda"], ["Summit County certification", "https://www.utah.gov/pmn/files/1483415.pdf"], ["The Park Record, April 14, 2026 (news)", "https://www.parkrecord.com/2026/04/14/consulting-firm-to-conduct-building-assessment-seismic-study-of-north-summit-high-school/"]], "cases": []}, {"id": "perry", "name": "Perry Prop 6 transit tax repeal", "county": "Box Elder", "where": "Perry", "lat": 41.465, "lng": -112.033, "type": "tax", "st": "ballot", "q": "Shall Perry City, Utah, be authorized to repeal the 0.30% option sales and use tax authorized under Utah Code §59-12-2213 (also known as the First Quarter Tax) for public transit?", "cost": "Would remove a 0.30% sales tax for public transit", "who": "Perry City Council (Resolution 2026-14)", "read": "Box Elder County publication ballot, read as page text", "src": [["Box Elder County publication ballot", "https://www.utah.gov/pmn/files/1494871.pdf"], ["Perry voter pamphlet", "https://media.rainpos.com/1297/Notice_of_Ballot_Proposition_Voter_Information_Pamphlet_Final.pdf"]], "note": "", "cases": []}, {"id": "providence", "name": "Providence library question (advisory)", "county": "Cache", "where": "Providence", "lat": 41.704, "lng": -111.817, "type": "adv", "st": "ballot", "q": "As the County Library is closing, should Providence City consider imposing a new property tax levy to fund a city public library and all related library services, which is estimated to cost the owner of a primary residence with a fair market value of $500,000 approximately $55.30 per year?", "cost": "Estimated $55.30 a year on a $500,000 home, if the city later adopts it", "who": "Providence City Council (non-binding question)", "read": "Cache County election notice webpage, read as page text", "src": [["Cache County election notice", "https://www.cachecounty.gov/elections/elections-home/election-notice.html"]], "note": "", "cases": []}, {"id": "sanpete", "name": "Sanpete Prop 11 rural healthcare tax", "county": "Sanpete", "where": "Countywide", "lat": 39.268, "lng": -111.636, "type": "tax", "st": "ballot", "q": "Shall Sanpete County implement up to a 1% sales and use tax to be used as allowed by State Statute – including funding of an E911 system, as well as other needed healthcare and emergency services.", "cost": "Up to 1% sales tax", "who": "Sanpete County Commission", "read": "Sanpete County certification, read as page text", "src": [["Sanpete County certification (Sept. 2, 2026)", "https://www.sanpetecountyutah.gov/DocumentCenter/View/840"]], "note": "", "cases": []}, {"id": "uintah", "name": "Uintah County Prop 9 council-manager", "county": "Uintah", "where": "Countywide", "lat": 40.455, "lng": -109.528, "type": "gov", "st": "ballot", "q": "Shall Uintah County adopt the alternate form of government known as the Council-Manager Form of Government as recommended in the proposed optional plan?", "cost": "County estimate: $560,000 a year (manager and assistant-manager pay and benefits only)", "who": "Uintah County residents, by citizen petition (2,103 signatures counted, 2,101 required)", "read": "Uintah sample ballot (page text) and voter pamphlet (rendered pages)", "src": [["Uintah County sample ballot", "https://www.utah.gov/pmn/files/1484353.pdf"], ["Voter information pamphlet", "https://cms1files.revize.com/uintahcountyut/Departments/a_-_e_departments/commissioners/Petition/2026%20Voter%20Information%20Pamphlet%20Change%20of%20Government.pdf"]], "cases": [["Uintah Prop 9 case file (Referendums)", "https://webercountyhive-coder.github.io/referendum/uintah-prop-9-form-of-government.html"], ["MAP 006: Citizen Referendums", "citizen-referendums.html"]], "note": ""}, {"id": "santaclara", "name": "Santa Clara Prop 3 emergency services tax", "county": "Washington", "where": "Santa Clara", "lat": 37.133, "lng": -113.654, "type": "tax", "st": "ballot", "q": "Shall Santa Clara City, Utah, be authorized to impose a local sales and use tax of up to 1.0% on taxable transactions within the City to fund emergency services, including fire protection, ambulance services, emergency medical services, personnel, equipment, facilities, and related operational costs, as authorized by Utah Code 59-12-2402?", "cost": "Up to 1.0% sales tax", "who": "Santa Clara City Council", "read": "Washington County revised sample ballot and certification, read as page text", "src": [["Washington County revised sample ballot", "https://www.washco.utah.gov/wp-content/uploads/2026/09/26-General-SAMPLE-rvsd.pdf"]], "note": "", "cases": []}, {"id": "virgin", "name": "Virgin Prop 4 resort communities tax", "county": "Washington", "where": "Virgin", "lat": 37.2, "lng": -113.188, "type": "tax", "st": "ballot", "q": "Shall Virgin Town, Washington County, Utah, increase the Resort Communities Sales and Use Tax rate by an additional one-half percent (0.5%), as authorized by Utah Code Section 59-12-402, to be collected on taxable transactions within Virgin Town?", "cost": "An additional 0.5% sales tax", "who": "Virgin Town Council", "read": "Washington County revised sample ballot and certification, read as page text", "src": [["Washington County revised sample ballot", "https://www.washco.utah.gov/wp-content/uploads/2026/09/26-General-SAMPLE-rvsd.pdf"]], "note": "", "cases": []}, {"id": "washington", "name": "Washington City Prop 5 emergency services tax", "county": "Washington", "where": "Washington City", "lat": 37.13, "lng": -113.508, "type": "tax", "st": "unres", "q": "Shall Washington City impose an additional .67% (1.0% total) Emergency Services Sales and Use Tax on taxable sales within the City to fund emergency services such as fire protection, ambulance service, and emergency medical response? If approved, the City Council has expressed its intent to reduce the City portion of property taxes by 50%, subject to Truth-in-Taxation requirements.", "cost": "An additional 0.67% sales tax (1.0% total)", "who": "Washington City Council", "note": "Printed in full on the revised sample ballot, but the word “WITHDRAWN” also appears on that document. The Hive has not yet seen the page to tell what it is attached to.", "read": "Revised sample ballot, read as page text and from a pasted copy", "src": [["Washington County revised sample ballot", "https://www.washco.utah.gov/wp-content/uploads/2026/09/26-General-SAMPLE-rvsd.pdf"], ["Original county document", "https://www.utah.gov/pmn/files/1484587.pdf"]], "cases": []}, {"id": "coalcreek", "name": "Iron Prop 12 Coal Creek incorporation", "county": "Iron", "where": "Coal Creek area (pin marks the county, not the exact area)", "countyPin": true, "type": "town", "st": "ballot", "q": "Shall the area described as Coal Creek be incorporated?", "cost": "Not stated on the ballot", "who": "County ballot question on an incorporation petition", "read": "Iron County certification, read as page text", "src": [["Iron County certification (Sept. 3, 2026)", "https://www.utah.gov/pmn/files/1484019.pdf"]], "note": "", "cases": []}, {"id": "sanjuan", "name": "San Juan County Prop 7 EMS tax", "county": "San Juan", "where": "Countywide", "lat": 37.871, "lng": -109.342, "type": "tax", "st": "unres", "q": "Ballot wording not yet read. The county's Resolution No. 26 proposes a 1% local sales and use tax for emergency medical services.", "cost": "1% sales tax (per the county resolution)", "who": "San Juan County Commission", "note": "The “Prop 7” number comes from a Bluff Town Council agenda. The county's ballot itself has not been read yet.", "read": "County commission packet, read as page text", "src": [["San Juan County Commission packet, Aug. 4, 2026 (Resolution No. 26)", "https://www.utah.gov/pmn/files/1467977.pdf"], ["Bluff Town Council agenda, Sept. 15, 2026", "https://www.utah.gov/pmn/sitemap/notice/1108409.html"]], "cases": []}, {"id": "blanding", "name": "Blanding Proposal #1 recreation tax", "county": "San Juan", "where": "Blanding", "lat": 37.624, "lng": -109.478, "type": "tax", "st": "ballot", "q": "Opening of the question as printed: “Should there be reauthorized and continued a local sales tax of one-tenth of one percent (0.1%) to fund publicly owned or operated recreational facilities” — titled “City of Blanding Proposal #1: A Proposal to Provide Continued Public Funding for Parks and Recreational Facilities.”", "cost": "0.1% sales tax, continued", "who": "Blanding City Council", "read": "Blanding notice of election page, read as page text", "src": [["Blanding City notice of election (Sept. 30, 2026)", "https://www.utah.gov/pmn/sitemap/notice/1111879.html"]], "note": "", "cases": []}], "HAS": ["Box Elder", "Cache", "Davis", "Iron", "Salt Lake", "San Juan", "Sanpete", "Summit", "Uintah", "Utah", "Washington", "Weber"], "TEXTNONE": ["Beaver", "Emery", "Garfield", "Grand", "Juab", "Kane", "Millard", "Rich", "Sevier", "Tooele", "Wasatch", "Wayne"], "UNREAD": {"Carbon": "scanned PDF, not yet read", "Duchesne": "scanned PDF, not yet read", "Piute": "scanned PDF, not yet read", "Daggett": "general-election certification not posted when checked", "Morgan": "general-election certification not posted when checked"}};
+const esc = s => String(s == null ? '' : s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const INIT = {bond:'B',tax:'T',town:'N',gov:'G',ref:'R',adv:'A'};
+const chip = m => `<span class="typ${m.st==='unres'?' unres':''}" style="background:${D.T[m.type][1]}" aria-hidden="true">${m.st==='unres'?'?':INIT[m.type]}</span>`;
+const panel = document.getElementById('panel');
+let filter = 'all', active = null;
+const map = L.map('map', { scrollWheelZoom: false, zoomSnap: 0.25 });
+L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a> contributors', maxZoom: 18 }).addTo(map);
+const cent = {};
+UTAH_GEO.counties.features.forEach(f => cent[f.properties.n] = f.properties.c);
+L.geoJSON(UTAH_GEO.counties, {
+  style: f => { const n=f.properties.n;
+    if (D.HAS.includes(n)) return {color:'#14213D',weight:1.2,fillColor:'#E6CF8E',fillOpacity:0.55};
+    if (D.TEXTNONE.includes(n)) return {color:'#14213D',weight:1.2,fillColor:'#cfcabf',fillOpacity:0.5};
+    return {color:'#14213D',weight:1.4,dashArray:'4 4',fillOpacity:0}; },
+  onEachFeature: (f, layer) => layer.on('click', () => showCounty(f.properties.n))
+}).addTo(map);
+addUtahOutlines(map, { alwaysLabel: [] });
+const markers = {};
+D.M.forEach(m => {
+  const ll = m.countyPin ? cent[m.county] : [m.lat, m.lng];
+  m.ll = ll;
+  const mk = L.marker(ll, { icon: L.divIcon({ className:'pin-icon', html: chip(m), iconSize:null, iconAnchor:[13,13] }), title: m.name, riseOnHover:true });
+  mk.bindTooltip(m.name, { direction:'top', offset:[0,-14] });
+  mk.on('click', () => select(m.id));
+  markers[m.id] = mk;
+});
+const shown = m => filter === 'all' || m.type === filter;
+function refresh(){ D.M.forEach(m => { const k=markers[m.id]; shown(m)?k.addTo(map):k.remove(); const el=k.getElement(); if(el) el.classList.toggle('active', m.id===active); }); }
+function renderToolbar(){
+  const opts=[['all','All measures']].concat(Object.entries(D.T).map(([k,v])=>[k,v[0]]));
+  const tb=document.getElementById('toolbar');
+  tb.innerHTML=opts.map(([k,t])=>`<button class="vbtn" data-f="${k}" aria-pressed="${filter===k}">${k==='all'?'':`<span class="typ" style="width:18px;height:18px;font-size:9px;background:${D.T[k][1]}">${INIT[k]}</span> `}${t} <span class="n">${D.M.filter(m=>k==='all'||m.type===k).length}</span></button>`).join('');
+  tb.querySelectorAll('.vbtn').forEach(b=>b.onclick=()=>{filter=b.dataset.f;active=null;renderToolbar();refresh();renderList();});
+}
+function item(m){ return `<button class="pin-item" data-id="${m.id}">${chip(m)}<span><b>${esc(m.name)}</b><span class="pl">${esc(m.county)} County &middot; ${esc(D.T[m.type][0])}${m.st==='unres'?' &middot; status still open':m.st==='sig'?' &middot; gathering signatures':''}</span></span></button>`; }
+function bind(){ panel.querySelectorAll('.pin-item').forEach(b=>b.onclick=()=>select(b.dataset.id,true)); }
+function renderList(){
+  const list=D.M.filter(shown).sort((a,b)=>a.county.localeCompare(b.county));
+  panel.innerHTML=`<div class="list-head">${list.length} local measures &middot; plus Amendments A and B statewide</div>`+list.map(item).join('')+
+   `<div class="sec" style="margin-top:14px"><h3>Every ballot also has</h3><p><a href="#amendment-b" style="color:var(--red);font-weight:600">Amendments A and B &uarr;</a></p></div>`;
+  bind(); panel.scrollTop=0;
+}
+function showCounty(n){
+  const list=D.M.filter(m=>m.county===n);
+  let body;
+  if(list.length) body=list.map(item).join('');
+  else if(D.TEXTNONE.includes(n)) body=`<div class="sec" style="margin-top:12px"><p>No local ballot measure was found in a text reading of ${esc(n)} County's official 2026 election documents. The Hive will confirm this from the actual pages before calling it "none."</p></div>`;
+  else body=`<div class="sec" style="margin-top:12px"><p>${esc(n)} County: ${esc(D.UNREAD[n]||'not read yet')}. Know of a measure here? Email webercountyhive@gmail.com.</p></div>`;
+  panel.innerHTML=`<div class="detail"><div class="top"><button id="back">&larr; All measures</button><span class="tagl">${esc(n)} County</span></div>
+    <h2>${esc(n)} County</h2>${body}<div class="sec"><h3>Also on this ballot</h3><p><a href="#amendment-b" style="color:var(--red);font-weight:600">Amendments A and B &uarr;</a></p></div></div>`;
+  document.getElementById('back').onclick=()=>{active=null;refresh();renderList();};
+  bind(); panel.scrollTop=0;
+}
+function select(id,fly){
+  active=id; const m=D.M.find(x=>x.id===id);
+  if(fly) map.flyTo(m.ll, Math.max(map.getZoom(),9), {duration:0.6});
+  refresh();
+  panel.innerHTML=`<div class="detail"><div class="top"><button id="back">&larr; All measures</button><span class="tagl">${esc(m.county)} County</span></div>
+    <h2>${esc(m.name)}</h2><p class="place">${esc(m.where)} &middot; ${esc(D.T[m.type][0])}</p>
+    ${m.st==='unres'?'<div class="sec caution"><h3>Status still open</h3><p>'+esc(m.note)+'</p></div>':''}
+    ${m.st==='sig'?'<div class="sec caution"><h3>Gathering signatures</h3><p>'+esc(m.note)+'</p></div>':''}
+    <div class="sec"><h3>What the ballot asks</h3></div><div class="q">${esc(m.q)}</div>
+    <div class="why"><b>Cost:</b> ${esc(m.cost)}</div>
+    <div class="sec"><h3>Who put it on the ballot</h3><p>${esc(m.who)}</p></div>
+    ${m.st==='ballot'&&m.note?'<div class="sec"><h3>Good to know</h3><p>'+esc(m.note)+'</p></div>':''}
+    <div class="sec sources"><h3>Documents</h3><ul>${m.src.map(s=>`<li><a href="${s[1]}" target="_blank" rel="noopener">${esc(s[0])}</a></li>`).join('')}</ul><span class="src">How it was read: ${esc(m.read)}</span></div>
+    ${m.cases.length?'<div class="sec"><h3>Hive case files and maps</h3></div>'+m.cases.map(c=>`<a class="case-btn" href="${c[1]}" ${c[1].startsWith('http')?'target="_blank" rel="noopener"':''}>${esc(c[0])} &rarr;</a>`).join(''):''}
+    <div class="sec"><h3>Also on this ballot</h3><p><a href="#amendment-b" style="color:var(--red);font-weight:600">Amendments A and B &uarr;</a></p></div></div>`;
+  document.getElementById('back').onclick=()=>{active=null;refresh();renderList();};
+  panel.scrollTop=0;
+  if(window.innerWidth<=900) panel.scrollIntoView({behavior:'smooth',block:'start'});
+}
+document.querySelectorAll('.flip-card').forEach(c=>{const f=()=>c.classList.toggle('flipped');c.addEventListener('click',f);c.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();f();}});});
+renderToolbar(); refresh(); renderList();
+map.fitBounds(L.geoJSON(UTAH_GEO.state).getBounds());
+</script>
+<script type="module">
+  import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
+  mermaid.initialize({ startOnLoad: false, theme: 'base',
+    flowchart: { htmlLabels: true, useMaxWidth: false, diagramPadding: 12, nodeSpacing: 30, rankSpacing: 40, wrappingWidth: 300 },
+    themeVariables: { primaryColor: '#fbf9f3', primaryTextColor: '#1c1c1c', primaryBorderColor: '#16273f', lineColor: '#16273f', fontFamily: '"Source Sans 3", Arial, sans-serif', fontSize: '22px' } });
+  (document.fonts && document.fonts.ready ? document.fonts.ready : Promise.resolve()).then(function(){ mermaid.run({ querySelector: 'pre.mermaid' }); });
+</script>
+</body>
+</html>

@@ -115,4 +115,16 @@ const MAPS = [
     link: "weber-county-sales-tax-2026.html",
     lastUpdated: "Sep 30, 2026"
   }
+  ,{
+    mapId: "MAP 009",
+    title: "What's on Utah's Nov. 3 Ballot",
+    scope: "Statewide",
+    status: "live",
+    summary: "Every local ballot question confirmed from official county ballots and certifications for Nov. 3, 2026, with exact wording, cost estimates and sources, plus statewide Amendments A and B. Amendment B would require 60% voter approval for statewide citizen initiatives that raise taxes.",
+    layers: ["Bonds", "Taxes", "New towns", "Change of government", "Citizen referendums", "Advisory"],
+    relatedRepos: ["referendum", "Bill-Tracker"],
+    pins: 18,
+    link: "utah-ballot-measures-2026.html",
+    lastUpdated: "Oct 1, 2026"
+  }
 ];
