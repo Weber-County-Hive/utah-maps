@@ -213,6 +213,23 @@
   .vbtn .n{color:var(--manila);} .vbtn[aria-pressed="true"] .n{color:var(--ink-soft);}
   .vbtn:focus-visible,.pin-item:focus-visible,.case-btn:focus-visible{outline:3px solid var(--gold);outline-offset:2px;}
   .pin-item .typ{flex:none;}
+  .sig{background:#fff;color:#1F1B16;border-top:4px solid #14213D;}
+  .sig-inner{max-width:1200px;margin:0 auto;padding:24px 20px 26px;}
+  .sig h2{font-size:clamp(24px,3.4vw,34px);margin:0 0 10px;line-height:1.15;}
+  .sig h3{font-size:21px;margin:22px 0 10px;}
+  .sig-lede{font-size:18px;line-height:1.55;max-width:72ch;margin:0 0 16px;}
+  .srow{display:grid;grid-template-columns:minmax(150px,300px) 1fr 140px;gap:12px;align-items:center;margin-bottom:12px;}
+  .sl{font-size:17px;font-weight:600;} .sv{font-family:'IBM Plex Mono',monospace;font-size:17px;font-weight:600;}
+  .st2{height:34px;background:#ece6d6;border:1px solid #B7AC91;position:relative;}
+  .sf{position:absolute;left:0;top:0;bottom:0;} .sf.c{background:#2F5A8F;} .sf.p{background:#A5301E;}
+  .sig-table-wrap{overflow-x:auto;margin:14px 0;}
+  .sig-table{width:100%;border-collapse:collapse;font-size:16px;line-height:1.5;}
+  .sig-table th,.sig-table td{border:1px solid #B7AC91;padding:10px 12px;text-align:left;vertical-align:top;}
+  .sig-table th{background:#14213D;color:#F5F1E6;font-size:14px;letter-spacing:.04em;text-transform:uppercase;}
+  .sig-facts{padding-left:22px;margin:0;font-size:17px;line-height:1.6;} .sig-facts li{margin-bottom:10px;}
+  .sig-note{font-size:14.5px;color:#4A443A;background:#f7f1de;border-left:4px solid #8a7a3d;padding:10px 14px;margin:14px 0 0;line-height:1.55;}
+  .sig a{color:#A5301E;font-weight:600;}
+  @media(max-width:700px){.srow{grid-template-columns:1fr;gap:4px;} .sig-table,.sig-table tbody,.sig-table tr,.sig-table td{display:block;width:100%;} .sig-table tr:first-child{display:none;} .sig-table tr{border:1px solid #B7AC91;margin-bottom:10px;} .sig-table td{border:none;border-bottom:1px dashed #B7AC91;} .sig-table td:nth-child(2)::before{content:"Candidates: ";font-weight:700;} .sig-table td:nth-child(3)::before{content:"Citizens: ";font-weight:700;}}
 </style>
 </head>
 <body>
@@ -268,6 +285,36 @@
       <div><h4>The case against it</h4><p>Opponents who testified called it a direct threat to Utahns who use the initiative process, said the process is already one of the hardest in the country, and pointed out that lawmakers do not hold their own tax votes to 60%.</p></div>
     </div>
     <p class="ab-more">This page takes no position on how to vote. The bigger picture: <a href="https://webercountyhive-coder.github.io/referendum/utah-referendum-law-history.html#amendment-b" target="_blank" rel="noopener">The Rules Keep Changing</a> traces every bill since 2019 that changed how citizens can put laws and local decisions to a vote.</p>
+  </div>
+</section>
+
+
+<section class="sig" id="signatures" aria-labelledby="sig-h">
+  <div class="sig-inner">
+    <h2 id="sig-h">Two Kinds of Ballot Signatures</h2>
+    <p class="sig-lede">Signatures are how anything gets onto a Utah ballot. Candidates use them to put their own names on the primary ballot. Citizens use them to put a law, or a government decision, to a public vote. The rules are not the same.</p>
+    <div class="sig-bars" role="img" aria-label="A statewide candidate such as governor needs 28,000 signatures. A 2026 statewide citizen petition needs about 140,748.">
+      <div class="srow"><span class="sl">Candidate for governor (to reach the primary)</span><span class="st2"><span class="sf c" style="width:19.9%"></span></span><span class="sv">28,000</span></div>
+      <div class="srow"><span class="sl">Statewide citizen petition, 2026</span><span class="st2"><span class="sf p" style="width:100%"></span></span><span class="sv">about 140,748</span></div>
+    </div>
+    <div class="sig-table-wrap"><table class="sig-table">
+      <tr><th></th><th>Candidates</th><th>Citizens</th></tr>
+      <tr><td><b>What the signatures do</b></td><td>Put a candidate on the primary ballot without winning the party convention</td><td>Put a new law (initiative) or a government decision (referendum) to a public vote</td></tr>
+      <tr><td><b>Where the rule came from</b></td><td>S.B. 54 (2014), the Count My Vote compromise</td><td>Utah Constitution, Article VI, plus state statute</td></tr>
+      <tr><td><b>How many, statewide</b></td><td>28,000 for governor</td><td>About 140,748 (8% of active voters), spread across 26 of 29 Senate districts</td></tr>
+      <tr><td><b>Vote needed to win</b></td><td>The most votes in the primary</td><td>A simple majority today. Statewide tax initiatives would need 60% if Amendment B passes.</td></tr>
+    </table></div>
+
+    <h3>The company that gathered the governor's signatures</h3>
+    <ul class="sig-facts">
+      <li><b>Gathering, Inc.</b> was incorporated in 2015 &ldquo;to gather signatures, voter registration and other campaign related activities.&rdquo; Its 2015 articles list Tanner Leatham, <b>Casey Hill</b> and <b>Spencer Stokes</b> as officers, and the current state record lists the same three. Its original registered agent was McCauley &amp; Associates PC.</li>
+      <li><b>Gov. Spencer Cox's 2024 campaign used Gathering, Inc.</b> and turned in more than the 28,000 signatures required. Cox lost the 2024 Republican convention and reached the primary through signatures.</li>
+      <li>In March 2025, the <b>Attorney General's office charged 11 signature gatherers</b> with forgery, communications fraud or violating nomination procedures for petitions circulated January&ndash;March 2024. Charging documents say at least five worked for Gathering, Inc. County clerks flagged the suspect packets during verification; in one case, 84 of 2,243 signatures matched voter records.</li>
+      <li><b>The Attorney General then was Derek Brown,</b> who co-founded the lobbying firm Lincoln Hill Partners with Casey Hill and is a listed director of Lincoln Hill PAC. Lincoln Hill PAC's treasurer, Mike McCauley, runs an accounting firm with the same name as Gathering, Inc.'s original registered agent.</li>
+      <li>After the 2024 primary, <b>Phil Lyman sued</b> over how Cox's signatures were verified, noting that the verifying office belongs to Lt. Gov. Deidre Henderson, Cox's running mate. The <b>State Auditor</b> later reported it was &ldquo;statistically likely&rdquo; Cox had enough valid signatures.</li>
+    </ul>
+    <p class="sig-note">Charges are accusations, not convictions; anyone charged is presumed innocent unless proven guilty. These are documented relationships and dates. The records do not show that any official acted improperly, and the 2025 prosecution went forward. How the records were read: the 2015 Articles of Incorporation from a screenshot of the state filing; the current Utah Division of Corporations record (entity #9637579-0142) from pasted text; news reports as linked. Not yet confirmed: that McCauley &amp; Associates PC is the same firm as Mike McCauley's (the 2015 filing lists it at Gathering's own address, later filings at 420 E. South Temple).</p>
+    <p style="margin:14px 0 0;font-size:16px;">The full bill-by-bill history of citizen petition rules: <a href="https://webercountyhive-coder.github.io/referendum/utah-referendum-law-history.html#signatures" target="_blank" rel="noopener">The Rules Keep Changing &rarr;</a></p>
   </div>
 </section>
 
@@ -389,6 +436,13 @@ flowchart TD
 <details class="srcs" id="sources">
   <summary>Sources (click to expand)</summary>
   <ol>
+      <li>Utah Division of Corporations: Gathering, Inc. Articles of Incorporation (signed Nov. 19, 2015) and current entity record #9637579-0142 (search by name) <a href="https://businessregistration.utah.gov/" target="_blank" rel="noopener">Link</a></li>
+      <li>Utah News Dispatch, March 2025: Eleven people charged with forging signatures (Cox campaign hired Gathering Inc.; 28,000 requirement) <a href="https://utahnewsdispatch.com/?p=9224" target="_blank" rel="noopener">Link</a></li>
+      <li>KSL, March 2025: 11 signature gatherers charged <a href="https://www.ksl.com/article/51271985/11-signature-gatherers-charged-with-forging-signatures-for-utah-candidates" target="_blank" rel="noopener">Link</a></li>
+      <li>Utah News Dispatch, Aug. 2, 2024: Lyman lawsuit over primary results <a href="https://utahnewsdispatch.com/2024/08/02/lyman-lawsuit-annul-primary-results-remove-cox-henderson/" target="_blank" rel="noopener">Link</a></li>
+      <li>Office of the State Auditor letter on Cox signature verification (2024) <a href="https://vote.utah.gov/wp-content/uploads/2024/09/Letter-from-Office-of-the-State-Auditor.pdf" target="_blank" rel="noopener">Link</a></li>
+      <li>Ballotpedia News: 2026 statewide petition threshold of 140,748 signatures <a href="https://news.ballotpedia.org/2025/05/13/referendum-to-repeal-utah-bill-prohibiting-public-sector-collective-bargaining-clears-signature-threshold-for-2026-ballot/" target="_blank" rel="noopener">Link</a></li>
+      <li>Utah News Dispatch: S.B. 54 still stands after 10 years <a href="https://utahnewsdispatch.com/?p=7973" target="_blank" rel="noopener">Link</a></li>
       <li>Lt. Governor, 2026 General Election Certification (Aug. 28, 2026): Amendments A and B wording; no statewide propositions qualified <a href="https://www.utah.gov/pmn/files/1482453.pdf" target="_blank" rel="noopener">Link</a></li>
       <li>2026 Proposed Constitutional Amendments: H.J.R. 10 and S.J.R. 2 full text and votes (le.utah.gov) <a href="https://le.utah.gov/constitutionalAmendment/2026/constitutionalamendments.pdf" target="_blank" rel="noopener">Link</a></li>
       <li>S.J.R. 2 (2025), Statewide Initiatives, bill page <a href="https://le.utah.gov/~2025/bills/static/SJR002.html" target="_blank" rel="noopener">Link</a></li>
