@@ -85,12 +85,12 @@ const MAPS = [
     title: "Citizen Referendums",
     scope: "Statewide",
     status: "live",
-    summary: "Where Utah residents have tried to put a city or county decision to a public vote, and where each effort stands. Uintah County's Prop 9 is on the Nov. 3, 2026 ballot; Roy's is gathering signatures and already listed on the sample ballot as Prop 10; Eagle Mountain's is under way; Box Elder County's Stratos referendum is in court; Summit County's Kimball Junction referendum is closed.",
+    summary: "Where Utah residents have tried to put a city or county decision to a public vote, and where each effort stands. Uintah County's Prop 9 is on the Nov. 3, 2026 ballot; Roy's is gathering signatures and already listed on the sample ballot as Prop 10; Eagle Mountain's is under way, with an Oct. 2026 dispute over the agreement sponsors must sign before gathering signatures; Box Elder County's Stratos referendum is in court; Summit County's Kimball Junction referendum is closed.",
     layers: ["On Nov. 3 ballot", "Active", "In court", "Closed"],
     relatedRepos: ["referendum", "candidates2026"],
     pins: 5,
     link: "citizen-referendums.html",
-    lastUpdated: "Oct 1, 2026"
+    lastUpdated: "Oct 24, 2026"
   },
   {
     mapId: "MAP 007",
