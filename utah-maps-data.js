@@ -28,9 +28,9 @@ const MAPS = [
     summary: "Public infrastructure districts, reinvestment areas, state-authority project areas, and data centers on one map. Each pin shows who approved it, the amounts in the public record, which taxing entities share their revenue, and a link to the source and the case file.",
     layers: ["Data Centers", "PIDs", "CRAs / RDAs", "MIDA & Inland Port", "Other Districts"],
     relatedRepos: ["committees", "followthedeed", "PIDS-Utah", "Bill-Tracker"],
-    pins: 17,
+    pins: 18,
     link: "utah-tax-increment-map.html",
-    lastUpdated: "Sep 26, 2026"
+    lastUpdated: "Oct 27, 2026"
   },
   {
     mapId: "MAP 002",
@@ -126,5 +126,17 @@ const MAPS = [
     pins: 18,
     link: "utah-ballot-measures-2026.html",
     lastUpdated: "Oct 1, 2026"
+  },
+  {
+    mapId: "MAP 010",
+    title: "The Half-Mile Around Every Station",
+    scope: "Wasatch Front",
+    status: "live",
+    summary: "A half-mile circle around all 65 FrontRunner and TRAX stations: the distance the federal Build HUBS Act (S. 3636) would use for cheaper federal loans. The bill is proposed, not law. Tap a station to see whether your street is inside the circle.",
+    layers: ["FrontRunner", "TRAX"],
+    relatedRepos: ["PIDS-Utah"],
+    pins: 65,
+    link: "transit-half-mile-stations.html",
+    lastUpdated: "Oct 27, 2026"
   }
 ];

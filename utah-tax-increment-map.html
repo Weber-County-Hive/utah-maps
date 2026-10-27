@@ -243,13 +243,14 @@
   <div class="note">
     <h4>Related maps</h4>
     <p><a href="ogden-valley-development.html">MAP 003: Ogden Valley Development</a> zooms in on Nordic Village, Snowbasin's PIDs, and the other Ogden Valley projects.</p>
+    <p><a href="transit-half-mile-stations.html">MAP 010: The Half-Mile Around Every Station</a> shows where the federal Build HUBS Act's cheaper loans would reach.</p>
     <h4 style="margin-top:12px">What's next</h4>
     <p>This is a starting set of pins, taken from records already reviewed for Hive case files. More pins will be added as records are reviewed, including more county CRAs and RDAs and the rest of the state's data center sites.</p>
   </div>
 </section>
 
 <footer>
-  Sources: MIDA and Utah Inland Port Authority filings and web pages, county commission resolutions and minutes, the Lt. Governor's certificate records, city web pages, and reporting as cited on each pin. Compiled by Utah Hive Politics, from the publisher of The Weber County Hive. Last updated Sep 26, 2026.<br>
+  Sources: MIDA and Utah Inland Port Authority filings and web pages, county commission resolutions and minutes, the Lt. Governor's certificate records, city web pages, and reporting as cited on each pin. Compiled by Utah Hive Politics, from the publisher of The Weber County Hive. Last updated Oct 27, 2026.<br>
   Map tiles &copy; OpenStreetMap contributors. State, county, and city boundaries: U.S. Census Bureau.
 </footer>
 <div class="hb-foot"><img src="hive-bee.png" alt="" onerror="this.style.display='none'"><span class="hb-name">Utah Hive Politics</span><span class="hb-sub">from the publisher of The Weber County Hive</span><span class="hb-tag">Independent · Accountability · Journalism</span></div>
@@ -278,7 +279,9 @@ const CF = {
   nordic: { label: "Case File: Nordic Village (PIDS-Utah)", url: "https://weber-county-hive.github.io/PIDS-Utah/nordic-village-case-file.html" },
   nordicDeed: { label: "The Trustee Signed His Own Deal (Follow the Deed)", url: "https://weber-county-hive.github.io/followthedeed/weber-hive-nordic-village-froerer.html" },
   ratchford: { label: "Three Boards, One Man, No Disclosure (PIDS-Utah)", url: "https://weber-county-hive.github.io/PIDS-Utah/mount-ogden-pid-ratchford.html" },
-  map003: { label: "MAP 003: Ogden Valley Development", url: "ogden-valley-development.html" }
+  map003: { label: "MAP 003: Ogden Valley Development", url: "ogden-valley-development.html" },
+  housing: { label: "Housing Promises vs. the Record (PIDS-Utah)", url: "https://weber-county-hive.github.io/PIDS-Utah/housing-promises-vs-record.html" },
+  stations: { label: "MAP 010: The Half-Mile Around Every Station", url: "transit-half-mile-stations.html" }
 };
 
 const MIDA_BUDGET = { t: "MIDA budget filing, fiscal year ended June 30, 2026 (Utah Public Notice Website)", u: "https://www.utah.gov/pmn/files/1453631.pdf" };
@@ -293,7 +296,7 @@ const UIPA_SITE   = { t: "Utah Inland Port Authority website: project area plans
 // ---------------------------------------------------------------
 const PINS = [
   {
-    id: "stratos", more: [CF.stratos, CF.midaAreas], layer: "data", status: "prop", statusNote: "Project area adopted; agreements unsigned; referendum pending", lat: 41.80, lng: -112.45,
+    id: "stratos", more: [CF.stratos, CF.midaAreas, CF.housing], layer: "data", status: "prop", statusNote: "Project area adopted; agreements unsigned; referendum pending", lat: 41.80, lng: -112.45,
     title: "Stratos Project Area",
     place: "Hansel Valley, Box Elder County",
     summary: "A MIDA project area for a data center and energy campus on the north side of the Great Salt Lake. MIDA adopted the plan and an energy tax. The agreements that set most of the money terms are posted as unsigned drafts.",
@@ -308,7 +311,8 @@ const PINS = [
     sharing: "Under the draft terms, the county's 25% share excludes the compute complex (the data centers), which makes separate payments instead. None of the draft terms is signed.",
     caution: [
       "The interlocal agreement, master development agreement, and development standards are posted as unsigned drafts \"out of respect for the current referendum process,\" per MIDA's document page. They are not operative contracts.",
-      "The project's acreage was reduced after the plan was adopted (reported June 2026)."
+      "The project's acreage was reduced after the plan was adopted (reported June 2026).",
+      "Added Oct. 27, 2026: MIDA has not published a project area budget, a projected tax differential, or the share it keeps. Its Stratos page lists no budget and says more information is \"coming soon\" (checked Oct. 26, 2026). The Golden Spike project area in the same county publishes its projection."
     ],
     sources: [
       { t: "Box Elder County Stratos Project page: agreement 26-15, Resolution 26-11, and related documents", u: "https://www.boxeldercountyut.gov/641/Stratos-Project" },
@@ -316,6 +320,21 @@ const PINS = [
       MIDA_BUDGET
     ],
     cf: CF.mida
+  },
+  {
+    id: "golden-spike", more: [CF.housing], layer: "mida", lat: 41.62, lng: -112.12,
+    title: "UIPA Golden Spike Project Area",
+    place: "Brigham City, Garland, Tremonton, Willard and unincorporated Box Elder County (general location)",
+    summary: "A Utah Inland Port Authority project area in Box Elder County. Its plan publishes a projection of the property tax growth UIPA would receive.",
+    approved: "Consent resolutions: Tremonton (May 2, 2023), Box Elder County (May 3, 2023), Brigham City (May 4, 2023), Garland (June 7, 2023). UIPA board approved the project area Aug. 21, 2023. First amendment added 550 acres (Oct. 7, 2024). Willard City added 178 acres (UIPA release Nov. 19, 2025). Amendment #3 dated May 21, 2026.",
+    facts: [
+      ["About $175 million in property tax differential projected over 25 years.", "Golden Spike Project Area Plan & Budget, Amendment #3 (May 21, 2026), p. 22"],
+      ["UIPA's 75% share: about $131.25 million (75% of $175 million).", "Amendment #3, p. 22; Hive math for the dollar figure"],
+      ["Willard City joined with 178 acres.", "UIPA news release, Nov. 19, 2025"]
+    ],
+    sharing: "Other taxing entities in the area receive the remaining 25% of the property tax differential under the plan's split.",
+    caution: [ "Total acreage after all amendments is not stated on UIPA's project page." ],
+    sources: [ { t: "UIPA Golden Spike project page", u: "https://inlandportauthority.utah.gov/goldenspike/" }, { t: "UIPA: Golden Spike Project Area marks second anniversary", u: "https://inlandportauthority.utah.gov/?p=7759" }, { t: "UIPA: Willard City joins Golden Spike Project Area (Nov. 19, 2025)", u: "https://inlandportauthority.utah.gov/all-news/willard-city-joins-golden-spike-project-area/" }, { t: "Golden Spike Project Area Plan & Budget, Amendment #3, May 21, 2026" } ]
   },
   {
     id: "tooele-valley", layer: "data", lat: 40.715, lng: -112.42,

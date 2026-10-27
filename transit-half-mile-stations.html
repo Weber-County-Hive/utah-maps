@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Half-Mile Around Every Station — Utah Hive Politics</title>
+<meta name="description" content="MAP 010 from Utah Hive Politics: a half-mile circle around all 65 FrontRunner and TRAX stations, the distance the federal Build HUBS Act (S. 3636) would use for cheaper federal loans.">
+<link rel="icon" type="image/png" href="hive-bee.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600&family=Special+Elite&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;0,8..60,700;1,8..60,400&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+<style>
+  :root{
+    --navy:#14213D; --navy-deep:#0D1728;
+    --manila:#D9C9A3; --manila-dark:#C4B389;
+    --paper:#EDE7D8; --paper-light:#F5F1E6;
+    --ink:#1F1B16; --ink-soft:#4A443A;
+    --red:#A5301E; --green:#3F6B3B; --gold:#A9822F; --rule:#B7AC91;
+    --l-data:#A5301E; --l-pid:#A9822F; --l-cra:#3F6B3B; --l-mida:#2F5A8F; --l-other:#6E4A78;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;background:var(--navy);color:var(--paper);font-family:'Source Serif 4',Georgia,serif;-webkit-font-smoothing:antialiased;}
+  a{color:inherit;}
+
+  .hb-bar{background:#0d0b0a;border-bottom:1px solid #3a2f1c;padding:10px 20px;}
+  .hb-bar a{display:flex;align-items:center;gap:12px;max-width:1200px;margin:0 auto;text-decoration:none;}
+  .hb-bar img{width:52px;height:52px;border-radius:4px;display:block;flex:none;}
+  .hb-name{font-family:'Cinzel',Georgia,serif;color:#d4af37;font-size:16px;letter-spacing:.14em;text-transform:uppercase;line-height:1.2;display:block;}
+  .hb-sub{font-family:Georgia,serif;font-style:italic;color:#b8956a;font-size:12.5px;display:block;margin-top:2px;}
+
+  .masthead{max-width:1200px;margin:0 auto;padding:34px 20px 22px;}
+  .back{font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--manila);text-decoration:none;border-bottom:1px solid rgba(217,201,163,.4);}
+  .back:hover{color:var(--gold);border-color:var(--gold);}
+  .eyebrow{font-family:'Special Elite',monospace;font-size:12px;letter-spacing:.22em;text-transform:uppercase;color:var(--manila);margin:18px 0 8px;}
+  h1{font-size:clamp(30px,4.6vw,48px);line-height:1.08;margin:0 0 12px;font-weight:700;color:var(--paper-light);}
+  .intro{max-width:70ch;font-size:16.5px;line-height:1.6;color:rgba(237,231,216,.75);margin:0;}
+
+  .toolbar{max-width:1200px;margin:0 auto;padding:0 20px 14px;display:flex;flex-wrap:wrap;gap:8px;align-items:center;}
+  .chip{display:inline-flex;align-items:center;gap:7px;font-family:'IBM Plex Mono',monospace;font-size:12px;background:rgba(255,255,255,.05);border:1px solid rgba(217,201,163,.3);color:var(--paper-light);border-radius:20px;padding:6px 12px 6px 7px;cursor:pointer;}
+  .chip[aria-pressed="false"]{opacity:.45;}
+  .chip .dot{width:20px;height:20px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:10.5px;font-weight:600;color:#fff;border:1.5px solid #fff;}
+  .chip .n{color:var(--manila);}
+
+  .stage{max-width:1200px;margin:0 auto;padding:0 20px;display:grid;grid-template-columns:minmax(0,1fr) 400px;gap:18px;}
+  #map{height:640px;border-radius:2px;border:2px solid var(--gold);background:#d8d4c8;}
+  .panel{background:var(--paper);color:var(--ink);border-radius:2px;height:640px;overflow:auto;box-shadow:0 14px 30px -14px rgba(0,0,0,.55);}
+  @media (max-width:900px){
+    .stage{grid-template-columns:1fr;}
+    #map{height:430px;}
+    .panel{height:auto;max-height:none;}
+  }
+
+  .list-head{position:sticky;top:0;background:var(--manila-dark);padding:10px 18px;font-family:'IBM Plex Mono',monospace;font-size:11.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink);z-index:2;}
+  .pin-item{display:flex;gap:12px;align-items:flex-start;width:100%;text-align:left;background:none;border:none;border-bottom:1px dashed var(--rule);padding:13px 18px;cursor:pointer;font-family:inherit;color:inherit;}
+  .pin-item:hover{background:rgba(169,130,47,.1);}
+  .pin-item .dot{flex:none;margin-top:2px;}
+  .pin-item b{display:block;font-size:16px;line-height:1.3;}
+  .pin-item span.pl{display:block;font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--ink-soft);margin-top:3px;}
+
+  .dot{width:24px;height:24px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:600;color:#fff;border:2px solid #fff;box-shadow:0 1px 4px rgba(0,0,0,.4);}
+  .l-data{background:var(--l-data);} .l-pid{background:var(--l-pid);} .l-cra{background:var(--l-cra);} .l-mida{background:var(--l-mida);} .l-other{background:var(--l-other);}
+
+  .detail{padding:0 0 20px;}
+  .detail .top{background:var(--manila-dark);padding:10px 18px;display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;z-index:2;}
+  .detail .top button{font-family:'IBM Plex Mono',monospace;font-size:11.5px;background:none;border:none;cursor:pointer;color:var(--ink);padding:0;}
+  .detail .top .tagl{font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.06em;text-transform:uppercase;}
+  .detail h2{font-size:23px;line-height:1.2;margin:16px 18px 4px;}
+  .detail .place{font-family:'IBM Plex Mono',monospace;font-size:11.5px;color:var(--ink-soft);margin:0 18px 12px;text-transform:uppercase;letter-spacing:.04em;}
+  .detail .sum{margin:0 18px 14px;font-size:15.5px;line-height:1.55;color:var(--ink-soft);}
+  .sec{margin:0 18px 14px;}
+  .sec h3{font-family:'Special Elite',monospace;font-weight:400;font-size:12.5px;letter-spacing:.14em;text-transform:uppercase;margin:0 0 7px;color:var(--ink);border-bottom:1px solid var(--rule);padding-bottom:4px;}
+  .sec ul{margin:0;padding-left:18px;}
+  .sec li{font-size:14.5px;line-height:1.5;margin-bottom:7px;color:var(--ink);}
+  .src{display:block;font-family:'IBM Plex Mono',monospace;font-size:10.5px;color:var(--ink-soft);margin-top:2px;}
+  .sec.caution{background:rgba(165,48,30,.07);border-left:3px solid var(--red);padding:9px 12px;}
+  .sec.caution h3{color:var(--red);border:none;padding:0;}
+  .sec p{margin:0;font-size:14.5px;line-height:1.5;}
+  .case-btn{display:block;width:fit-content;margin:0 18px 8px;font-family:'IBM Plex Mono',monospace;font-size:12.5px;font-weight:600;color:var(--navy-deep);background:var(--gold);text-decoration:none;padding:10px 16px;border-radius:4px;}
+  .case-btn:hover{background:#C29A3D;}
+  .sources a{color:var(--red);}
+
+  .leaflet-container{font-family:'Source Serif 4',Georgia,serif;}
+  .pin-icon{background:none;border:none;}
+  .pin-icon .dot{width:26px;height:26px;font-size:11.5px;transition:transform .12s;}
+  .pin-icon.active .dot{transform:scale(1.35);box-shadow:0 0 0 4px rgba(169,130,47,.55),0 2px 6px rgba(0,0,0,.5);}
+  .county-label{background:none;border:none;}
+  .county-label span{display:block;transform:translate(-50%,-50%);font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:#14213D;opacity:.7;white-space:nowrap;text-shadow:0 0 3px #fff,0 0 3px #fff;pointer-events:none;}
+  .dot.prop{background:var(--paper-light) !important;border-style:dashed;border-width:2.5px;}
+  .dot.prop.l-data{color:var(--l-data);border-color:var(--l-data);} .dot.prop.l-pid{color:var(--l-pid);border-color:var(--l-pid);} .dot.prop.l-cra{color:var(--l-cra);border-color:var(--l-cra);} .dot.prop.l-mida{color:var(--l-mida);border-color:var(--l-mida);} .dot.prop.l-other{color:var(--l-other);border-color:var(--l-other);}
+  .status-key{max-width:1200px;margin:0 auto;padding:0 20px 14px;display:flex;flex-wrap:wrap;gap:18px;font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--manila);align-items:center;}
+  .status-key span{display:inline-flex;align-items:center;gap:7px;}
+  .status-line{margin:0 18px 12px;font-family:'IBM Plex Mono',monospace;font-size:11.5px;letter-spacing:.04em;text-transform:uppercase;display:inline-flex;align-items:center;gap:7px;padding:4px 10px;border-radius:3px;}
+  .status-line.final{background:rgba(63,107,59,.12);color:var(--green);}
+  .status-line.prop{background:rgba(165,48,30,.08);color:var(--red);border:1px dashed var(--red);}
+  .glossary{max-width:1200px;margin:28px auto 0;padding:0 20px;}
+  .glossary h2{font-family:'Special Elite',monospace;font-weight:400;font-size:15px;letter-spacing:.18em;text-transform:uppercase;color:var(--manila);margin:0 0 4px;}
+  .gl-sub{margin:0 0 14px;font-size:14px;color:rgba(237,231,216,.6);}
+  .flip-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:12px;}
+  .flip-card{perspective:900px;height:215px;cursor:pointer;outline:none;}
+  .flip-card:focus-visible .flip-inner{box-shadow:0 0 0 3px var(--gold);}
+  .flip-inner{position:relative;width:100%;height:100%;transition:transform .5s;transform-style:preserve-3d;border-radius:2px;}
+  .flip-card.flipped .flip-inner{transform:rotateY(180deg);}
+  .flip-front,.flip-back{position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;border-radius:2px;padding:14px 16px;display:flex;flex-direction:column;}
+  .flip-front{background:var(--paper);color:var(--ink);justify-content:space-between;border-top:4px solid var(--gold);}
+  .flip-front .ft{font-family:'Source Serif 4',Georgia,serif;font-weight:700;font-size:21px;line-height:1.2;}
+  .flip-front .fh{font-family:'IBM Plex Mono',monospace;font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-soft);}
+  .flip-back{background:var(--navy-deep);color:var(--paper-light);transform:rotateY(180deg);border:1px solid var(--gold);overflow:auto;gap:8px;}
+  .flip-back .fd{font-size:13px;line-height:1.5;}
+  .flip-link{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--gold);}
+  @media (prefers-reduced-motion:reduce){.flip-inner{transition:none;}}
+  .story-btn{display:inline-block;margin:8px 18px 0;font-family:'IBM Plex Mono',monospace;font-size:12.5px;font-weight:600;color:var(--paper-light);background:var(--navy);text-decoration:none;padding:10px 16px;border-radius:4px;}
+  .story-btn:hover{background:var(--navy-deep);}
+  .city-label{background:none;border:none;}
+  .city-label.key span{font-weight:600;font-size:11.5px;color:#14213D;}
+  .city-label span{display:block;transform:translate(-50%,-50%);font-family:'IBM Plex Mono',monospace;font-size:10.5px;color:#4a2f55;white-space:nowrap;text-shadow:0 0 3px #fff,0 0 3px #fff,0 0 3px #fff;pointer-events:none;}
+  .leaflet-tooltip{font-family:'IBM Plex Mono',monospace;font-size:11.5px;}
+
+  .notes{max-width:1200px;margin:26px auto 0;padding:0 20px;display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:18px;}
+  .note{border:1px solid rgba(217,201,163,.25);border-radius:2px;padding:16px 18px;font-size:14.5px;line-height:1.6;color:rgba(237,231,216,.78);}
+  .note h4{font-family:'Special Elite',monospace;font-weight:400;font-size:12.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--manila);margin:0 0 8px;}
+  .note p{margin:0 0 8px;}
+  .note strong{color:var(--paper-light);}
+
+  footer{max-width:1200px;margin:30px auto 0;padding:18px 20px 30px;border-top:1px solid rgba(217,201,163,.15);font-family:'IBM Plex Mono',monospace;font-size:11.5px;color:rgba(237,231,216,.45);line-height:1.6;}
+  .hb-foot{background:#0d0b0a;color:#b8956a;text-align:center;padding:26px 20px 30px;font-family:Georgia,serif;}
+  .hb-foot img{width:52px;height:52px;display:block;margin:0 auto 10px;}
+  .hb-foot .hb-name{font-size:14px;}
+  .hb-foot .hb-tag{font-size:10.5px;letter-spacing:.2em;text-transform:uppercase;color:#8a7650;margin-top:8px;display:block;}
+  @media(max-width:600px){.hb-bar img{width:38px;height:38px}.hb-name{font-size:13px}.masthead{padding-top:24px}}
+
+  .l-fr{background:#2F5A8F;} .l-tx{background:#A9822F;}
+  .banner{max-width:1200px;margin:0 auto 14px;padding:12px 16px;background:rgba(165,48,30,.12);border:1px dashed var(--red);color:var(--paper-light);font-family:'IBM Plex Mono',monospace;font-size:12.5px;line-height:1.5;border-radius:2px;}
+  .banner b{color:#f0b9a8;}
+  .stlist{list-style:none;margin:0;padding:0;}
+  .stlist li{border-bottom:1px solid var(--rule);}
+  .stlist button{width:100%;text-align:left;background:none;border:none;padding:11px 18px;font:inherit;font-size:15.5px;color:var(--ink);cursor:pointer;display:flex;align-items:center;gap:10px;}
+  .stlist button:hover,.stlist button.on{background:rgba(169,130,47,.15);}
+  .stlist .dot{width:22px;height:22px;font-size:10px;}
+  .facts{margin:16px 18px;font-size:15px;line-height:1.55;color:var(--ink);}
+  .facts b{font-family:'IBM Plex Mono',monospace;}
+  .search{margin:12px 18px;width:calc(100% - 36px);padding:10px 12px;font:15px 'Source Serif 4',Georgia,serif;border:1.5px solid var(--rule);border-radius:2px;background:var(--paper-light);color:var(--ink);}
+</style>
+</head>
+<body>
+
+<div class="hb-bar"><a href="https://webercountyhive.substack.com/" target="_blank" rel="noopener"><img src="uhp-badge.png" alt="Utah Hive Politics logo" onerror="this.style.display='none'"><span><span class="hb-name">Utah Hive Politics</span><span class="hb-sub">from the publisher of The Weber County Hive</span></span></a></div>
+
+<header class="masthead">
+  <a class="back" href="index.html">&larr; All Utah Maps</a>
+  <p class="eyebrow">MAP 010 &middot; Wasatch Front</p>
+  <h1>The Half-Mile Around Every Station</h1>
+  <p class="intro">A half-mile circle around all 65 FrontRunner and TRAX stations. That is the distance the federal Build HUBS Act (S. 3636) would use to decide which homes and shops can get cheaper federal loans. Tap a station to zoom in and see whether your street is inside the circle.</p>
+</header>
+
+<div class="banner"><b>Proposed, not law.</b> S. 3636 was introduced Jan. 14, 2026 and sits in the Senate Committee on Environment and Public Works with no hearing or vote listed (checked Oct. 26, 2026). The circles show where the bill would apply if it passed as written. Bus rapid transit stops (Ogden's OGX and Utah County's UVX) and multimodal stations would also qualify; this map shows rail stations only.</div>
+
+<div class="toolbar" id="toolbar" role="group" aria-label="Choose which stations to show"></div>
+
+<div class="stage">
+  <div id="map" role="region" aria-label="Map of Wasatch Front rail stations with half-mile circles"></div>
+  <aside class="panel" id="panel" aria-live="polite"></aside>
+</div>
+
+<section class="glossary" aria-labelledby="gl-h">
+  <h2 id="gl-h">Words on this map</h2>
+  <p class="gl-sub">Tap a card to flip it.</p>
+  <div class="flip-grid">
+    <div class="flip-card" tabindex="0" role="button" aria-label="Half mile: tap to see the meaning">
+      <div class="flip-inner">
+        <div class="flip-front"><span class="ft">Half mile</span><span class="fh">Tap to flip &#8635;</span></div>
+        <div class="flip-back"><span class="fd">About a 10-minute walk. S. 3636 would let builders use federal transportation loans for homes and shops within a half mile of a qualifying station. Each circle on this map covers about 503 acres.</span></div>
+      </div>
+    </div>
+    <div class="flip-card" tabindex="0" role="button" aria-label="Build HUBS Act: tap to see the meaning">
+      <div class="flip-inner">
+        <div class="flip-front"><span class="ft">Build HUBS Act</span><span class="fh">Tap to flip &#8635;</span></div>
+        <div class="flip-back"><span class="fd">S. 3636 in the U.S. Senate (H.R. 7062 in the House). Introduced Jan. 14, 2026. Not law: it sits in committee with no hearing or vote listed.</span></div>
+      </div>
+    </div>
+    <div class="flip-card" tabindex="0" role="button" aria-label="TIFIA: tap to see the meaning">
+      <div class="flip-inner">
+        <div class="flip-front"><span class="ft">TIFIA</span><span class="fh">Tap to flip &#8635;</span></div>
+        <div class="flip-back"><span class="fd">A federal loan program for transportation projects. The bill would open it to homes, shops and offices near stations.</span></div>
+      </div>
+    </div>
+    <div class="flip-card" tabindex="0" role="button" aria-label="RRIF: tap to see the meaning">
+      <div class="flip-inner">
+        <div class="flip-front"><span class="ft">RRIF</span><span class="fh">Tap to flip &#8635;</span></div>
+        <div class="flip-back"><span class="fd">A federal loan program for railroads and rail stations, changed the same way.</span></div>
+      </div>
+    </div>
+    <div class="flip-card" tabindex="0" role="button" aria-label="Attainable: tap to see the meaning">
+      <div class="flip-inner">
+        <div class="flip-front"><span class="ft">Attainable</span><span class="fh">Tap to flip &#8635;</span></div>
+        <div class="flip-back"><span class="fd">The bill's word for homes priced for households up to 120% of area median income, with most at or below 80%. In the Salt Lake metro, 120% is about $151,320 for a family of four.</span></div>
+      </div>
+    </div>
+    <div class="flip-card" tabindex="0" role="button" aria-label="Half-price interest: tap to see the meaning">
+      <div class="flip-inner">
+        <div class="flip-front"><span class="ft">Half-price interest</span><span class="fh">Tap to flip &#8635;</span></div>
+        <div class="flip-back"><span class="fd">If more than half of a project's homes are attainable, the loan is set at half the U.S. Treasury rate.</span></div>
+      </div>
+    </div>
+    <div class="flip-card" tabindex="0" role="button" aria-label="Categorical exclusion: tap to see the meaning">
+      <div class="flip-inner">
+        <div class="flip-front"><span class="ft">Categorical exclusion</span><span class="fh">Tap to flip &#8635;</span></div>
+        <div class="flip-back"><span class="fd">A type of project the government decides can skip the full federal environmental review. The bill adds office-to-housing conversions and building on land already used for roads or rail.</span></div>
+      </div>
+    </div>
+    <div class="flip-card" tabindex="0" role="button" aria-label="HTRZ: tap to see the meaning">
+      <div class="flip-inner">
+        <div class="flip-front"><span class="ft">HTRZ</span><span class="fh">Tap to flip &#8635;</span></div>
+        <div class="flip-back"><span class="fd">Housing and Transit Reinvestment Zone, a Utah tool (2021) that lets a project near a station keep most of its new property tax growth. A federal loan could be paired with one.</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="notes">
+  <div class="note">
+    <h4>What the circles mean</h4>
+    <p>Each circle has a radius of half a mile (804.67 meters), drawn to scale around the station point. One circle covers about <strong>503 acres</strong> (Hive math: &pi; &times; 0.5&sup2; square miles &times; 640). Where stations are close together, circles overlap.</p>
+    <p>Being inside a circle does not mean a project is planned there. It means a project there could apply for the loans if the bill became law.</p>
+  </div>
+  <div class="note">
+    <h4>How this map is sourced</h4>
+    <p>Station points come from OpenStreetMap, U.S. DOT and Wikipedia coordinates, the same set used on the Hive's housing case file. The bill details come from the text of S. 3636 on congress.gov. Station markers are approximate; check the station itself before relying on an exact distance.</p>
+  </div>
+  <div class="note">
+    <h4>Related</h4>
+    <p><a href="https://weber-county-hive.github.io/PIDS-Utah/housing-promises-vs-record.html">Housing Promises vs. the Record</a>: the full case file on the Build HUBS Act, with the bill explained step by step, who lobbied for it, and Utah's own transit-zone record.</p>
+    <p><a href="https://weber-county-hive.github.io/PIDS-Utah/ogden-housing-on-the-record.html">Ogden and Weber County: Which Homes Are Short?</a></p>
+    <p><a href="utah-tax-increment-map.html">MAP 001: Where Utah's Tax Increment Goes</a></p>
+  </div>
+</section>
+
+<footer>
+  Sources: S. 3636, Build HUBS Act, 119th Congress (congress.gov); station locations from OpenStreetMap, U.S. DOT and Wikipedia coordinates; Hive math for acreage. Compiled by Utah Hive Politics, from the publisher of The Weber County Hive. Posted Oct 27, 2026 &middot; Last updated Oct 27, 2026.<br>
+  Map tiles &copy; OpenStreetMap contributors. State, county, and city boundaries: U.S. Census Bureau.
+</footer>
+<div class="hb-foot"><img src="hive-bee.png" alt="" onerror="this.style.display='none'"><span class="hb-name">Utah Hive Politics</span><span class="hb-sub">from the publisher of The Weber County Hive</span><span class="hb-tag">Independent · Accountability · Journalism</span></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<script src="utah-geo.js"></script>
+<script>
+const STATIONS = [["Ogden", "F", 41.2244, -111.9807], ["Roy", "F", 41.1887, -112.0394], ["Clearfield", "F", 41.0947, -112.0138], ["Layton", "F", 41.057, -111.9651], ["Farmington", "F", 40.9873, -111.9038], ["Woods Cross", "F", 40.8808, -111.903], ["North Temple", "F", 40.7725, -111.9051], ["Salt Lake Central", "F", 40.7616, -111.909], ["Murray Central", "F", 40.6598, -111.8964], ["South Jordan", "F", 40.5634, -111.9007], ["Draper", "F", 40.5156, -111.9044], ["Lehi", "F", 40.4256, -111.8969], ["American Fork", "F", 40.3748, -111.8206], ["Vineyard", "F", 40.3128, -111.7502], ["Orem Central", "F", 40.2803, -111.7256], ["Provo Central", "F", 40.2254, -111.6604], ["Courthouse", "T", 40.7591, -111.8911], ["900 South", "T", 40.7504, -111.8968], ["University Medical Center", "T", 40.7695, -111.8389], ["Gallivan Plaza", "T", 40.7635, -111.8911], ["Arena", "T", 40.7694, -111.9006], ["City Center", "T", 40.7678, -111.8911], ["Library", "T", 40.7606, -111.8845], ["Old GreekTown", "T", 40.765, -111.9063], ["Planetarium", "T", 40.7665, -111.9026], ["Temple Square", "T", 40.7694, -111.8948], ["Trolley", "T", 40.7607, -111.873], ["900 East", "T", 40.7607, -111.8662], ["Decker Lake", "T", 40.7046, -111.9487], ["Redwood Junction", "T", 40.7111, -111.9398], ["River Trail", "T", 40.7202, -111.9238], ["West Valley Central", "T", 40.6944, -111.9594], ["Historic Sandy", "T", 40.5895, -111.8857], ["Midvale Center", "T", 40.6103, -111.8929], ["Millcreek", "T", 40.7007, -111.897], ["Murray North", "T", 40.6769, -111.8941], ["Sandy Expo", "T", 40.5814, -111.8863], ["Jordan Valley", "T", 40.5948, -111.9718], ["South Jordan Parkway", "T", 40.5587, -112.0247], ["West Jordan City Center", "T", 40.6049, -111.9365], ["4800 West Old Bingham Hwy", "T", 40.5815, -112.0042], ["5600 West Old Bingham Hwy", "T", 40.5691, -112.0249], ["2700 West Sugar Factory Rd", "T", 40.5991, -111.9568], ["Kimballs Lane", "T", 40.5362, -111.8721], ["Sandy Civic Center", "T", 40.5707, -111.8846], ["Fashion Place West", "T", 40.6337, -111.8981], ["Ballpark", "T", 40.7422, -111.8968], ["Crescent View", "T", 40.5449, -111.8786], ["Daybreak Parkway", "T", 40.5441, -112.0141], ["1940 West North Temple", "T", 40.7715, -111.9461], ["600 South", "T", 40.7555, -111.8911], ["Power", "T", 40.7715, -111.934], ["Fairpark", "T", 40.7715, -111.9243], ["Jackson/Euclid", "T", 40.7715, -111.9149], ["Airport", "T", 40.7843, -111.9827], ["Central Pointe", "T", 40.7245, -111.8969], ["Stadium", "T", 40.7597, -111.8522], ["University South Campus", "T", 40.7603, -111.8396], ["Fort Douglas", "T", 40.7644, -111.8366], ["South Jordan Downtown", "T", 40.55, -112.0199], ["Meadowbrook", "T", 40.6876, -111.8966], ["Midvale Fort Union", "T", 40.6191, -111.8983], ["Bingham Junction", "T", 40.6173, -111.915], ["Historic Gardner", "T", 40.6082, -111.9241], ["Draper Town Center", "T", 40.5256, -111.8592]];
+const LINES = { F: { name: "FrontRunner", cls: "l-fr", letter: "F", color: "#2F5A8F" }, T: { name: "TRAX", cls: "l-tx", letter: "T", color: "#A9822F" } };
+const R = 804.67;
+let shown = { F: true, T: true }, active = null, q = "";
+const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'})[c]);
+const dot = k => `<span class="dot ${LINES[k].cls}" aria-hidden="true">${LINES[k].letter}</span>`;
+
+const map = L.map('map', { scrollWheelZoom: false, zoomSnap: 0.25 }).setView([40.75, -111.9], 9);
+L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+  attribution: '&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a> contributors', maxZoom: 18
+}).addTo(map);
+addUtahOutlines(map);
+
+const items = STATIONS.map(([name, line, lat, lng], i) => {
+  const L0 = LINES[line];
+  const circle = L.circle([lat, lng], { radius: R, color: L0.color, weight: 2, fillColor: L0.color, fillOpacity: 0.18 });
+  const pt = L.circleMarker([lat, lng], { radius: 4, color: '#fff', weight: 1.5, fillColor: L0.color, fillOpacity: 1 });
+  const tip = `${name} (${L0.name}): half-mile circle, about 503 acres`;
+  circle.bindTooltip(tip); pt.bindTooltip(tip);
+  circle.on('click', () => select(i)); pt.on('click', () => select(i));
+  return { name, line, lat, lng, circle, pt };
+});
+
+function refresh(){
+  items.forEach(s => {
+    if (shown[s.line]) { s.circle.addTo(map); s.pt.addTo(map); } else { s.circle.remove(); s.pt.remove(); }
+  });
+}
+function renderToolbar(){
+  const tb = document.getElementById('toolbar');
+  const allOn = shown.F && shown.T;
+  tb.innerHTML = `<button class="chip" data-k="all" aria-pressed="${allOn}"><span class="dot" style="background:var(--navy-deep)" aria-hidden="true">&#9733;</span>All stations <span class="n">${items.length}</span></button>` +
+    Object.entries(LINES).map(([k, l]) => `<button class="chip" data-k="${k}" aria-pressed="${allOn || shown[k]}">${dot(k)}${l.name} <span class="n">${items.filter(s => s.line === k).length}</span></button>`).join('');
+  tb.querySelectorAll('.chip').forEach(b => b.onclick = () => {
+    const k = b.dataset.k; shown = { F: k === 'all' || k === 'F', T: k === 'all' || k === 'T' };
+    renderToolbar(); refresh(); renderList();
+  });
+}
+const panel = document.getElementById('panel');
+function renderList(){
+  const list = items.map((s, i) => [s, i]).filter(([s]) => shown[s.line] && (!q || s.name.toLowerCase().includes(q)));
+  panel.innerHTML = `<div class="list-head">${list.length} stations &middot; tap one to zoom in</div>
+    <input class="search" id="q" type="search" placeholder="Find a station" aria-label="Find a station" value="${esc(q)}">
+    <ul class="stlist">${list.map(([s, i]) => `<li><button data-i="${i}" class="${i === active ? 'on' : ''}">${dot(s.line)}${esc(s.name)}</button></li>`).join('')}</ul>
+    <div class="facts"><b>${items.length}</b> stations &times; about <b>503</b> acres each. Circles overlap where stations sit close together, so the total area covered is smaller than the two numbers multiplied.</div>`;
+  panel.querySelectorAll('.stlist button').forEach(b => b.onclick = () => select(+b.dataset.i));
+  const qi = document.getElementById('q');
+  qi.oninput = () => { q = qi.value.trim().toLowerCase(); renderList(); const n = document.getElementById('q'); n.focus(); n.setSelectionRange(n.value.length, n.value.length); };
+}
+function select(i){
+  active = i; const s = items[i];
+  map.fitBounds(s.circle.getBounds().pad(0.35));
+  s.circle.openTooltip();
+  renderList();
+}
+document.querySelectorAll('.flip-card').forEach(c => {
+  const flip = () => c.classList.toggle('flipped');
+  c.addEventListener('click', flip);
+  c.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); flip(); } });
+});
+renderToolbar(); refresh(); renderList();
+map.fitBounds(L.latLngBounds(items.map(s => [s.lat, s.lng])).pad(0.08));
+</script>
+<script data-goatcounter="https://weberhive.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
+</body>
+</html>
