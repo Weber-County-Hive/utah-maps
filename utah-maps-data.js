@@ -138,5 +138,17 @@ const MAPS = [
     pins: 65,
     link: "transit-half-mile-stations.html",
     lastUpdated: "Oct 27, 2026"
+  },
+  {
+    mapId: "MAP 011",
+    title: "How Close to the Lake?",
+    scope: "Plain City & West Weber",
+    status: "live",
+    summary: "Six proposed and approved subdivisions in western Weber County and how close each comes to state wildlife land, Willard Bay and Great Salt Lake land, with FEMA flood zones and the lake's 100-year flood study. Pleasant Plains is drawn from its draft agreement's legal description; the other pins are approximate. Includes what the Pleasant Plains draft agreement says on flooding, water, sewer and parks, and questions for the Nov. 12, 2026 Plain City hearing.",
+    layers: ["Pleasant Plains boundary", "Wildlife land", "Willard Bay State Park", "Great Salt Lake land", "FEMA flood zones", "Lake 100-year flood study"],
+    relatedRepos: ["developments", "followthedeed"],
+    pins: 6,
+    link: "how-close-to-the-lake.html",
+    lastUpdated: "Oct 29, 2026"
   }
 ];

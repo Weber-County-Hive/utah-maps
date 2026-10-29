@@ -1,0 +1,626 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>How Close to the Lake? — Utah Hive Politics</title>
+<meta name="description" content="MAP 011 from Utah Hive Politics: the big West Weber and Plain City developments, how close they sit to the Great Salt Lake, state wildlife areas and Willard Bay, which land is in a FEMA flood zone, and how their size compares with Plain City.">
+<link rel="icon" type="image/png" href="hive-bee.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600&family=Special+Elite&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;0,8..60,700;1,8..60,400&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+<style>
+  :root{
+    --navy:#14213D; --navy-deep:#0D1728;
+    --manila:#D9C9A3; --manila-dark:#C4B389;
+    --paper:#EDE7D8; --paper-light:#F5F1E6;
+    --ink:#1F1B16; --ink-soft:#4A443A;
+    --red:#A5301E; --green:#3F6B3B; --gold:#A9822F; --rule:#B7AC91;
+    --l-data:#A5301E; --l-pid:#A9822F; --l-cra:#3F6B3B; --l-mida:#2F5A8F; --l-other:#6E4A78;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;background:var(--navy);color:var(--paper);font-family:'Source Serif 4',Georgia,serif;-webkit-font-smoothing:antialiased;}
+  a{color:inherit;}
+
+  .hb-bar{background:#0d0b0a;border-bottom:1px solid #3a2f1c;padding:10px 20px;}
+  .hb-bar a{display:flex;align-items:center;gap:12px;max-width:1200px;margin:0 auto;text-decoration:none;}
+  .hb-bar img{width:52px;height:52px;border-radius:4px;display:block;flex:none;}
+  .hb-name{font-family:'Cinzel',Georgia,serif;color:#d4af37;font-size:16px;letter-spacing:.14em;text-transform:uppercase;line-height:1.2;display:block;}
+  .hb-sub{font-family:Georgia,serif;font-style:italic;color:#b8956a;font-size:12.5px;display:block;margin-top:2px;}
+
+  .masthead{max-width:1200px;margin:0 auto;padding:34px 20px 22px;}
+  .back{font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--manila);text-decoration:none;border-bottom:1px solid rgba(217,201,163,.4);}
+  .back:hover{color:var(--gold);border-color:var(--gold);}
+  .eyebrow{font-family:'Special Elite',monospace;font-size:12px;letter-spacing:.22em;text-transform:uppercase;color:var(--manila);margin:18px 0 8px;}
+  h1{font-size:clamp(30px,4.6vw,48px);line-height:1.08;margin:0 0 12px;font-weight:700;color:var(--paper-light);}
+  .intro{max-width:70ch;font-size:16.5px;line-height:1.6;color:rgba(237,231,216,.75);margin:0;}
+
+  .toolbar{max-width:1200px;margin:0 auto;padding:0 20px 14px;display:flex;flex-wrap:wrap;gap:8px;align-items:center;}
+  .chip{display:inline-flex;align-items:center;gap:7px;font-family:'IBM Plex Mono',monospace;font-size:12px;background:rgba(255,255,255,.05);border:1px solid rgba(217,201,163,.3);color:var(--paper-light);border-radius:20px;padding:6px 12px 6px 7px;cursor:pointer;}
+  .chip[aria-pressed="false"]{opacity:.45;}
+  .chip .dot{width:20px;height:20px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:10.5px;font-weight:600;color:#fff;border:1.5px solid #fff;}
+  .chip .n{color:var(--manila);}
+
+  .stage{max-width:1200px;margin:0 auto;padding:0 20px;display:grid;grid-template-columns:minmax(0,1fr) 400px;gap:18px;}
+  #map{height:640px;border-radius:2px;border:2px solid var(--gold);background:#d8d4c8;position:relative;overflow:hidden;}
+  .panel{background:var(--paper);color:var(--ink);border-radius:2px;height:640px;overflow:auto;box-shadow:0 14px 30px -14px rgba(0,0,0,.55);}
+  @media (max-width:900px){
+    .stage{grid-template-columns:1fr;}
+    #map{height:430px;}
+    .panel{height:auto;max-height:none;}
+  }
+
+  .list-head{position:sticky;top:0;background:var(--manila-dark);padding:10px 18px;font-family:'IBM Plex Mono',monospace;font-size:11.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink);z-index:2;}
+  .pin-item{display:flex;gap:12px;align-items:flex-start;width:100%;text-align:left;background:none;border:none;border-bottom:1px dashed var(--rule);padding:13px 18px;cursor:pointer;font-family:inherit;color:inherit;}
+  .pin-item:hover{background:rgba(169,130,47,.1);}
+  .pin-item .dot{flex:none;margin-top:2px;}
+  .pin-item b{display:block;font-size:16px;line-height:1.3;}
+  .pin-item span.pl{display:block;font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--ink-soft);margin-top:3px;}
+
+  .dot{width:24px;height:24px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:600;color:#fff;border:2px solid #fff;box-shadow:0 1px 4px rgba(0,0,0,.4);}
+  .l-data{background:var(--l-data);} .l-port{background:#2F5A8F;} .l-water{background:#1F7A8C;} .l-cons{background:#3F6B3B;} .l-mil{background:#4A443A;} .l-pid{background:var(--l-pid);} .l-cra{background:var(--l-cra);} .l-mida{background:var(--l-mida);} .l-other{background:var(--l-other);}
+
+  .detail{padding:0 0 20px;}
+  .detail .top{background:var(--manila-dark);padding:10px 18px;display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;z-index:2;}
+  .detail .top button{font-family:'IBM Plex Mono',monospace;font-size:11.5px;background:none;border:none;cursor:pointer;color:var(--ink);padding:0;}
+  .detail .top .tagl{font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.06em;text-transform:uppercase;}
+  .detail h2{font-size:23px;line-height:1.2;margin:16px 18px 4px;}
+  .detail .place{font-family:'IBM Plex Mono',monospace;font-size:11.5px;color:var(--ink-soft);margin:0 18px 12px;text-transform:uppercase;letter-spacing:.04em;}
+  .detail .sum{margin:0 18px 14px;font-size:15.5px;line-height:1.55;color:var(--ink-soft);}
+  .sec{margin:0 18px 14px;}
+  .sec h3{font-family:'Special Elite',monospace;font-weight:400;font-size:12.5px;letter-spacing:.14em;text-transform:uppercase;margin:0 0 7px;color:var(--ink);border-bottom:1px solid var(--rule);padding-bottom:4px;}
+  .sec ul{margin:0;padding-left:18px;}
+  .sec li{font-size:14.5px;line-height:1.5;margin-bottom:7px;color:var(--ink);}
+  .src{display:block;font-family:'IBM Plex Mono',monospace;font-size:10.5px;color:var(--ink-soft);margin-top:2px;}
+  .sec.caution{background:rgba(165,48,30,.07);border-left:3px solid var(--red);padding:9px 12px;}
+  .sec.caution h3{color:var(--red);border:none;padding:0;}
+  .sec p{margin:0;font-size:14.5px;line-height:1.5;}
+  .case-btn{display:block;width:fit-content;margin:0 18px 8px;font-family:'IBM Plex Mono',monospace;font-size:12.5px;font-weight:600;color:var(--navy-deep);background:var(--gold);text-decoration:none;padding:10px 16px;border-radius:4px;}
+  .case-btn:hover{background:#C29A3D;}
+  .sources a{color:var(--red);}
+
+  .leaflet-container{font-family:'Source Serif 4',Georgia,serif;}
+  .pin-icon{background:none;border:none;}
+  .pin-icon .dot{width:26px;height:26px;font-size:11.5px;transition:transform .12s;}
+  .pin-icon.active .dot{transform:scale(1.35);box-shadow:0 0 0 4px rgba(169,130,47,.55),0 2px 6px rgba(0,0,0,.5);}
+  .county-label{background:none;border:none;}
+  .county-label span{display:block;transform:translate(-50%,-50%);font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:#14213D;opacity:.7;white-space:nowrap;text-shadow:0 0 3px #fff,0 0 3px #fff;pointer-events:none;}
+  .dot.prop{background:var(--paper-light) !important;border-style:dashed;border-width:2.5px;}
+  .dot.prop.l-port{color:#2F5A8F;border-color:#2F5A8F;} .dot.prop.l-water{color:#1F7A8C;border-color:#1F7A8C;} .dot.prop.l-cons{color:#3F6B3B;border-color:#3F6B3B;} .dot.prop.l-mil{color:#4A443A;border-color:#4A443A;} .dot.prop.l-data{color:var(--l-data);border-color:var(--l-data);} .dot.prop.l-pid{color:var(--l-pid);border-color:var(--l-pid);} .dot.prop.l-cra{color:var(--l-cra);border-color:var(--l-cra);} .dot.prop.l-mida{color:var(--l-mida);border-color:var(--l-mida);} .dot.prop.l-other{color:var(--l-other);border-color:var(--l-other);}
+  .status-key{max-width:1200px;margin:0 auto;padding:0 20px 14px;display:flex;flex-wrap:wrap;gap:18px;font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--manila);align-items:center;}
+  .status-key span{display:inline-flex;align-items:center;gap:7px;}
+  .status-line{margin:0 18px 12px;font-family:'IBM Plex Mono',monospace;font-size:11.5px;letter-spacing:.04em;text-transform:uppercase;display:inline-flex;align-items:center;gap:7px;padding:4px 10px;border-radius:3px;}
+  .status-line.final{background:rgba(63,107,59,.12);color:var(--green);}
+  .status-line.prop{background:rgba(165,48,30,.08);color:var(--red);border:1px dashed var(--red);}
+  .glossary{max-width:1200px;margin:28px auto 0;padding:0 20px;}
+  .glossary h2{font-family:'Special Elite',monospace;font-weight:400;font-size:15px;letter-spacing:.18em;text-transform:uppercase;color:var(--manila);margin:0 0 4px;}
+  .gl-sub{margin:0 0 14px;font-size:14px;color:rgba(237,231,216,.6);}
+  .flip-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:12px;}
+  .flip-card{perspective:900px;height:215px;cursor:pointer;outline:none;}
+  .flip-card:focus-visible .flip-inner{box-shadow:0 0 0 3px var(--gold);}
+  .flip-inner{position:relative;width:100%;height:100%;transition:transform .5s;transform-style:preserve-3d;border-radius:2px;}
+  .flip-card.flipped .flip-inner{transform:rotateY(180deg);}
+  .flip-front,.flip-back{position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;border-radius:2px;padding:14px 16px;display:flex;flex-direction:column;}
+  .flip-front{background:var(--paper);color:var(--ink);justify-content:space-between;border-top:4px solid var(--gold);}
+  .flip-front .ft{font-family:'Source Serif 4',Georgia,serif;font-weight:700;font-size:21px;line-height:1.2;}
+  .flip-front .fh{font-family:'IBM Plex Mono',monospace;font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-soft);}
+  .flip-back{background:var(--navy-deep);color:var(--paper-light);transform:rotateY(180deg);border:1px solid var(--gold);overflow:auto;gap:8px;}
+  .flip-back .fd{font-size:13px;line-height:1.5;}
+  .flip-link{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--gold);}
+  @media (prefers-reduced-motion:reduce){.flip-inner{transition:none;}}
+  .story-btn{display:inline-block;margin:8px 18px 0;font-family:'IBM Plex Mono',monospace;font-size:12.5px;font-weight:600;color:var(--paper-light);background:var(--navy);text-decoration:none;padding:10px 16px;border-radius:4px;}
+  .story-btn:hover{background:var(--navy-deep);}
+  .city-label{background:none;border:none;}
+  .city-label.key span{font-weight:600;font-size:11.5px;color:#14213D;}
+  .city-label span{display:block;transform:translate(-50%,-50%);font-family:'IBM Plex Mono',monospace;font-size:10.5px;color:#4a2f55;white-space:nowrap;text-shadow:0 0 3px #fff,0 0 3px #fff,0 0 3px #fff;pointer-events:none;}
+
+  /* Lake overview sections */
+  .lake-wrap{max-width:1200px;margin:0 auto;padding:0 20px;}
+  .tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px;margin:4px 0 22px;}
+  .tile{background:var(--paper);color:var(--ink);border-radius:2px;padding:14px 14px 12px;border-top:4px solid var(--gold);display:flex;flex-direction:column;gap:4px;}
+  .tile .n{font-family:'IBM Plex Mono',monospace;font-size:26px;font-weight:600;line-height:1.1;font-variant-numeric:tabular-nums;}
+  .tile .l{font-size:13.5px;line-height:1.4;color:var(--ink-soft);}
+  .tile .s{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--ink-soft);margin-top:auto;padding-top:6px;}
+  .tile.good{border-top-color:#3F6B3B;}
+  .lake-sec{background:var(--paper);color:var(--ink);border-radius:2px;padding:22px 22px 18px;margin:26px 0 0;box-shadow:0 14px 30px -14px rgba(0,0,0,.55);}
+  .lake-sec h2{font-size:26px;margin:0 0 4px;line-height:1.2;text-wrap:balance;}
+  .lake-sec .kicker{font-family:'Special Elite',monospace;font-size:12px;letter-spacing:.18em;text-transform:uppercase;color:var(--gold);margin:0 0 6px;}
+  .lake-sec p{font-size:15.5px;line-height:1.6;color:var(--ink-soft);max-width:75ch;margin:0 0 12px;}
+  .lake-sec p b{color:var(--ink);}
+  .two{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:24px;align-items:start;}
+  @media(max-width:860px){.two{grid-template-columns:1fr;}}
+  .bars{display:flex;flex-direction:column;gap:9px;margin:8px 0 6px;}
+  .bar-row{display:grid;grid-template-columns:minmax(120px,190px) 1fr 64px;gap:10px;align-items:center;font-size:14px;}
+  .bar-track{height:18px;background:rgba(74,68,58,.12);border-radius:2px;overflow:hidden;}
+  .bar-fill{height:100%;background:#1F7A8C;border-radius:2px;}
+  .bar-fill.gold{background:var(--gold);} .bar-fill.green{background:#3F6B3B;} .bar-fill.red{background:var(--red);} .bar-fill.gray{background:#8a8170;}
+  .bar-val{font-family:'IBM Plex Mono',monospace;font-size:13px;font-weight:600;text-align:right;font-variant-numeric:tabular-nums;}
+  .lake-sec p.src-line,.src-line{font-family:'IBM Plex Mono',monospace;font-size:10.5px;line-height:1.5;color:var(--ink-soft);margin:4px 0 0;}
+  .callout{background:rgba(169,130,47,.1);border-left:3px solid var(--gold);padding:10px 12px;font-size:14.5px;line-height:1.55;margin:12px 0 0;}
+  .callout.good{background:rgba(63,107,59,.1);border-left-color:#3F6B3B;}
+  .callout.open{background:rgba(165,48,30,.07);border-left-color:var(--red);}
+  .mermaid-box{background:#fff;border:1px solid var(--rule);border-radius:2px;padding:12px;overflow-x:auto;margin:10px 0 4px;}
+  .mermaid-box pre.mermaid{margin:0;background:none;font-size:14px;}
+  .split-bar{display:flex;height:34px;border-radius:2px;overflow:hidden;font-family:'IBM Plex Mono',monospace;font-size:12px;color:#fff;margin:8px 0 4px;}
+  .split-bar span{display:flex;align-items:center;justify-content:center;white-space:nowrap;overflow:hidden;padding:0 6px;}
+  .unmapped{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px;margin-top:10px;}
+  .unmapped div{border:1px dashed var(--rule);border-radius:2px;padding:12px 14px;font-size:14px;line-height:1.5;}
+  .unmapped b{display:block;font-size:15px;margin-bottom:3px;}
+  .unmapped a{color:var(--red);}
+  .river-label{background:none;border:none;}
+  .river-label span{display:block;transform:translate(-50%,-50%);font-family:'Source Serif 4',Georgia,serif;font-style:italic;font-weight:600;font-size:13px;color:#1F5F70;white-space:nowrap;text-shadow:0 0 3px #fff,0 0 3px #fff,0 0 3px #fff;}
+
+  .who-table{width:100%;border-collapse:collapse;font-size:14.5px;margin:10px 0 4px;}
+  .who-table th,.who-table td{text-align:left;padding:10px 10px;border-bottom:1px solid var(--rule);vertical-align:top;}
+  .who-table th{font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-soft);font-weight:600;}
+  .who-table td:first-child{font-weight:700;min-width:140px;}
+  .who-wrap{overflow-x:auto;}
+  @media (max-width:700px){
+    .who-table thead{display:none;}
+    .who-table,.who-table tbody,.who-table tr,.who-table td{display:block;width:auto;}
+    .who-table tr{border-bottom:1px solid rgba(0,0,0,.18);padding:10px 0;}
+    .who-table td{padding:3px 0;border:0;}
+    .who-table td:nth-child(1){font-weight:700;font-size:1.08em;}
+    .who-table td:nth-child(2)::before{content:"Share of use: ";font-weight:700;}
+    .who-table td:nth-child(3)::before{content:"What is required: ";font-weight:700;}
+    .callout ul{margin-left:0 !important;padding-left:20px;}
+  }
+  .chip-req,.chip-vol,.chip-none,.chip-part{display:inline-block;font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:600;padding:3px 8px;border-radius:3px;white-space:nowrap;}
+  .chip-req{background:#3F6B3B;color:#fff;} .chip-vol{background:#A9822F;color:#fff;} .chip-none{background:#A5301E;color:#fff;} .chip-part{background:#fff;color:#1F1B16;border:1.5px solid #A9822F;}
+  .defs{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px;margin:6px 0 14px;}
+  .defs div{border:1px solid var(--rule);border-radius:2px;padding:10px 12px;font-size:14px;line-height:1.5;background:rgba(255,255,255,.4);}
+  .defs b{display:block;font-size:16px;margin-bottom:2px;}
+
+  /* Readability pass: larger type, one column, calmer diagrams */
+  .lake-sec{padding:28px 28px 24px;}
+  .lake-sec h2{font-size:30px;}
+  .lake-sec .kicker{font-size:13px;}
+  .lake-sec p{font-size:17.5px;line-height:1.65;color:var(--ink);}
+  .lake-sec .two{grid-template-columns:1fr;gap:26px;max-width:820px;}
+  .lake-sec .bars{gap:12px;}
+  .lake-sec .bar-row{grid-template-columns:minmax(150px,230px) 1fr 84px;font-size:16.5px;}
+  .lake-sec .bar-track{height:24px;}
+  .lake-sec .bar-val{font-size:15.5px;}
+  .lake-sec p.src-line,.lake-sec .src-line{font-size:12.5px;color:var(--ink-soft);}
+  .lake-sec .callout{font-size:16.5px;line-height:1.6;padding:14px 16px;max-width:820px;}
+  .lake-sec .split-bar{height:44px;font-size:14.5px;}
+  .lake-sec .mermaid-box{max-width:820px;padding:18px;}
+  .lake-sec .who-table{font-size:16px;}
+  .lake-sec .who-table th{font-size:12px;}
+  .lake-sec .defs div{font-size:16px;}
+  .lake-sec .defs b{font-size:18px;}
+  .lake-sec .unmapped div{font-size:16px;}
+  .tile .n{font-size:30px;} .tile .l{font-size:15.5px;} .tile .s{font-size:11.5px;}
+  .lake-sec .chart-title{font-size:18px;font-weight:700;margin:6px 0 8px;color:var(--ink);}
+
+  /* Simple HTML flow diagrams (no library, nothing clipped) */
+  .flow{display:flex;flex-direction:column;gap:10px;max-width:820px;margin:10px 0 6px;}
+  .flow-row{display:flex;align-items:stretch;gap:10px;flex-wrap:wrap;}
+  .fbox{border:2px solid var(--gold);background:#fff;border-radius:4px;padding:10px 14px;font-size:16.5px;line-height:1.4;color:var(--ink);}
+  .fbox b{display:block;font-size:20px;font-family:'IBM Plex Mono',monospace;}
+  .fbox.lake{background:#1F7A8C;border-color:#14213D;color:#fff;}
+  .fbox.good{background:#3F6B3B;border-color:#14213D;color:#fff;}
+  .fbox.muted{background:#ECE7DA;border-color:#8a8170;}
+  .farrow{font-size:22px;color:var(--ink-soft);text-align:center;line-height:1;}
+  .fgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px;}
+  .leaflet-tooltip{font-family:'IBM Plex Mono',monospace;font-size:11.5px;}
+
+  .notes{max-width:1200px;margin:26px auto 0;padding:0 20px;display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:18px;}
+  .note{border:1px solid rgba(217,201,163,.25);border-radius:2px;padding:16px 18px;font-size:14.5px;line-height:1.6;color:rgba(237,231,216,.78);}
+  .note h4{font-family:'Special Elite',monospace;font-weight:400;font-size:12.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--manila);margin:0 0 8px;}
+  .note p{margin:0 0 8px;}
+  .note strong{color:var(--paper-light);}
+
+  footer{max-width:1200px;margin:30px auto 0;padding:18px 20px 30px;border-top:1px solid rgba(217,201,163,.15);font-family:'IBM Plex Mono',monospace;font-size:11.5px;color:rgba(237,231,216,.45);line-height:1.6;}
+  .hb-foot{background:#0d0b0a;color:#b8956a;text-align:center;padding:26px 20px 30px;font-family:Georgia,serif;}
+  .hb-foot img{width:52px;height:52px;display:block;margin:0 auto 10px;}
+  .hb-foot .hb-name{font-size:14px;}
+  .hb-foot .hb-tag{font-size:10.5px;letter-spacing:.2em;text-transform:uppercase;color:#8a7650;margin-top:8px;display:block;}
+  @media(max-width:600px){.hb-bar img{width:38px;height:38px}.hb-name{font-size:13px}.masthead{padding-top:24px}}
+
+  .hb-line-top{display:block;font-family:Georgia,serif;color:#e8d9b5;font-size:13px;margin-top:4px}
+  .hb-line{max-width:720px;margin:14px auto 0;color:#e8d9b5;font-size:15.5px;line-height:1.5}
+  .hb-tips{margin:16px 0 4px;display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
+  .hb-small{font-size:12.5px;color:#8a7650;margin:6px 0 0}
+  .hb-btn{display:inline-block;border:2px solid #d4af37;background:#d4af37;color:#0d0b0a;font:700 15px Georgia,serif;padding:10px 18px;border-radius:6px;text-decoration:none}
+  .hb-btn2{background:transparent;color:#d4af37}
+  @media(max-width:600px){.hb-line-top{font-size:11.5px}}
+  .dates{font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--manila);margin:12px 0 0;}
+  .jump{max-width:1200px;margin:0 auto;padding:0 20px 16px;display:flex;flex-wrap:wrap;gap:8px;}
+  .jump a{font-family:'IBM Plex Mono',monospace;font-size:12.5px;color:var(--paper-light);border:1px solid rgba(217,201,163,.35);padding:6px 11px;border-radius:999px;text-decoration:none;}
+  .jump a:hover{border-color:var(--gold);color:var(--gold);}
+  .short{max-width:1200px;margin:0 auto 18px;padding:0 20px;}
+  .short div{background:var(--paper);color:var(--ink);border-left:6px solid var(--gold);padding:18px 22px;border-radius:2px;font-size:17.5px;line-height:1.6;}
+  .short b.k{font-family:'Special Elite',monospace;font-weight:400;letter-spacing:.16em;text-transform:uppercase;font-size:13px;color:var(--gold);display:block;margin-bottom:6px;}
+  .short ul{margin:6px 0 0;padding-left:20px;} .short li{margin-bottom:6px;}
+  .lkey{max-width:1200px;margin:0 auto;padding:0 20px 12px;display:flex;flex-wrap:wrap;gap:8px 16px;font-family:'IBM Plex Mono',monospace;font-size:12.5px;color:var(--paper-light);}
+  .lkey label{display:inline-flex;align-items:center;gap:7px;cursor:pointer;background:rgba(255,255,255,.05);border:1px solid rgba(217,201,163,.3);padding:6px 10px;border-radius:999px;}
+  .lkey .sw{width:18px;height:12px;border-radius:2px;display:inline-block;border:1.5px solid #fff;}
+  .lkey .st{font-size:11px;color:var(--manila);}
+  .dist{width:100%;border-collapse:collapse;font-size:16px;margin:10px 0 6px;}
+  .dist th,.dist td{text-align:left;padding:10px 8px;border-bottom:1px solid var(--rule);vertical-align:top;}
+  .dist th{font-family:'IBM Plex Mono',monospace;font-size:11.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-soft);}
+  .dist td.n{font-family:'IBM Plex Mono',monospace;font-weight:600;white-space:nowrap;font-variant-numeric:tabular-nums;}
+  .conf{display:inline-block;font-family:'IBM Plex Mono',monospace;font-size:10.5px;padding:2px 7px;border-radius:3px;margin-top:4px;}
+  .conf.hi{background:#3F6B3B;color:#fff;} .conf.mid{background:#fff;border:1.5px solid #A9822F;color:#1F1B16;} .conf.lo{background:#fff;border:1.5px dashed #A5301E;color:#A5301E;}
+  @media (max-width:700px){.dist thead{display:none}.dist,.dist tbody,.dist tr,.dist td{display:block}.dist tr{border-bottom:1px solid rgba(0,0,0,.2);padding:8px 0}.dist td{border:0;padding:3px 0}
+    .dist td[data-l]::before{content:attr(data-l) ": ";font-weight:700;font-family:'Source Serif 4',Georgia,serif;}}
+  .qa{max-width:820px;}
+  .qa details{border:1px solid var(--rule);border-radius:2px;margin:0 0 10px;background:rgba(255,255,255,.45);}
+  .qa summary{cursor:pointer;padding:14px 16px;font-size:18px;font-weight:700;line-height:1.35;list-style:none;}
+  .qa summary::-webkit-details-marker{display:none}
+  .qa summary::after{content:"+";float:right;font-family:'IBM Plex Mono',monospace;color:var(--gold);}
+  .qa details[open] summary::after{content:"\2212";}
+  .qa .a{padding:0 16px 14px;font-size:17px;line-height:1.6;color:var(--ink);}
+  .qa .a p{margin:0 0 10px;color:var(--ink);font-size:17px;}
+  .qa .a ul{margin:0 0 10px;padding-left:20px;} .qa .a li{margin-bottom:6px;}
+  .qa .rec{display:block;font-family:'IBM Plex Mono',monospace;font-size:11.5px;color:var(--ink-soft);margin-top:4px;}
+  .qa .open{background:rgba(165,48,30,.07);border-left:3px solid var(--red);padding:8px 12px;margin:8px 0 0;}
+  .photos{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:12px;margin:10px 0 4px;}
+  .photos figure{margin:0;background:#fff;border:1px solid var(--rule);border-radius:2px;overflow:hidden;}
+  .photos img{width:100%;height:240px;object-fit:cover;display:block;}
+  .photos figcaption{font-size:14px;line-height:1.45;padding:8px 10px;color:var(--ink);}
+  .askq{max-width:820px;margin:0;padding-left:20px;} .askq li{font-size:17px;line-height:1.55;margin-bottom:10px;}
+  .askq b{color:var(--ink);}
+  .srcs details{max-width:1200px;margin:26px auto 0;padding:0 20px;}
+  .srcs summary{cursor:pointer;font-family:'Special Elite',monospace;letter-spacing:.16em;text-transform:uppercase;color:var(--manila);font-size:14px;padding:10px 0;}
+  .srcs ol{color:rgba(237,231,216,.85);font-size:15px;line-height:1.6;padding-left:22px;}
+  .srcs a{color:var(--gold);}
+  .maploading{position:absolute;left:10px;bottom:10px;z-index:900;background:rgba(13,23,40,.85);color:#EDE7D8;font-family:'IBM Plex Mono',monospace;font-size:11.5px;padding:6px 10px;border-radius:3px;max-width:80%;}
+  .totop{position:fixed;right:16px;bottom:16px;z-index:1000;background:var(--gold);color:var(--navy-deep);font-family:'IBM Plex Mono',monospace;font-weight:600;font-size:13px;padding:9px 12px;border-radius:4px;text-decoration:none;box-shadow:0 4px 12px rgba(0,0,0,.4);}
+  .share{display:flex;gap:8px;flex-wrap:wrap;margin:14px 0 0;}
+  .share button,.share a{font-family:'IBM Plex Mono',monospace;font-size:12.5px;background:none;border:1px solid rgba(217,201,163,.4);color:var(--paper-light);padding:6px 11px;border-radius:4px;cursor:pointer;text-decoration:none;}
+</style>
+</head>
+<body>
+
+<div class="hb-bar"><a href="https://webercountyhive.substack.com/" target="_blank" rel="noopener"><img src="uhp-badge.png" alt="Utah Hive Politics logo" onerror="this.style.display='none'"><span><span class="hb-name">Utah Hive Politics</span><span class="hb-sub">from the publisher of The Weber County Hive</span><span class="hb-line-top">The people's publication. We investigate what's best for the public as a whole, not any party or special interest.</span></span></a></div>
+
+<header class="masthead" id="top">
+  <a class="back" href="index.html">&larr; All Utah Maps</a>
+  <p class="eyebrow">MAP 011 &middot; Plain City &amp; West Weber</p>
+  <h1>How Close to the Lake?</h1>
+  <p class="intro">The biggest planned developments in Plain City and West Weber, drawn next to the Great Salt Lake, the state wildlife areas, Willard Bay, and FEMA's flood zones. Pleasant Plains is drawn from the legal description in its own draft agreement. Other projects are pins, and each pin says how exact it is.</p>
+  <p class="dates">Posted Oct. 29, 2026 &middot; Updated Oct. 29, 2026</p>
+  <div class="share"><button type="button" id="copylink">Copy link</button><a id="fbshare" href="#" target="_blank" rel="noopener">Share on Facebook</a></div>
+</header>
+
+<nav class="jump" aria-label="Jump to a section">
+  <a href="#short">Short version</a><a href="#map">Map</a><a href="#how-close">How close</a><a href="#size">Size vs. Plain City</a><a href="#flood">Flood zones</a><a href="#questions">Your questions</a><a href="#photos">Photos</a><a href="#ask">Questions to ask</a><a href="#sources">Sources</a>
+</nav>
+
+<section class="short" id="short"><div>
+  <b class="k">The short version</b>
+  <ul>
+    <li><b>Pleasant Plains</b> covers about <b>1,559 acres</b>, about <b>one-fifth of all the land in Plain City</b>, and would allow up to <b>3,500 homes</b>. Plain City has about 2,733 homes today.</li>
+    <li>Plotted from its legal description, Pleasant Plains runs up against <b>Harold Crane State Wildlife Area</b> on its west side and <b>Willard Bay State Park</b> land on its north side.</li>
+    <li>About <b>40% of the Pleasant Plains land is in a FEMA flood zone</b> (Zone A). The draft agreement says a flood study <b>cannot lower the 3,500-home cap</b>. Buyers of homes left in Zone A with a federally backed mortgage <b>must carry flood insurance</b>, a separate policy that regular homeowners insurance does not replace.</li>
+    <li><b>Westbridge Meadows</b> (up to 13,199 homes, approved Sept. 2, 2025) borders <b>Ogden Bay Waterfowl Management Area</b>. The county planner told commissioners it could send more water toward the wildlife area. The county required a 200-foot open-space buffer along that line.</li>
+    <li>The five projects with known sizes add up to about <b>3,690 acres</b> and up to about <b>19,900 homes</b>, more than seven times the homes in Plain City today.</li>
+  </ul>
+</div></section>
+
+<div class="lkey" id="lkey" role="group" aria-label="Map layers">
+  <label><input type="checkbox" data-layer="pp" checked> <span class="sw" style="background:#A9822F"></span>Pleasant Plains boundary</label>
+  <label><input type="checkbox" data-layer="wild" checked> <span class="sw" style="background:#3F6B3B"></span>State &amp; federal wildlife land</label>
+  <label><input type="checkbox" data-layer="park" checked> <span class="sw" style="background:#2F5A8F"></span>Willard Bay State Park</label>
+  <label><input type="checkbox" data-layer="lake" checked> <span class="sw" style="background:#1F7A8C"></span>Great Salt Lake (state sovereign land)</label>
+  <label><input type="checkbox" data-layer="fema" checked> <span class="sw" style="background:#A5301E;opacity:.7"></span>FEMA flood zone (A / AE)</label>
+  <label><input type="checkbox" data-layer="gslflood"> <span class="sw" style="background:#6E4A78;opacity:.7"></span>Lake 100-year flood study <span class="st">(off)</span></label>
+</div>
+
+<div class="stage">
+  <div id="map" role="region" aria-label="Map of Plain City, West Weber and the Great Salt Lake"><div class="maploading" id="maploading">Loading state land and flood layers&hellip;</div></div>
+  <aside class="panel" id="panel" aria-live="polite"></aside>
+</div>
+
+<div class="lake-wrap">
+
+<section class="lake-sec" id="how-close" aria-labelledby="hc-h">
+  <p class="kicker">Distances</p>
+  <h2 id="hc-h">How close is each project?</h2>
+  <p>Straight-line miles from each project to the nearest edge of state wildlife land, Willard Bay State Park, and the state's Great Salt Lake land. A <b>0</b> means the lines touch. Land lines come from the state's land ownership map. Measured Oct. 29, 2026.</p>
+  <div class="who-wrap"><table class="dist">
+    <thead><tr><th>Project</th><th>Nearest wildlife land</th><th>Willard Bay State Park</th><th>Great Salt Lake land</th><th>How exact</th></tr></thead>
+    <tbody>
+      <tr><td>Pleasant Plains<br><span style="font-weight:400;font-size:14px">Plain City &middot; proposed</span></td><td class="n" data-l="Wildlife land">0 mi &middot; Harold Crane</td><td class="n" data-l="Willard Bay">0 mi</td><td class="n" data-l="Lake land">2.6 mi</td><td data-l="How exact"><span class="conf hi">Boundary from legal description</span></td></tr>
+      <tr><td>Westbridge Meadows<br><span style="font-weight:400;font-size:14px">West Weber &middot; approved Sept. 2, 2025</span></td><td class="n" data-l="Wildlife land">borders Ogden Bay</td><td class="n" data-l="Willard Bay">6.7 mi</td><td class="n" data-l="Lake land">0.8 mi</td><td data-l="How exact"><span class="conf mid">Pin at 7500 W / 1400 S; border from county record</span></td></tr>
+      <tr><td>Longhorn Estates (Longhorn IFD)<br><span style="font-weight:400;font-size:14px">West Weber &middot; approved</span></td><td class="n" data-l="Wildlife land">1.1 mi &middot; Ogden Bay</td><td class="n" data-l="Willard Bay">6.0 mi</td><td class="n" data-l="Lake land">1.6 mi</td><td data-l="How exact"><span class="conf mid">Pin at 7100 W / 900 S</span></td></tr>
+      <tr><td>Bennet (formerly Gibson Farms)<br><span style="font-weight:400;font-size:14px">West Weber &middot; proposed</span></td><td class="n" data-l="Wildlife land">0.9 mi &middot; Ogden Bay</td><td class="n" data-l="Willard Bay">6.7 mi</td><td class="n" data-l="Lake land">2.6 mi</td><td data-l="How exact"><span class="conf lo">General area only</span></td></tr>
+      <tr><td>Sage Creek (Lync)<br><span style="font-weight:400;font-size:14px">Plain City area</span></td><td class="n" data-l="Wildlife land">2.1 mi &middot; Harold Crane</td><td class="n" data-l="Willard Bay">0.9 mi</td><td class="n" data-l="Lake land">4.2 mi</td><td data-l="How exact"><span class="conf mid">Pin at 4300 W / 3600 N</span></td></tr>
+      <tr><td>Herrick (Bitton) Estates<br><span style="font-weight:400;font-size:14px">West-Central Weber</span></td><td class="n" data-l="Wildlife land">3.3 mi &middot; Ogden Bay</td><td class="n" data-l="Willard Bay">7.0 mi</td><td class="n" data-l="Lake land">5.7 mi</td><td data-l="How exact"><span class="conf lo">General area only</span></td></tr>
+    </tbody>
+  </table></div>
+  <p class="src-line">Land lines: Utah statewide land ownership map (Trust Lands Administration / UGRC). Pleasant Plains: Exhibit A of the Oct. 2, 2026 draft agreement, plotted from the section corners in Utah's PLSS map; the plotted line is accurate to within a few hundred feet. Westbridge border: Weber County staff report and Aug. 28, 2025 memo. Pins: street grid addresses from county and district records, placed by the Weber County address grid.</p>
+  <p class="callout open"><b>"0 miles" means the lines touch on our map.</b> Our plotted Pleasant Plains line can be off by a few hundred feet, so read it as "next to," not "overlapping." The county parcel map is the place to confirm the exact shared line.</p>
+</section>
+
+<section class="lake-sec" id="size" aria-labelledby="sz-h">
+  <p class="kicker">Size</p>
+  <h2 id="sz-h">How big are they compared with Plain City?</h2>
+  <div class="two">
+    <div>
+      <p class="chart-title">Acres</p>
+      <div class="bars" id="bars-acres"></div>
+      <p class="src-line">Plain City: 11.99 square miles of land (U.S. Census Bureau, 2020) = 7,674 acres. Inland Port West Weber area: about 9,000 acres, per county minutes. Pleasant Plains: 1,558.8 acres in the draft agreement's legal description (the city's hearing notice says about 1,536). Westbridge: 1,415 acres. Bennet: about 550 acres. Longhorn: 134.7 acres (Longhorn IFD petition). Herrick: about 32.6 acres.</p>
+    </div>
+    <div>
+      <p class="chart-title">Homes</p>
+      <div class="bars" id="bars-homes"></div>
+      <p class="src-line">Plain City today: 2,733 housing units (Census Bureau American Community Survey, 2023). Others: the most each project's agreement or approval allows. Bennet's figure is from planning commission records; its final count is not set.</p>
+    </div>
+  </div>
+  <p class="callout"><b>Pleasant Plains alone</b> is about <b>20%</b> of Plain City's land and would add <b>more homes than the whole city has now</b>. Plain City's own 2018 General Plan projected about 750 acres of new residential land citywide by 2040. Pleasant Plains is about twice that.</p>
+</section>
+
+<section class="lake-sec" id="flood" aria-labelledby="fl-h">
+  <p class="kicker">Flooding</p>
+  <h2 id="fl-h">What the flood maps show</h2>
+  <p><b>FEMA:</b> About <b>40%</b> of the Pleasant Plains land falls in FEMA <b>Zone A</b>, a Special Flood Hazard Area with a 1% chance of flooding in any year. FEMA has not set a flood elevation for it. The rest is mapped Zone X, "area of minimal flood hazard." Homes with federally backed mortgages in Zone A generally must carry flood insurance.</p>
+  <p><b>The lake's own flood study:</b> The state's Great Salt Lake 100-year flood layer, from the Flood Plain Management Services study, labels about <b>95%</b> of the Pleasant Plains land a <b>"transition zone."</b> Turn that layer on above the map to see it.</p>
+  <p><b>The 1980s:</b> The Great Salt Lake reached its record high, <b>4,211.85 feet</b>, in the mid-1980s. The state pumped lake water into the West Desert starting in 1987 "to alleviate flooding." Federal maps list Dix Creek, near the north edge of Pleasant Plains, at an elevation of about <b>4,212 feet</b>.</p>
+  <p><b>Flood insurance:</b> Regular homeowners insurance does not cover flooding. Flood insurance is a separate policy, through the federal flood program (NFIP) or a private insurer. For a building in Zone A, lenders on federally backed or federally regulated mortgages (FHA, VA, Fannie Mae, Freddie Mac, and most banks) <b>must require it</b> for the life of the loan. In Zone X it is optional.</p>
+  <p><b>Raising the ground to change the map:</b> The agreement's flood study must identify "any map revisions required for development" (Sec. 5.07(g)). A common way to build in a flood zone is to bring in fill dirt, raise lots above the flood level, and ask FEMA for a <b>Letter of Map Revision based on Fill (LOMR-F)</b>. Lots FEMA removes from the zone no longer trigger the insurance requirement. Federal rules also require any Zone A subdivision over 50 lots or 5 acres to produce base flood elevation data (44 CFR 60.3(b)(3)). FEMA has not published a flood elevation for this land.</p>
+  <p><b>Where the water goes:</b> Fill moves water that used to sit on the land. The agreement requires a storm drainage study for the project and "downstream drainage" (Sec. 5.07(c)). It has <b>no section on neighboring properties</b>.</p>
+  <p><b>Same number of homes, packed tighter:</b> The total can't go above 3,500 (Sec. 5.08). But a phase "may exceed its share" of homes and is "deemed approved" if services are available (Sec. 4.04), and up to 45% of the homes can be townhomes or stacked flats. That lets the homes be grouped onto the land outside the flood zone.</p>
+  <p class="callout open"><b>What the draft agreement does with flood findings:</b> It requires a flood hazard study before the first plat, but says that study <b>does not need the City Engineer's approval</b> because it "has already commenced," and that the flood and wetland studies <b>do not trigger the rule that lowers the 3,500-home cap</b> (Sections 5.03, 5.07(g), 5.08).</p>
+  <p class="src-line">FEMA National Flood Hazard Layer (panels 49003C and 49057C), read Oct. 29, 2026. Great Salt Lake Flooding layer (UGRC). Insurance rule: Flood Disaster Protection Act of 1973 and FEMA NFIP guidance. Fill and map revisions: FEMA Letter of Map Revision based on Fill; 44 CFR 60.3. Record lake level: Utah Geological Survey, "The Great Salt Lake" (PI-8). Dix Creek: USGS Geographic Names (GNIS 1440478). Percentages are from a fine grid of points inside the plotted boundary and are approximate.</p>
+</section>
+
+<section class="lake-sec" id="questions" aria-labelledby="q-h">
+  <p class="kicker">Pleasant Plains</p>
+  <h2 id="q-h">Your questions, answered from the record</h2>
+  <p>From the Oct. 2, 2026 draft master development agreement unless noted. Tap a question to open it.</p>
+  <div class="qa">
+    <details><summary>Why is there commercial land way out here?</summary><div class="a">
+      <p>The draft allows up to <b>300 acres</b> of commercial use, "including, without limitation, retail, office, industrial, hospitality, and entertainment," with at least 25 acres kept commercial.</p>
+      <p>The commercial and mixed-use areas must sit next to a planned regional highway, the <b>West Weber Corridor</b> extension. UDOT has not set its route, and the extension is not funded. The developer may move the commercial area's boundaries "without any separate Modification Application or other City approval."</p>
+      <span class="rec">Draft Sec. 4.05, 4.06, 4.07. UDOT, via Standard-Examiner, Apr. 21, 2026.</span>
+      <p class="open">Commissioner Gary Westergard's review asked the city to tie commercial and high-density areas to the highway actually being built.</p>
+    </div></details>
+    <details><summary>Could the city approve homes only, with no commercial?</summary><div class="a">
+      <p>The developer served a letter under Utah Code 10-20-905 requiring the City Council to <b>approve or deny</b> the agreement by <b>Nov. 23, 2026</b>. The council cannot rewrite it alone. Changes such as dropping the commercial area would need the developer to agree to a new version. Rezoning decisions are legislative, and Utah courts uphold them if it is "reasonably debatable" that they serve the public. The state's Property Rights Ombudsman lists development agreements as "maybe" in that category.</p>
+      <span class="rec">Developer's Oct. 7, 2026 letter. Utah Property Rights Ombudsman training materials on legislative decisions.</span>
+    </div></details>
+    <details><summary>Why apartments and townhomes?</summary><div class="a">
+      <p>The draft allows up to <b>1,000 stacked flats</b> and <b>1,000 townhomes</b>, together no more than 45% of all homes. Stacked flats can be 50 feet tall. It sets <b>no minimum lot size</b> for stacked flats. Plain City's 2018 General Plan calls for lots of 30,000 square feet or more in its rural and low-density areas.</p>
+      <span class="rec">Draft Sec. 4.04, 4.10. Plain City General Plan 2018.</span>
+    </div></details>
+    <details><summary>How many parks?</summary><div class="a">
+      <p><b>Two public parks</b>, a combined average of 20 acres, plus <b>5 acres</b> of land for a city recreation center, plus a 10-foot trail along Dixie Creek. The first park comes by the <b>500th</b> home, the second by the <b>1,750th</b>. The developer maintains each park for one year, then the city takes over.</p>
+      <span class="rec">Draft Sec. 5.02.</span>
+      <p class="open">Westergard's review called the park land "only 3%" of the project and said the first park should come sooner.</p>
+    </div></details>
+    <details><summary>Where does the secondary (irrigation) water come from? How many water shares do they have?</summary><div class="a">
+      <p>The draft does not say yet. A secondary water plan naming the source, the rights or shares, and who will run the system is due <b>before the first preliminary plat</b>. The city <b>will not require any water rights to be given to the city</b>, except enough to water parks it takes over. A provider's "will-serve" letter is the only water check after the first study.</p>
+      <p>Cole West told the Bona Vista Water Improvement District board on Aug. 31, 2026 that it has <b>"more than 3,000 acre-feet of water rights available for consideration."</b> The minutes do not say what kind. The board took no vote and asked for a written proposal.</p>
+      <p>State water right <b>35-5590</b>, held by Kenneth L. and Linda W. Jackson, is for up to <b>500 acre-feet</b> a year for irrigation and stock watering from Dixie Creek, First Salt Creek and a hot spring source. All 10 of its listed diversion points are on the Pleasant Plains land.</p>
+      <span class="rec">Draft Sec. 5.01(a). Bona Vista minutes, Aug. 31, 2026. Utah Division of Water Rights, points of diversion, read Oct. 29, 2026.</span>
+      <p class="open">Not in the record yet: whether these are the same Jacksons who own the land, whether right 35-5590 goes with the land to the developer, and how it fits the 3,000 acre-feet claim.</p>
+    </div></details>
+    <details><summary>Can they use the water from Dixie (Dix) Creek?</summary><div class="a">
+      <p>Only someone holding a state water right on the creek can take its water. The state lists two rights with Dixie Creek as a source in this area: 35-5590 (above) and a small one, 35-5038, for 5.44 acre-feet of irrigation. The draft agreement treats the creek only as a <b>trail corridor</b> and does not mention its water.</p>
+      <span class="rec">Utah Division of Water Rights. Draft Sec. 5.02. The federal name is Dix Creek; the agreement calls it Dixie Creek.</span>
+    </div></details>
+    <details><summary>What about the Little Mountain Rail Trail?</summary><div class="a">
+      <p>The rail trail is <b>not part of the property</b>. The land's legal description runs along both sides of the trail's right-of-way. The developer must connect the Dixie Creek trail to the county's rail trail and get <b>Weber County's written OK</b> before recording the first plat next to it.</p>
+      <span class="rec">Draft Exhibit A; Sec. 5.02.</span>
+    </div></details>
+    <details><summary>Sewer: who brings it in, and when?</summary><div class="a">
+      <p>The developer builds the sewer lines inside the project and turns them over to the city. Within 60 days of the first preliminary plat, it must give the city <b>17.5 acres</b> for a <b>new sewer treatment plant</b>. A sewer capacity study is due before the first plat.</p>
+      <span class="rec">Draft Sec. 5.01(b), 5.07(b).</span>
+      <p class="open">Westergard's review says the proposed plant site does not touch the city's existing plant, with two other owners in between, and asks who pays to expand it. The Maws say they were told about 12 years ago they would get sewer if they annexed into the city. We have not yet found that in posted city records.</p>
+    </div></details>
+    <details><summary>Could this hurt nearby wells?</summary><div class="a">
+      <p>The draft has <b>no section on neighbors' wells</b>. Its studies cover traffic, sewer, storm drainage, water supply, soils, money and flooding. Culinary water would come from a water district, not new private wells, but the record does not say where that district would draw it from.</p>
+      <p>The state lists <b>10 underground (well) water rights</b> with diversion points on the Pleasant Plains land itself.</p>
+      <span class="rec">Draft Sec. 5.01, 5.07. Utah Division of Water Rights, points of diversion.</span>
+      <p class="open">Whether building here would change groundwater for nearby wells is not answered anywhere in the record. Residents can ask the city to require it in the water study.</p>
+    </div></details>
+  </div>
+</section>
+
+<section class="lake-sec" id="photos" aria-labelledby="ph-h">
+  <p class="kicker">On the ground</p>
+  <h2 id="ph-h">What's being built next door</h2>
+  <p>Photos taken Oct. 28, 2026 at construction in the Plain City area near Pleasant Plains.</p>
+  <div class="photos">
+    <figure><img src="images/2026-10-28-plain-city-site-road.jpg" alt="New paved road with curb and gutter, utility boxes, and a No Trespassing sign at the entrance" loading="lazy"><figcaption>New road with curb and gutter, utility boxes, and a "No Trespassing / Private Property" barricade.</figcaption></figure>
+    <figure><img src="images/2026-10-28-plain-city-site-basin-survey-marker.jpg" alt="Survey marker post on a fence line beside a large excavated basin with standing water" loading="lazy"><figcaption>A survey marker on the fence line beside a large excavated basin with standing water.</figcaption></figure>
+    <figure><img src="images/2026-10-28-plain-city-site-basin-building.jpg" alt="Excavated basin with standing water, a new wood-framed building and two excavators" loading="lazy"><figcaption>The basin, a new wood-framed building on a concrete foundation, and two excavators.</figcaption></figure>
+    <figure><img src="images/2026-10-28-plain-city-site-cattails-excavators.jpg" alt="Cattails and tall reeds along an old fence line next to construction equipment" loading="lazy"><figcaption>Cattails and reeds along the old fence line, next to the equipment.</figcaption></figure>
+  </div>
+</section>
+
+<section class="lake-sec" id="ask" aria-labelledby="ask-h">
+  <p class="kicker">Questions to ask and to whom</p>
+  <h2 id="ask-h">Bring these to the Nov. 12 hearing</h2>
+  <p>Plain City Hall, 4160 W. 2200 North, Thursday, Nov. 12, 2026, 7 p.m. The council must decide by Nov. 23.</p>
+  <ol class="askq">
+    <li><b>To the City Council:</b> About 40% of this land is in a FEMA flood zone. Why does the agreement say the flood study can't lower the number of homes?</li>
+    <li><b>To the City Engineer:</b> Who started the flood study that the agreement says "has already commenced," and when will the public see it?</li>
+    <li><b>To the City Engineer:</b> Will the developer bring in fill and ask FEMA to take lots out of the flood zone? How many lots?</li>
+    <li><b>To the City Engineer:</b> Will the drainage study show where the water goes on neighboring land once the ground is raised?</li>
+    <li><b>To the City Council:</b> Will buyers be told in writing, before closing, which lots are in Zone A and that flood insurance will be required?</li>
+    <li><b>To the City Council:</b> The land borders Harold Crane State Wildlife Area and Willard Bay State Park land. Has the Division of Wildlife Resources commented, and will the city require a buffer like the 200 feet the county required at Westbridge?</li>
+    <li><b>To the Bona Vista Water Improvement District:</b> What kind of water rights make up the 3,000 acre-feet Cole West described, and has the written proposal come in?</li>
+    <li><b>To the City Council:</b> Will the water study include effects on neighbors' private wells?</li>
+    <li><b>To the City Council:</b> Who pays to build the new sewer plant on the 17.5 acres, and will existing residents who were promised sewer be connected?</li>
+    <li><b>To the City Council:</b> Why allow 300 acres of commercial use tied to a highway that has no route and no funding?</li>
+  </ol>
+</section>
+
+</div>
+
+<section class="notes">
+  <div class="note"><h4>What's on this map</h4><p>Large residential projects in Plain City and West Weber that the Hive has documented, the state and federal land around the lake, and flood zones. Pleasant Plains is the only project drawn as a boundary; the rest are pins.</p></div>
+  <div class="note"><h4>How it's made</h4><p>The land, lake and flood layers load live from the state's and FEMA's public map services, so they match those agencies' current maps. If a layer doesn't load, the note on the map says so.</p></div>
+  <div class="note"><h4>More on these projects</h4><p>The <a href="https://weber-county-hive.github.io/developments/pleasant-plains.html" target="_blank" rel="noopener">Pleasant Plains case file</a>, the <a href="https://weber-county-hive.github.io/developments/" target="_blank" rel="noopener">Developments map</a>, and <a href="great-salt-lake-pressures.html">MAP 004</a> for the lake as a whole.</p></div>
+</section>
+
+<section class="srcs" id="sources"><details>
+  <summary>Sources (tap to open)</summary>
+  <ol>
+    <li>Pleasant Plains Master Development Agreement, redline draft dated Oct. 2, 2026, Exhibit A (legal description) and Sections 4.04&ndash;4.10, 5.01&ndash;5.08. Copy provided to the Hive.</li>
+    <li>Gary Westergard, review of the Pleasant Plains draft agreement, sent Oct. 26, 2026.</li>
+    <li><a href="https://www.plaincityutah.gov/feed/3025" target="_blank" rel="noopener">Plain City public hearing notice, Pleasant Plains</a>.</li>
+    <li><a href="https://www.utah.gov/pmn/files/1495551.pdf" target="_blank" rel="noopener">Bona Vista Water Improvement District board minutes, Aug. 31, 2026</a>; <a href="https://www.utah.gov/pmn/files/1480653.pdf" target="_blank" rel="noopener">July 27, 2026 minutes (Sage Creek license agreement)</a>.</li>
+    <li><a href="https://gis.trustlands.utah.gov/mapping/rest/services/Land_Ownership/MapServer/0" target="_blank" rel="noopener">Utah statewide land ownership map service</a>.</li>
+    <li><a href="https://hazards.fema.gov/arcgis/rest/services/public/NFHL/MapServer" target="_blank" rel="noopener">FEMA National Flood Hazard Layer</a>.</li>
+    <li><a href="https://services1.arcgis.com/99lidPhWCzftIe9K/ArcGIS/rest/services/GSLFlooding/FeatureServer/0" target="_blank" rel="noopener">UGRC Great Salt Lake Flooding layer (Flood Plain Management Services Study, 100-year flood)</a>.</li>
+    <li><a href="https://services1.arcgis.com/99lidPhWCzftIe9K/ArcGIS/rest/services/PLSSSections_GCDB/FeatureServer/0" target="_blank" rel="noopener">UGRC PLSS sections (section corners used to plot Exhibit A)</a>.</li>
+    <li><a href="https://services.arcgis.com/ZzrwjTRez6FJiOq4/ArcGIS/rest/services/Utah_Points_of_Diversion/FeatureServer/0" target="_blank" rel="noopener">Utah Division of Water Rights, points of diversion</a>; <a href="https://www.waterrights.utah.gov/search/" target="_blank" rel="noopener">water right search</a> (35-5590, 35-5038).</li>
+    <li><a href="https://www.census.gov/quickfacts/fact/table/plaincitycityutah/PST045223" target="_blank" rel="noopener">U.S. Census Bureau QuickFacts, Plain City city, Utah</a>; American Community Survey 2023 housing units.</li>
+    <li><a href="https://ugspub.nr.utah.gov/publications/public_information/pi-8.pdf" target="_blank" rel="noopener">Utah Geological Survey, "The Great Salt Lake" (PI-8)</a>.</li>
+    <li><a href="https://geo.mytopo.com/feature/utah/weber/stream/1440478/dix-creek/" target="_blank" rel="noopener">Dix Creek, USGS Geographic Names (GNIS 1440478)</a>.</li>
+    <li>Westbridge Meadows (ZMA2024-01): Weber County staff report and Aug. 28, 2025 memo; <a href="https://www.ksl.com/article/51373676/developers-envision-large-daybreak-like-planned-community-for-west-weber-county" target="_blank" rel="noopener">KSL</a>; <a href="https://www.deseret.com/utah/2025/09/14/developers-envision-new-western-weber-county-locale-housing-as-many-as-38000" target="_blank" rel="noopener">Deseret News, Sept. 14, 2025</a>.</li>
+    <li><a href="https://www.govinfo.gov/content/pkg/CFR-2018-title44-vol1/pdf/CFR-2018-title44-vol1-sec60-3.pdf" target="_blank" rel="noopener">44 CFR 60.3, federal floodplain management rules</a>; <a href="https://fema.gov/flood-maps/tutorials/letter-map-amendment" target="_blank" rel="noopener">FEMA, Letters of Map Amendment and Revision</a>.</li>
+    <li>Longhorn Infrastructure Financing District certificate of creation, petition and development agreement (2024&ndash;2025).</li>
+    <li>Sage Creek: Weber County letter agreement with Lync Development on 3600 North; Dominion Energy service letter, May 15, 2025.</li>
+    <li><a href="https://www.standard.net/news/2026/apr/21/road-roundup-udot-offers-updates-on-sr-177-extension-other-ongoing-projects-in-weber-and-davis-counties/" target="_blank" rel="noopener">Standard-Examiner, SR-177 extension update, Apr. 21, 2026</a>.</li>
+  </ol>
+</details></section>
+
+<footer>
+  Compiled by Utah Hive Politics, from the publisher of The Weber County Hive. Posted Oct. 29, 2026; updated Oct. 29, 2026.<br>
+  Map tiles &copy; OpenStreetMap contributors. Land: Utah Trust Lands Administration / UGRC. Flood zones: FEMA. State, county, and city outlines: U.S. Census Bureau.
+</footer>
+<div class="hb-foot"><img src="hive-bee.png" alt="" onerror="this.style.display='none'"><span class="hb-name">Utah Hive Politics</span><span class="hb-sub">from the publisher of The Weber County Hive</span><span class="hb-tag">Independent · Accountability · Journalism</span><p class="hb-line">The Weber County Hive and Utah Hive Politics: the people's publication. We investigate what's best for the public as a whole, not for any party or special interest group.</p><p class="hb-tips"><a class="hb-btn" href="https://weber-county-hive.github.io/-weber-county-hive-index/tips.html#send">Send a tip</a><a class="hb-btn hb-btn2" href="https://weber-county-hive.github.io/-weber-county-hive-index/tips.html">Tips we checked</a><a class="hb-btn hb-btn2" href="https://weber-county-hive.github.io/-weber-county-hive-index/tips.html#send">See a mistake? Tell us</a></p><p class="hb-small">We never name tipsters. When we correct a page, the fix and its date are shown on the page.</p><p class="hb-small"><a href="https://webercountyhive.substack.com/" style="color:#d4af37">webercountyhive.substack.com</a></p></div>
+<a class="totop" href="#top">&uarr; Top</a>
+
+<script>
+const esc0 = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+// Size bars (one hue; Plain City in gray as the reference)
+function bars(id, rows, unit){
+  const max = Math.max(...rows.map(r => r[1]));
+  document.getElementById(id).innerHTML = rows.map(r => `<div class="bar-row" title="${esc0(r[0])}: ${r[1].toLocaleString()} ${unit}"><span>${esc0(r[0])}</span><span class="bar-track"><span class="bar-fill ${r[2]||'gold'}" style="width:${(100*r[1]/max).toFixed(1)}%;display:block"></span></span><span class="bar-val">${r[1].toLocaleString()}</span></div>`).join('');
+}
+bars('bars-acres', [["Plain City (all land)",7674,'gray'],["Inland Port, West Weber area (about)",9000,'gray'],["Pleasant Plains",1559],["Westbridge Meadows",1415],["Bennet (about)",550],["Longhorn",135],["Herrick (about)",33]], 'acres');
+bars('bars-homes', [["Plain City today",2733,'gray'],["Westbridge Meadows (up to)",13199],["Pleasant Plains (up to)",3500],["Bennet (about)",3000],["Longhorn (up to)",116],["Herrick",93]], 'homes');
+
+// Copy link / share
+document.getElementById('copylink').onclick = async e => { try { await navigator.clipboard.writeText(location.href.split('#')[0]); e.target.textContent = 'Link copied'; } catch (err) { e.target.textContent = 'Copy failed'; } };
+document.getElementById('fbshare').href = 'https://www.facebook.com/sharer/sharer.php?u=' + encodeURIComponent(location.href.split('#')[0]);
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<script src="utah-geo.js"></script>
+<script>
+const PP = {"north":[[-112.083235,41.321567],[-112.083284,41.319744],[-112.078124,41.319677],[-112.073708,41.319613],[-112.073717,41.319017],[-112.074816,41.317823],[-112.083408,41.315157],[-112.083409,41.315132],[-112.086075,41.314399],[-112.10274,41.314377],[-112.102593,41.321713],[-112.112267,41.321794],[-112.112401,41.317994],[-112.107532,41.317981],[-112.107571,41.314375],[-112.118716,41.314328],[-112.118533,41.314545],[-112.118311,41.315194],[-112.118415,41.315333],[-112.118365,41.315406],[-112.118363,41.315527],[-112.122606,41.315527],[-112.12262,41.313924],[-112.129482,41.311476],[-112.129444,41.311575],[-112.129476,41.312869],[-112.129288,41.313325],[-112.128945,41.313708],[-112.128392,41.313794],[-112.128038,41.314014],[-112.127299,41.314301],[-112.127307,41.314668],[-112.127434,41.315119],[-112.127265,41.315433],[-112.126686,41.316148],[-112.12579,41.316119],[-112.125401,41.316445],[-112.125158,41.316817],[-112.125269,41.31704],[-112.125806,41.31741],[-112.126361,41.317737],[-112.126632,41.318204],[-112.126552,41.318938],[-112.126206,41.319634],[-112.125892,41.319932],[-112.125414,41.320683],[-112.125445,41.321129],[-112.12592,41.321688],[-112.12588,41.322175],[-112.125999,41.32278],[-112.125722,41.323739],[-112.12518,41.324816],[-112.123901,41.325513],[-112.123811,41.326156],[-112.123534,41.32652],[-112.123456,41.327432],[-112.123141,41.327995],[-112.123113,41.32911],[-112.123284,41.329669],[-112.123525,41.330006],[-112.124086,41.33047],[-112.12472,41.331645],[-112.124794,41.33254],[-112.122446,41.33254],[-112.117602,41.33231],[-112.111923,41.331911],[-112.111739,41.331968],[-112.111165,41.331977],[-112.108884,41.332189],[-112.10737,41.332277],[-112.106511,41.332506],[-112.105373,41.332884],[-112.104974,41.332775],[-112.104688,41.33221],[-112.104369,41.33205],[-112.104035,41.332019],[-112.103584,41.332379],[-112.103285,41.332794],[-112.102797,41.333079],[-112.101711,41.333082],[-112.100939,41.333375],[-112.100341,41.334117],[-112.099544,41.334429],[-112.099242,41.334636],[-112.099053,41.33489],[-112.099032,41.335762],[-112.098806,41.336182],[-112.092631,41.336148],[-112.09279,41.328914],[-112.092945,41.321717],[-112.083235,41.321567]],"southwest":[[-112.122342,41.308056],[-112.128042,41.308084],[-112.127983,41.308216],[-112.128197,41.308688],[-112.128224,41.308991],[-112.128599,41.309406],[-112.128704,41.309976],[-112.128699,41.310459],[-112.128995,41.310894],[-112.122298,41.313283],[-112.122342,41.308056]],"southeast":[[-112.083325,41.314342],[-112.08436,41.314341],[-112.083316,41.314639],[-112.083325,41.314342]]};
+const HIVE = "https://weber-county-hive.github.io/";
+const PINS = [
+  { id:"pp", title:"Pleasant Plains", place:"Plain City · proposed", lat:41.3230, lng:-112.1080, color:"#A9822F", letter:"P",
+    exact:"Boundary plotted from the draft agreement's legal description.",
+    facts:["About 1,558.8 acres (legal description); about 20% of Plain City's land.","Up to 3,500 homes and up to 300 acres of commercial use.","Runs up against Harold Crane State Wildlife Area (west) and Willard Bay State Park land (north).","About 40% in FEMA Zone A flood zone.","Hearing Nov. 12, 2026, 7 p.m.; council decides by Nov. 23.","Land owner: Pleasant Plains Ranch Inc owns 10 county parcels totaling 1,530.74 acres (Weber County parcel records, checked Oct. 29, 2026). Who is behind the company is not yet confirmed."],
+    link:{t:"Pleasant Plains case file", u:HIVE+"developments/pleasant-plains.html"} },
+  { id:"westbridge", title:"Westbridge Meadows", place:"West Weber (unincorporated) · approved 2025", lat:41.2350, lng:-112.1622, color:"#A5301E", letter:"W",
+    exact:"Pin at about 7500 West / 1400 South, from the county file. Not a boundary.",
+    facts:["About 1,415 acres; up to 13,199 homes (about 38,500 people) and up to 1.2 million sq ft of commercial space over 30 to 50 years.","Applicants: Flagship Homes (Lehi) and Fenix Development; listed applicants Jeff Meads and Kameron Spencer. The development agreement is signed by Westbridge Development, LLC. Utah business records show it was formed Feb. 20, 2025, with David Askew as manager and YH Corporate Services, LLC (South Jordan) as registered agent. Who owns the land inside the project boundary is not yet confirmed.","Borders Ogden Bay Waterfowl Management Area. County planner Charlie Ewert told commissioners the project could increase water flow to the wildlife area. The county required a 200-foot open-space corridor and no-climb fence along that line.","Weber County Commission approved the rezone and development agreement Sept. 2, 2025. Commissioner Gage Froerer said the developers were involved in creating Vineyard."],
+    link:{t:"Developments map", u:HIVE+"developments/"} },
+  { id:"longhorn", title:"Longhorn Estates (Longhorn IFD)", place:"West Weber (unincorporated)", lat:41.2437, lng:-112.1523, color:"#6E4A78", letter:"L",
+    exact:"Pin at about 7100 West / 900 South, from the IFD record. Not a boundary.",
+    facts:["134.69 acres in the Longhorn Infrastructure Financing District.","Up to 116 single-family lots under the 2024 county agreement.","About 1.1 miles from Ogden Bay state wildlife land.","County parcel records list BCP Development Inc and Lync Construction LLC as owners of about 330 acres in this area (checked Oct. 29, 2026)."],
+    link:{t:"Developments map", u:HIVE+"developments/"} },
+  { id:"bennet", title:"Bennet (formerly Gibson Farms)", place:"West Weber (unincorporated) · proposed", lat:41.2330, lng:-112.1150, color:"#6E4A78", letter:"B",
+    exact:"General area only, from the Developments map.",
+    facts:["About 550 acres.","About 3,000 homes discussed in planning commission records; final number not set."],
+    link:{t:"Developments map", u:HIVE+"developments/"} },
+  { id:"sage", title:"Sage Creek Subdivision (Lync)", place:"Plain City area", lat:41.3225, lng:-112.0830, color:"#2F5A8F", letter:"S",
+    exact:"Pin at about 4300 West / 3600 North, from the gas service letter. Not a boundary.",
+    facts:["30 lots discussed at Plain City Council, Oct. 16, 2025.","Sage Creek Infrastructure Financing District; Bona Vista approved a license agreement with it July 27, 2026.","About 0.9 miles from Willard Bay State Park land.","Nearby: Red Lync LLC was deeded a 159.88-acre parcel (190080015) just northeast of Pleasant Plains on Oct. 31, 2024 (entry #3345965). Whether that parcel is the Sage Creek site is not confirmed."],
+    link:{t:"Developments map", u:HIVE+"developments/"} },
+  { id:"herrick", title:"Herrick (Bitton) Estates", place:"West-Central Weber (unincorporated)", lat:41.2370, lng:-112.0530, color:"#6E4A78", letter:"H",
+    exact:"General area only, from the Developments map.",
+    facts:["About 32.6 acres; 93 lots.","About 3.3 miles from Ogden Bay state wildlife land."],
+    link:{t:"Developments map", u:HIVE+"developments/"} }
+];
+
+const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const panel = document.getElementById('panel');
+const map = L.map('map', { scrollWheelZoom:false, zoomSnap:0.25 }).setView([41.27,-112.12], 11);
+L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution:'&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a> contributors', maxZoom:18 }).addTo(map);
+if (typeof addUtahOutlines === 'function') addUtahOutlines(map, { alwaysLabel:['Plain City','Ogden','West Haven','Hooper','Farr West'], cityLabelZoom:11 });
+
+const groups = { pp:L.layerGroup(), wild:L.layerGroup(), park:L.layerGroup(), lake:L.layerGroup(), fema:L.layerGroup(), gslflood:L.layerGroup() };
+['pp','wild','park','lake','fema'].forEach(k => groups[k].addTo(map));
+
+// Pleasant Plains boundary (from Exhibit A)
+L.polygon([PP.north, PP.southwest, PP.southeast].map(r => r.map(p => [p[1], p[0]])), { color:'#A9822F', weight:3.5, fillColor:'#A9822F', fillOpacity:0.18 })
+  .bindTooltip('Pleasant Plains (from the legal description)', { sticky:true }).addTo(groups.pp);
+
+const notes = [];
+const loading = document.getElementById('maploading');
+function note(t){ notes.push(t); loading.textContent = notes.join(' · '); }
+async function getJSON(u){ const c = new AbortController(); const t = setTimeout(() => c.abort(), 30000); try { const r = await fetch(u, { signal:c.signal }); return await r.json(); } finally { clearTimeout(t); } }
+const ENV = encodeURIComponent(JSON.stringify({ xmin:-112.32, ymin:41.12, xmax:-111.98, ymax:41.45, spatialReference:{ wkid:4326 } }));
+const Q = (where, extra) => '/query?where=' + encodeURIComponent(where) + '&geometry=' + ENV + '&geometryType=esriGeometryEnvelope&inSR=4326&spatialRel=esriSpatialRelIntersects&outFields=*&returnGeometry=true&outSR=4326&geometryPrecision=5&f=geojson' + (extra || '');
+
+(async () => {
+  try {
+    const j = await getJSON('https://gis.trustlands.utah.gov/mapping/rest/services/Land_Ownership/MapServer/0' + Q("admin IN ('UDWR','USFWS','USP','FFSL')", '&maxAllowableOffset=0.0001'));
+    j.features.forEach(f => {
+      const a = f.properties.admin, nm = f.properties.label_state || f.properties.label_federal || '';
+      const isLake = a === 'FFSL', isPark = a === 'USP';
+      const style = isLake ? { color:'#1F7A8C', weight:1, fillColor:'#1F7A8C', fillOpacity:0.28 }
+                  : isPark ? { color:'#2F5A8F', weight:2, fillColor:'#2F5A8F', fillOpacity:0.25 }
+                  : { color:'#3F6B3B', weight:2, fillColor:'#3F6B3B', fillOpacity:0.3 };
+      const label = isLake ? 'Great Salt Lake (state sovereign land)' : (nm || 'State wildlife land');
+      L.geoJSON(f, { style }).bindTooltip(label, { sticky:true }).addTo(isLake ? groups.lake : isPark ? groups.park : groups.wild);
+    });
+  } catch (e) { note('State land layer did not load'); }
+  try {
+    const env2 = encodeURIComponent(JSON.stringify({ xmin:-112.24, ymin:41.17, xmax:-112.03, ymax:41.36, spatialReference:{ wkid:4326 } }));
+    const j = await getJSON('https://hazards.fema.gov/arcgis/rest/services/public/NFHL/MapServer/28/query?where=' + encodeURIComponent("FLD_ZONE IN ('A','AE','AO','AH','VE')") + '&geometry=' + env2 + '&geometryType=esriGeometryEnvelope&inSR=4326&spatialRel=esriSpatialRelIntersects&outFields=FLD_ZONE&returnGeometry=true&outSR=4326&geometryPrecision=5&maxAllowableOffset=0.0001&f=geojson');
+    L.geoJSON(j, { style:{ color:'#A5301E', weight:0.8, fillColor:'#A5301E', fillOpacity:0.22 } })
+      .bindTooltip(l => 'FEMA flood zone ' + l.feature.properties.FLD_ZONE, { sticky:true }).addTo(groups.fema);
+  } catch (e) { note('FEMA flood layer did not load'); }
+  try {
+    const j = await getJSON('https://services1.arcgis.com/99lidPhWCzftIe9K/ArcGIS/rest/services/GSLFlooding/FeatureServer/0' + Q("ZONE_ LIKE 'ponding%' OR ZONE_ LIKE 'transition%' OR ZONE_ LIKE 'offshore%'", '&maxAllowableOffset=0.0002'));
+    L.geoJSON(j, { style:{ color:'#6E4A78', weight:0.8, fillColor:'#6E4A78', fillOpacity:0.22 } })
+      .bindTooltip(l => 'Lake 100-year flood study: ' + l.feature.properties.ZONE_, { sticky:true }).addTo(groups.gslflood);
+  } catch (e) { note('Lake flood study layer did not load'); }
+  if (!notes.length) loading.remove();
+  groups.pp.eachLayer(l => l.bringToFront && l.bringToFront());
+})();
+
+document.querySelectorAll('#lkey input').forEach(cb => cb.addEventListener('change', () => {
+  const g = groups[cb.dataset.layer]; cb.checked ? g.addTo(map) : g.remove();
+  const st = cb.parentElement.querySelector('.st'); if (st) st.textContent = cb.checked ? '' : '(off)';
+}));
+
+const markers = {};
+let active = null;
+PINS.forEach(p => {
+  const icon = L.divIcon({ className:'pin-icon', html:`<span class="dot" style="background:${p.color}">${p.letter}</span>`, iconSize:[26,26], iconAnchor:[13,13] });
+  const m = L.marker([p.lat, p.lng], { icon, title:p.title, keyboard:true, zIndexOffset:500 }).addTo(map);
+  m.bindTooltip(p.title, { direction:'top', offset:[0,-12] });
+  m.on('click', () => select(p.id));
+  markers[p.id] = m;
+});
+function renderList(){
+  panel.innerHTML = `<div class="list-head">${PINS.length} projects &middot; click one</div>` + PINS.map(p => `<button class="pin-item" data-id="${p.id}"><span class="dot" style="background:${p.color}" aria-hidden="true">${p.letter}</span><span><b>${esc(p.title)}</b><span class="pl">${esc(p.place)}</span></span></button>`).join('');
+  panel.querySelectorAll('.pin-item').forEach(b => b.onclick = () => select(b.dataset.id, true));
+}
+function select(id, fly){
+  active = id; const p = PINS.find(x => x.id === id);
+  if (fly) map.flyTo([p.lat, p.lng], Math.max(map.getZoom(), 13), { duration:0.6 });
+  Object.entries(markers).forEach(([k, m]) => { const el = m.getElement(); if (el) el.classList.toggle('active', k === id); });
+  panel.innerHTML = `<div class="detail"><div class="top"><button id="back">&larr; All projects</button><span class="tagl">${esc(p.place.split(' · ')[0])}</span></div>
+    <h2>${esc(p.title)}</h2><p class="place">${esc(p.place)}</p>
+    <div class="sec caution"><h3>How exact</h3><p>${esc(p.exact)}</p></div>
+    <div class="sec"><h3>What the record shows</h3><ul>${p.facts.map(f => `<li>${esc(f)}</li>`).join('')}</ul></div>
+    <a class="case-btn" href="${p.link.u}" target="_blank" rel="noopener">${esc(p.link.t)} &rarr;</a></div>`;
+  document.getElementById('back').onclick = () => { active = null; renderList(); };
+  panel.scrollTop = 0;
+}
+renderList();
+const home = L.latLngBounds(PINS.map(p => [p.lat, p.lng]).concat([[41.345,-112.13],[41.20,-112.20]])).pad(0.08);
+let moved = false;
+['mousedown','touchstart','wheel','keydown'].forEach(ev => document.getElementById('map').addEventListener(ev, () => { moved = true; }, { passive:true }));
+const fit = () => { map.invalidateSize(); if (!moved) map.fitBounds(home); };
+fit(); window.addEventListener('load', fit);
+
+</script>
+<script data-goatcounter="https://weberhive.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
+</body>
+</html>
